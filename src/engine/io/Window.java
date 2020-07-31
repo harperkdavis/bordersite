@@ -2,6 +2,9 @@ package engine.io;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 
 public class Window {
 
@@ -11,6 +14,13 @@ public class Window {
 
     private int fpsFrames;
     private long fpsTime;
+
+    public Input input;
+
+    private float bkgdR, bkgdG, bkgdB;
+
+    private GLFWWindowSizeCallback sizeCallback;
+    private boolean isResized;
 
     public Window(int width, int height, String title) {
         this.width = width;
@@ -24,6 +34,7 @@ public class Window {
             return;
         }
 
+        input = new Input();
         window = GLFW.glfwCreateWindow(width, height,title, 0,0);
 
         if (window == 0) {
@@ -32,9 +43,12 @@ public class Window {
         }
 
         GLFWVidMode videoMode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-        GLFW.glfwSetWindowPos(window, (videoMode.width() - width) / 2, (videoMode.height() - height) / 2);
-
+        GLFW.glfwSetWindowPos(window, (videoMode.width() - width) / 2,(videoMode.height() - height) / 2);
         GLFW.glfwMakeContextCurrent(window);
+        GL.createCapabilities();
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        createCallbacks();
         GLFW.glfwSwapInterval(1);
 
         GLFW.glfwShowWindow(window);
@@ -42,7 +56,30 @@ public class Window {
         fpsTime = System.currentTimeMillis();
     }
 
+    private void createCallbacks() {
+        sizeCallback = new GLFWWindowSizeCallback() {
+            @Override
+            public void invoke(long window, int w, int h) {
+                width = w;
+                height = h;
+                isResized = true;
+            }
+        };
+
+        GLFW.glfwSetKeyCallback(window, input.getKeyCallback());
+        GLFW.glfwSetCursorPosCallback(window, input.getMousePosCallback());
+        GLFW.glfwSetMouseButtonCallback(window, input.getMouseButtonCallback());
+        GLFW.glfwSetScrollCallback(window, input.getMouseScrollCallback());
+        GLFW.glfwSetWindowSizeCallback(window, sizeCallback);
+    }
+
     public void update() {
+        if (isResized) {
+            GL11.glViewport(0, 0, width, height);
+            isResized = false;
+        }
+        GL11.glClearColor(bkgdR, bkgdG, bkgdB, 1.0f);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GLFW.glfwPollEvents();
 
         fpsFrames ++;
@@ -61,5 +98,33 @@ public class Window {
         return GLFW.glfwWindowShouldClose(window);
     }
 
+    public void destroy() {
+        input.destroy();
+        sizeCallback.free();
+        GLFW.glfwWindowShouldClose(window);
+        GLFW.glfwDestroyWindow(window);
+        GLFW.glfwTerminate();
+    }
 
+    public void setBackgroundColor(float r, float g, float b) {
+        bkgdR = r;
+        bkgdG = g;
+        bkgdB = b;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public long getWindow() {
+        return window;
+    }
 }
