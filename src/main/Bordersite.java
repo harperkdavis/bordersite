@@ -5,16 +5,16 @@ import engine.io.Window;
 public class Bordersite implements Runnable {
 
     public Thread game;
-    public static Window window;
-    public static final int WIDTH = 800, HEIGHT = 600;
-    public static final String TITLE = "Bordersite";
+    public Window window;
+    public final int WIDTH = 800, HEIGHT = 600;
+    public final String TITLE = "Bordersite";
 
     public void start() {
         game = new Thread(this,"game");
         game.start();
     }
 
-    public static void init() {
+    public void init() {
         System.out.println("[INFO] Initializing game!");
         window = new Window(WIDTH, HEIGHT, TITLE);
         window.create();
@@ -22,7 +22,7 @@ public class Bordersite implements Runnable {
 
     public void run() {
         init();
-        while (true) {
+        while (!window.shouldClose()) {
             update();
             render();
         }
@@ -30,11 +30,10 @@ public class Bordersite implements Runnable {
 
     private void update() {
         window.update();
-        window.swapBuffers();
     }
 
     private void render() {
-
+        window.swapBuffers();
     }
 
     public static void main(String[] args) {
