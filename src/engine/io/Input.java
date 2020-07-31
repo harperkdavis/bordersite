@@ -9,10 +9,10 @@ public class Input {
     private static double mouseX, mouseY;
     private static double scrollX, scrollY;
 
-    private GLFWKeyCallback keyboard;
-    private GLFWCursorPosCallback mousePos;
-    private GLFWMouseButtonCallback mouse;
-    private GLFWScrollCallback mouseScroll;
+    private final GLFWKeyCallback keyboard;
+    private final GLFWCursorPosCallback mousePos;
+    private final GLFWMouseButtonCallback mouse;
+    private final GLFWScrollCallback mouseScroll;
 
     public Input() {
         keyboard = new GLFWKeyCallback() {

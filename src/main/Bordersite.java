@@ -1,16 +1,30 @@
 package main;
 
+import engine.graphics.Mesh;
+import engine.graphics.Renderer;
+import engine.graphics.Vertex;
 import engine.io.Input;
 import engine.io.Window;
+import engine.math.Vector3;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.system.CallbackI;
 
 public class Bordersite implements Runnable {
 
     public Thread game;
     public Window window;
+    public Renderer renderer;
     public final int WIDTH = 800, HEIGHT = 600;
     public final String TITLE = "Bordersite";
+
+    public Mesh mesh = new Mesh(new Vertex[] {
+            new Vertex(new Vector3(-0.5f, 0.5f, 0.0f)),
+            new Vertex(new Vector3(0.5f, 0.5f, 0.0f)),
+            new Vertex(new Vector3(0.5f, -0.5f, 0.0f)),
+            new Vertex(new Vector3(-0.5f, -0.5f, 0.0f)),
+    }, new int[] {
+            0, 1, 2,
+            0, 3, 2
+    });
 
     public void start() {
         game = new Thread(this,"game");
@@ -20,8 +34,10 @@ public class Bordersite implements Runnable {
     public void init() {
         System.out.println("[INFO] Initializing game!");
         window = new Window(WIDTH, HEIGHT, TITLE);
-        window.setBackgroundColor(0.2f, 0.6f, 1f);
+        renderer = new Renderer();
+        window.setBackgroundColor(new Vector3(0.2f, 0.6f, 1f));
         window.create();
+        mesh.create();
     }
 
     public void run() {
@@ -42,6 +58,7 @@ public class Bordersite implements Runnable {
     }
 
     private void render() {
+        renderer.renderMesh(mesh);
         window.swapBuffers();
     }
 

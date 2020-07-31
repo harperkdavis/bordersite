@@ -1,5 +1,6 @@
 package engine.io;
 
+import engine.math.Vector3;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
@@ -17,7 +18,7 @@ public class Window {
 
     public Input input;
 
-    private float bkgdR, bkgdG, bkgdB;
+    private Vector3 background;
 
     private GLFWWindowSizeCallback sizeCallback;
     private boolean isResized;
@@ -78,7 +79,7 @@ public class Window {
             GL11.glViewport(0, 0, width, height);
             isResized = false;
         }
-        GL11.glClearColor(bkgdR, bkgdG, bkgdB, 1.0f);
+        GL11.glClearColor(background.x, background.y, background.z, 1.0f);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GLFW.glfwPollEvents();
 
@@ -106,10 +107,8 @@ public class Window {
         GLFW.glfwTerminate();
     }
 
-    public void setBackgroundColor(float r, float g, float b) {
-        bkgdR = r;
-        bkgdG = g;
-        bkgdB = b;
+    public void setBackgroundColor(Vector3 color) {
+        background = color;
     }
 
     public int getWidth() {
