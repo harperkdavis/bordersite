@@ -45,14 +45,19 @@ public class Window {
 
         GLFWVidMode videoMode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
         GLFW.glfwSetWindowPos(window, (videoMode.width() - width) / 2,(videoMode.height() - height) / 2);
+
         GLFW.glfwMakeContextCurrent(window);
         GL.createCapabilities();
+
         GL11.glEnable(GL11.GL_DEPTH_TEST);
 
         createCallbacks();
-        GLFW.glfwSwapInterval(1);
 
         GLFW.glfwShowWindow(window);
+
+        GLFW.glfwSwapInterval(1);
+
+
 
         fpsTime = System.currentTimeMillis();
     }
