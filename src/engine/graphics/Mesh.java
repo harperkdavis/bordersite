@@ -1,6 +1,5 @@
 package engine.graphics;
 
-import engine.math.Vector3;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
@@ -33,9 +32,9 @@ public class Mesh {
 
         float[] positionData = new float[vertices.length * 3];
         for (int i = 0; i < vertices.length; i++) {
-            positionData[i * 3] = vertices[i].getPosition().x;
-            positionData[i * 3 + 1] = vertices[i].getPosition().y;
-            positionData[i * 3 + 2] = vertices[i].getPosition().z;
+            positionData[i * 3] = vertices[i].getPosition().getX();
+            positionData[i * 3 + 1] = vertices[i].getPosition().getY();
+            positionData[i * 3 + 2] = vertices[i].getPosition().getZ();
         }
 
         positionBuffer.put(positionData).flip();
@@ -46,9 +45,9 @@ public class Mesh {
 
         float[] colorData = new float[vertices.length * 3];
         for (int i = 0; i < vertices.length; i++) {
-            colorData[i * 3] = vertices[i].getColor().x;
-            colorData[i * 3 + 1] = vertices[i].getColor().y;
-            colorData[i * 3 + 2] = vertices[i].getColor().z;
+            colorData[i * 3] = vertices[i].getColor().getX();
+            colorData[i * 3 + 1] = vertices[i].getColor().getY();
+            colorData[i * 3 + 2] = vertices[i].getColor().getZ();
         }
 
         colorBuffer.put(colorData).flip();

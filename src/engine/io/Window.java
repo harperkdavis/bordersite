@@ -1,6 +1,7 @@
 package engine.io;
 
-import engine.math.Vector3;
+import engine.math.Matrix4f;
+import engine.math.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
@@ -18,15 +19,18 @@ public class Window {
 
     public Input input;
 
-    private Vector3 background;
+    private Vector3f background;
 
     private GLFWWindowSizeCallback sizeCallback;
     private boolean isResized;
+
+    private Matrix4f projection;
 
     public Window(int width, int height, String title) {
         this.width = width;
         this.height = height;
         this.title = title;
+        projection = Matrix4f.projection(80.0f, (float) width / (float) height, 0.1f, 1000);
     }
 
     public void create() {
@@ -84,7 +88,7 @@ public class Window {
             GL11.glViewport(0, 0, width, height);
             isResized = false;
         }
-        GL11.glClearColor(background.x, background.y, background.z, 1.0f);
+        GL11.glClearColor(background.getX(), background.getY(), background.getZ(), 1.0f);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GLFW.glfwPollEvents();
 
@@ -112,7 +116,7 @@ public class Window {
         GLFW.glfwTerminate();
     }
 
-    public void setBackgroundColor(Vector3 color) {
+    public void setBackgroundColor(Vector3f color) {
         background = color;
     }
 
@@ -131,4 +135,9 @@ public class Window {
     public long getWindow() {
         return window;
     }
+
+    public Matrix4f getProjectionMatrix() {
+        return projection;
+    }
+
 }
