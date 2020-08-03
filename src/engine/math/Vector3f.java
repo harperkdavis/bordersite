@@ -1,5 +1,7 @@
 package engine.math;
 
+import java.util.Objects;
+
 public class Vector3f {
     private float x, y, z;
 
@@ -41,6 +43,10 @@ public class Vector3f {
         return this;
     }
 
+    public static Vector3f add(Vector3f a, Vector3f b) {
+        return new Vector3f(a.x + b.x, a.y + b.y, a.z + b.z);
+    }
+
     public Vector3f subtract(Vector3f a) {
         x -= a.x;
         y -= a.y;
@@ -53,6 +59,10 @@ public class Vector3f {
         this.y -= y;
         this.z -= z;
         return this;
+    }
+
+    public static Vector3f subtract(Vector3f a, Vector3f b) {
+        return new Vector3f(a.x - b.x, a.y - b.y, a.z - b.z);
     }
 
     public Vector3f multiply(Vector3f a) {
@@ -76,6 +86,10 @@ public class Vector3f {
         return this;
     }
 
+    public static Vector3f multiply(Vector3f a, Vector3f b) {
+        return new Vector3f(a.x * b.x, a.y * b.y, a.z * b.z);
+    }
+
     public Vector3f divide(Vector3f a) {
         x /= a.x;
         y /= a.y;
@@ -97,19 +111,44 @@ public class Vector3f {
         return this;
     }
 
-    public float mag() {
+    public static Vector3f divide(Vector3f a, Vector3f b) {
+        return new Vector3f(a.x / b.x, a.y / b.y, a.z / b.z);
+    }
+
+    public float magnitude() {
         return (float)Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
     }
 
-    public Vector3f norm() {
-        return new Vector3f(this).divide(mag());
+    public Vector3f normalized() {
+        return new Vector3f(this).divide(magnitude());
     }
 
     public Vector3f normalize() {
-        this.x /= mag();
-        this.y /= mag();
-        this.z /= mag();
+        divide(magnitude());
         return this;
+    }
+
+    public float dot(Vector3f other) {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    public static float dot(Vector3f a, Vector3f b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vector3f vector3f = (Vector3f) o;
+        return Float.compare(vector3f.x, x) == 0 &&
+                Float.compare(vector3f.y, y) == 0 &&
+                Float.compare(vector3f.z, z) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
     }
 
     public float getX() {

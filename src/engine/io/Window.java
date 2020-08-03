@@ -120,6 +120,10 @@ public class Window {
         background = color;
     }
 
+    public void mouseState(boolean lock) {
+        GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, lock ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL);
+    }
+
     public int getWidth() {
         return width;
     }

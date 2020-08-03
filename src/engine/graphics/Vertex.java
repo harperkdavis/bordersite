@@ -8,9 +8,9 @@ public class Vertex {
     private Vector3f position, color;
     private Vector2f uv;
 
-    public Vertex(Vector3f position, Vector3f color, Vector2f uv) {
+    public Vertex(Vector3f position, Vector2f uv) {
         this.position = position;
-        this.color = color;
+        this.color = new Vector3f(0, 0, 0);
         this.uv = uv;
     }
 

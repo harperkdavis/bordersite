@@ -19,15 +19,7 @@ public class Bordersite implements Runnable {
     public final int WIDTH = 800, HEIGHT = 600;
     public final String TITLE = "Bordersite";
 
-    public Mesh mesh = new Mesh(new Vertex[] {
-            new Vertex(new Vector3f(-0.5f, 0.5f, 0.0f), new Vector3f(1.0f, 0.0f, 0.0f), new Vector2f(0.0f, 0.0f)),
-            new Vertex(new Vector3f(0.5f, 0.5f, 0.0f), new Vector3f(0.0f, 1.0f, 0.0f), new Vector2f(1.0f, 0.0f)),
-            new Vertex(new Vector3f(0.5f, -0.5f, 0.0f), new Vector3f(0.0f, 0.0f, 1.0f), new Vector2f(1.0f, 1.0f)),
-            new Vertex(new Vector3f(-0.5f, -0.5f, 0.0f), new Vector3f(0.0f, 0.0f, 0.0f), new Vector2f(0.0f, 1.0f))
-    }, new int[] {
-            0, 1, 2,
-            0, 3, 2
-    }, new Material("/textures/test.png"));
+    public Mesh mesh = Mesh.Cube(1, new Material("/textures/test.png"));
 
     public GameObject object = new GameObject(new Vector3f(0, 0, -1), Vector3f.zero(), Vector3f.one(), mesh);
 
@@ -70,16 +62,14 @@ public class Bordersite implements Runnable {
             update();
             render();
             if (Input.isKey(GLFW.GLFW_KEY_ESCAPE)) { break; }
+            if (Input.isMouseButton(GLFW.GLFW_MOUSE_BUTTON_LEFT)) { window.mouseState(true); }
         }
         close();
     }
 
     private void update() {
+        camera.update(object);
         window.update();
-        camera.setRotation(camera.getRotation().add(0, 1, 0));
-        if (Input.isMouseButton(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
-            System.out.println("mouse down at x: " + Input.getMouseX() + " y:" + Input.getMouseY());
-        }
     }
 
     private void render() {
