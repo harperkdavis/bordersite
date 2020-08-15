@@ -3,6 +3,7 @@ package engine.math;
 import java.util.Objects;
 
 public class Vector3f {
+
     private float x, y, z;
 
     public static Vector3f zero() { return new Vector3f(0, 0, 0); }

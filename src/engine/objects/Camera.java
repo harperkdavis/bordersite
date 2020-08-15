@@ -9,7 +9,6 @@ public class Camera {
 
     private Vector3f position, rotation;
     private final float MOVE_SPEED = 0.02f, MOUSE_SENSITIVITY = 0.04f;
-    private float distance = 2.0f, angle = 0f, horizontalAngle = 0, verticalAngle = 0;
     private float preMouseX = 0, preMouseY = 0, mouseX = 0, mouseY = 0;
 
     public Camera(Vector3f position, Vector3f rotation) {
@@ -52,14 +51,6 @@ public class Camera {
         preMouseX = mouseX;
         preMouseY = mouseY;
 
-    }
-
-    public void update(GameObject object) {
-        float horizontalDistance = distance * (float) Math.cos(Math.toRadians(verticalAngle));
-        float verticalDistance = distance * (float) Math.sin(Math.toRadians(verticalAngle));
-
-        float xOffset = (float) (horizontalDistance * (float) Math.sin(Math.toRadians(-horizontalAngle)));
-        float zOffset = (float) (horizontalDistance * (float) Math.sin(Math.toRadians(-horizontalAngle)));
     }
 
     public Vector3f getPosition() {

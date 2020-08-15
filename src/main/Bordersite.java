@@ -1,13 +1,21 @@
 package main;
 
 import engine.graphics.*;
+import engine.graphics.Renderer;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.Camera;
 import engine.objects.GameObject;
+import net.Client;
+import net.packets.PacketDisconnect;
+import net.packets.PacketLogin;
 import org.lwjgl.glfw.GLFW;
+import org.newdawn.slick.Font;
+import org.newdawn.slick.TrueTypeFont;
+
+import javax.swing.*;
 
 public class Bordersite implements Runnable {
 
@@ -25,7 +33,18 @@ public class Bordersite implements Runnable {
 
     public Camera camera = new Camera(Vector3f.zero(), Vector3f.zero());
 
+    private Client socketClient;
+
+    private String username;
+
     public void start() {
+        username = "";
+        String message = "Enter username.";
+        while (!(username.length() >= 3 && username.length() <= 16)) {
+            username = JOptionPane.showInputDialog(new JFrame(), message);
+            message = "Invalid username. Try again.";
+        }
+
         game = new Thread(this,"game");
         game.start();
     }
@@ -54,6 +73,22 @@ public class Bordersite implements Runnable {
         window.setBackgroundColor(new Vector3f(0.2f, 0.6f, 1f));
 
         System.out.println("[INFO] Initialization completed!");
+
+        System.out.println("[INFO] Connecting to server...");
+        connect();
+    }
+
+    private void connect() {
+        socketClient = new Client(this, "localhost");
+        socketClient.start();
+
+        PacketLogin packet = new PacketLogin(username);
+        packet.writeData(socketClient);
+    }
+
+    private void disconnect() {
+        PacketDisconnect packet = new PacketDisconnect();
+        packet.writeData(socketClient);
     }
 
     public void run() {
@@ -68,7 +103,7 @@ public class Bordersite implements Runnable {
     }
 
     private void update() {
-        camera.update(object);
+        camera.update();
         window.update();
     }
 
@@ -78,6 +113,8 @@ public class Bordersite implements Runnable {
     }
 
     private void close() {
+        System.out.println("[INFO] Closing game...");
+        disconnect();
         window.destroy();
         mesh.destroy();
         shader.destroy();
