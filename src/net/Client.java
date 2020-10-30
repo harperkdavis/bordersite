@@ -49,10 +49,6 @@ public class Client extends Thread {
         String message = new String(data).trim();
         Packet.PacketType type = Packet.lookupPacket(message.substring(0, 2));
 
-        if (type != Packet.PacketType.CONNECT && !connected) {
-            return;
-        }
-
         switch (type) {
             case INVALID:
                 System.err.println("[ERROR] Invalid packet!");
@@ -66,6 +62,11 @@ public class Client extends Thread {
     }
 
     private void playerConnect(byte[] data) {
+
+        if (!connected) {
+            return;
+        }
+
         int playerId = ByteUtil.byteToInt(new byte[]{0, 0, data[2], data[3]});
         this.playerId = playerId;
         connected = true;
