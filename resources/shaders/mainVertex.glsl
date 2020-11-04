@@ -3,6 +3,7 @@
 in vec3 position;
 in vec3 color;
 in vec2 uv;
+in vec3 normals;
 
 out vec3 passColor;
 out vec2 passUV;

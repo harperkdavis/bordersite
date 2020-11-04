@@ -1,25 +1,24 @@
 package net;
 
-import engine.math.ByteUtil;
-import main.Bordersite;
+import com.google.gson.Gson;
+import main.Main;
 import net.packets.Packet;
-import net.packets.PacketLogin;
+import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Arrays;
 
 public class Client extends Thread {
 
     private InetAddress ipAddress;
     private DatagramSocket socket;
-    private Bordersite game;
+    private Main game;
     private boolean running = true;
 
     private boolean connected = false;
     private int playerId = 0;
 
-    public Client(Bordersite game, String ipAddress) {
+    public Client(Main game, String ipAddress) {
         this.game = game;
         try {
             this.socket = new DatagramSocket();
@@ -33,8 +32,9 @@ public class Client extends Thread {
     }
 
     public void run() {
-        while (!game.window.shouldClose()) {
-            byte[] data = new byte[1024];
+        System.out.println("[INFO] Client thread started");
+        do {
+            byte[] data = new byte[4096];
             DatagramPacket packet = new DatagramPacket(data, data.length);
             try {
                 socket.receive(packet);
@@ -42,43 +42,40 @@ public class Client extends Thread {
                 System.err.println("[ERROR] Error receiving packet: " + e);
             }
             parsePacket(packet.getData());
-        }
+        } while (running);
+        System.out.println("[INFO] Client thread stopped");
     }
 
     private void parsePacket(byte[] data) {
         String message = new String(data).trim();
-        Packet.PacketType type = Packet.lookupPacket(message.substring(0, 2));
+        JSONObject jsonData = new Gson().fromJson(message, JSONObject.class);
+        Packet.PacketType type = Packet.lookupPacket(((Double) jsonData.get("id")).intValue());
 
         switch (type) {
             case INVALID:
-                System.err.println("[ERROR] Invalid packet!");
+                System.err.println("[ERROR] Invalid packet! " + message);
                 break;
             case CONNECT:
-                playerConnect(data);
+                playerConnect(jsonData);
             case PLAYERDATA:
-                playerData(data);
+                playerData(jsonData);
                 break;
         }
     }
 
-    private void playerConnect(byte[] data) {
+    private void playerConnect(JSONObject data) {
 
-        if (!connected) {
+        if (connected) {
             return;
         }
 
-        int playerId = ByteUtil.byteToInt(new byte[]{0, 0, data[2], data[3]});
-        this.playerId = playerId;
+        playerId = ((Double) data.get("playerId")).intValue();
         connected = true;
-        System.out.println("[INFO] Connected to server!");
+        System.out.println("[INFO] Connected to server! Player ID " + playerId);
     }
 
-    private void playerData(byte[] data) {
-        int playerId = ByteUtil.byteToInt(new byte[]{0, 0, data[2], data[3]});
-        int posX = ByteUtil.byteToInt(new byte[]{data[4], data[5], data[6], data[7]});
-        int posY = ByteUtil.byteToInt(new byte[]{data[8], data[9], data[10], data[11]});
-        int posZ = ByteUtil.byteToInt(new byte[]{data[12], data[13], data[14], data[15]});
-        System.out.println("PLAYER ID: " + playerId + "; POS X: " + posX);
+    private void playerData(JSONObject data) {
+
     }
 
     public void sendData(byte[] data) {
@@ -88,6 +85,10 @@ public class Client extends Thread {
         } catch (IOException e) {
             System.err.println("[ERROR] Error sending packet: " + e);
         }
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 
 }

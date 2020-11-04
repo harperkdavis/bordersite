@@ -1,5 +1,7 @@
 package engine.objects;
 
+import java.util.ArrayList;
+import java.util.List;
 import engine.graphics.Mesh;
 import engine.math.Vector3f;
 import org.lwjgl.system.CallbackI;
@@ -14,10 +16,6 @@ public class GameObject {
         this.rotation = new Vector3f(rotation);
         this.scale = new Vector3f(scale);
         this.mesh = mesh;
-    }
-
-    public void update() {
-        position.setZ(position.getZ() - 0.01f);
     }
 
     public Vector3f getPosition() {

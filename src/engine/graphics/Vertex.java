@@ -5,12 +5,13 @@ import engine.math.Vector3f;
 
 public class Vertex {
 
-    private Vector3f position, color;
+    private Vector3f position, color, normal;
     private Vector2f uv;
 
-    public Vertex(Vector3f position, Vector2f uv) {
+    public Vertex(Vector3f position, Vector3f normal, Vector2f uv) {
         this.position = position;
         this.color = new Vector3f(0, 0, 0);
+        this.normal = normal;
         this.uv = uv;
     }
 
@@ -21,6 +22,8 @@ public class Vertex {
     public Vector3f getColor() {
         return color;
     }
+
+    public Vector3f getNormal() { return normal; }
 
     public Vector2f getUV() {
         return uv;

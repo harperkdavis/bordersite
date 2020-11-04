@@ -17,6 +17,8 @@ public class Window {
     private int fpsFrames;
     private long fpsTime;
 
+    public float frameRate = 60;
+
     public Input input;
 
     private Vector3f background;
@@ -61,7 +63,8 @@ public class Window {
 
         GLFW.glfwSwapInterval(1);
 
-
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         fpsTime = System.currentTimeMillis();
     }
@@ -95,6 +98,7 @@ public class Window {
         fpsFrames ++;
         if (System.currentTimeMillis() > fpsTime + 1000) {
             GLFW.glfwSetWindowTitle(window, title + " (FPS: " + fpsFrames + ")");
+            frameRate = fpsFrames;
             fpsFrames = 0;
             fpsTime = System.currentTimeMillis();
         }

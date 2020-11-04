@@ -1,20 +1,17 @@
 package net.packets;
 
 import net.Client;
+import org.json.simple.JSONObject;
 
 public class PacketInputs extends Packet {
 
     public PacketInputs(int packetId) {
-        super(03);
+        super(3);
     }
 
     @Override
-    public byte[] getData() {
-        return new byte[0];
+    public JSONObject getJsonData() {
+        return null;
     }
 
-    @Override
-    public void writeData(Client client) {
-
-    }
 }

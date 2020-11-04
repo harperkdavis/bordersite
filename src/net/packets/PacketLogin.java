@@ -1,23 +1,22 @@
 package net.packets;
 
 import net.Client;
+import org.json.simple.JSONObject;
 
 public class PacketLogin extends Packet {
 
     private String username;
 
     public PacketLogin(String username) {
-        super(00);
+        super(0);
         this.username = username;
     }
 
     @Override
-    public byte[] getData() {
-        return ("00" + this.username).getBytes();
-    }
-
-    @Override
-    public void writeData(Client client) {
-        client.sendData(getData());
+    public JSONObject getJsonData() {
+        JSONObject packet = new JSONObject();
+        packet.put("id", packetId);
+        packet.put("username", username);
+        return packet;
     }
 }

@@ -1,11 +1,15 @@
 package net.packets;
 
 import net.Client;
+import org.json.simple.JSONObject;
 
 public abstract class Packet {
 
     public static enum PacketType {
-        INVALID(-1), CONNECT(0), DISCONNECT(1), PLAYERDATA(2),
+        INVALID(-1),
+        CONNECT(0),
+        DISCONNECT(1),
+        PLAYERDATA(2),
         INPUTS(3);
 
         private int packetId;
@@ -25,9 +29,16 @@ public abstract class Packet {
         this.packetId = (byte) packetId;
     }
 
-    public abstract byte[] getData();
+    public abstract JSONObject getJsonData();
 
-    public abstract void writeData(Client client);
+    public byte[] getByteData() {
+        JSONObject data = getJsonData();
+        return data.toString().getBytes();
+    }
+
+    public void writeData(Client client) {
+        client.sendData(getByteData());
+    }
 
     public String readData(byte[] data) {
         String message = new String(data).trim();

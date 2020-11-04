@@ -1,127 +1,112 @@
 package main;
 
-import engine.graphics.*;
-import engine.graphics.Renderer;
 import engine.io.Input;
-import engine.io.Window;
-import engine.math.Vector2f;
 import engine.math.Vector3f;
-import engine.objects.Camera;
-import engine.objects.GameObject;
-import net.Client;
-import net.packets.PacketDisconnect;
-import net.packets.PacketLogin;
 import org.lwjgl.glfw.GLFW;
-import org.newdawn.slick.Font;
-import org.newdawn.slick.TrueTypeFont;
 
-import javax.swing.*;
+public class Bordersite {
 
-public class Bordersite implements Runnable {
+    private Main main;
+    private Vector3f position, velocity;
+    private boolean isCrouched = false;
+    private boolean isSprinting = false;
+    private boolean isGrounded = true;
 
-    public Thread game;
-    public Window window;
-    public Renderer renderer;
-    public Shader shader;
+    private float velocityForward = 0;
+    private float velocityLeft = 0;
+    private float velocityRight = 0;
+    private float velocityBack = 0;
 
-    public final int WIDTH = 800, HEIGHT = 600;
-    public final String TITLE = "Bordersite";
+    private float frames;
 
-    public Mesh mesh = Mesh.Cube(1, new Material("/textures/test.png"));
+    private float cameraHeight = 2;
+    private float headBobbing = 0;
+    private float headBobbingMultiplier = 0;
 
-    public GameObject object = new GameObject(new Vector3f(0, 0, -1), Vector3f.zero(), Vector3f.one(), mesh);
+    private final float MOVE_SPEED = 0.08f, SMOOTHING = 0.3f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.06f;
 
-    public Camera camera = new Camera(Vector3f.zero(), Vector3f.zero());
+    private long timeStart;
+    private int timeElapsed;
 
-    private Client socketClient;
+    public Bordersite(Main main) {
+        position = new Vector3f(0, 0, 0);
+        velocity = new Vector3f(0, 0, 0);
+        timeStart = System.currentTimeMillis();
+        this.main = main;
+    }
 
-    private String username;
+    public void update() {
 
-    public void start() {
-        username = "";
-        String message = "Enter username.";
-        while (!(username.length() >= 3 && username.length() <= 16)) {
-            username = JOptionPane.showInputDialog(new JFrame(), message);
-            message = "Invalid username. Try again.";
+        timeElapsed = (int) (System.currentTimeMillis() - timeStart);
+
+        float deltaTime = (1 / main.window.frameRate) * 60;
+
+        isCrouched = Input.isKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+        isSprinting = Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT);
+
+        if (isGrounded) {
+            velocity.setX(velocity.getX() / (15.0f * deltaTime));
+            velocity.setZ(velocity.getZ() / (15.0f * deltaTime));
+            position.setY(0);
+            if (Input.isKey(GLFW.GLFW_KEY_SPACE)) {
+                velocity.setY(JUMP_HEIGHT);
+                isGrounded = false;
+            }
+        } else {
+            velocity.setX(velocity.getX() / (6.0f * deltaTime));
+            velocity.setZ(velocity.getZ() / (6.0f * deltaTime));
+            velocity.setY(velocity.getY() - (0.003f * deltaTime));
+            if (position.getY() <= 0) {
+                isGrounded = true;
+                velocity.setY(0);
+            }
         }
 
-        game = new Thread(this,"game");
-        game.start();
-    }
-
-    public void init() {
-        System.out.println("[INFO] Initializing game...");
-        System.out.println("[INFO] Creating GLFW window..");
-
-        window = new Window(WIDTH, HEIGHT, TITLE);
-        window.create();
-
-        System.out.println("[INFO] GLFW window created!");
-
-        System.out.println("[INFO] Creating test mesh...");
-        mesh.create();
-        System.out.println("[INFO] Test mesh created!");
-
-        System.out.println("[INFO] Loading shader...");
-        shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-        shader.create();
-        System.out.println("[INFO] Loading shader complete.");
-
-        System.out.println("[INFO] Initializing renderer...");
-        renderer = new Renderer(window, shader);
-        System.out.println("[INFO] Renderer initialized!");
-        window.setBackgroundColor(new Vector3f(0.2f, 0.6f, 1f));
-
-        System.out.println("[INFO] Initialization completed!");
-
-        System.out.println("[INFO] Connecting to server...");
-        connect();
-    }
-
-    private void connect() {
-        socketClient = new Client(this, "localhost");
-        socketClient.start();
-
-        PacketLogin packet = new PacketLogin(username);
-        packet.writeData(socketClient);
-    }
-
-    private void disconnect() {
-        PacketDisconnect packet = new PacketDisconnect();
-        packet.writeData(socketClient);
-    }
-
-    public void run() {
-        init();
-        while (!window.shouldClose()) {
-            update();
-            render();
-            if (Input.isKey(GLFW.GLFW_KEY_ESCAPE)) { break; }
-            if (Input.isMouseButton(GLFW.GLFW_MOUSE_BUTTON_LEFT)) { window.mouseState(true); }
+        if (isCrouched || !isGrounded) {
+            isSprinting = false;
         }
-        close();
+
+        float rot = (float) Math.toRadians(main.camera.getRotation().getY());
+
+        velocityForward = lerp(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, SMOOTHING);
+        velocityLeft = lerp(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, SMOOTHING);
+        velocityRight = lerp(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0, SMOOTHING);
+        velocityBack = lerp(velocityBack, Input.isKey(GLFW.GLFW_KEY_S) ? 1 : 0, SMOOTHING);
+
+        float velocitySum = velocityForward + velocityLeft + velocityRight + velocityBack;
+        float moving = velocitySum > 0.1f  ? 1 : 0;
+
+        if (velocitySum > 1) {
+            velocityForward *= (1 / velocitySum) * Math.sqrt(2);
+            velocityLeft *= (1 / velocitySum) * Math.sqrt(2);
+            velocityRight *= (1 / velocitySum) * Math.sqrt(2);
+            velocityBack *= (1 / velocitySum) * Math.sqrt(2);
+        }
+
+        Vector3f vectorForward = new Vector3f((float) -Math.sin(rot), 0, (float) -Math.cos(rot));
+        Vector3f vectorLeft = new Vector3f((float) -Math.sin(rot + Math.PI / 2), 0, (float) -Math.cos(rot + Math.PI / 2));
+        Vector3f vectorRight = new Vector3f((float) -Math.sin(rot - Math.PI / 2), 0, (float) -Math.cos(rot - Math.PI / 2));
+        Vector3f vectorBack = new Vector3f((float) Math.sin(rot), 0, (float) Math.cos(rot));
+
+        float speed = MOVE_SPEED * (isCrouched ? CROUCH_SPEED : 1) * (isSprinting ? SPRINT_SPEED : 1);
+
+        velocity.add(vectorForward.multiply(velocityForward).multiply(speed).multiply(1 / main.window.frameRate).multiply(60));
+        velocity.add(vectorLeft.multiply(velocityLeft).multiply(speed).multiply(1 / main.window.frameRate).multiply(60));
+        velocity.add(vectorRight.multiply(velocityRight).multiply(speed).multiply(1 / main.window.frameRate).multiply(60));
+        velocity.add(vectorBack.multiply(velocityBack).multiply(speed).multiply(1 / main.window.frameRate).multiply(60));
+
+        headBobbingMultiplier = lerp(headBobbingMultiplier, moving, 0.1f);
+        headBobbing = (float) (Math.sin(timeElapsed / (80f * (isSprinting ? 0.6f : 1))) * 0.1f * (isCrouched ? 0.5f : 1f) * headBobbingMultiplier);
+
+        cameraHeight = lerp(cameraHeight, isCrouched ? 1.5f : 2, 0.02f);
+
+        position.add(velocity);
+
+        main.camera.setPosition(new Vector3f(position).add(0, cameraHeight + (isGrounded ? headBobbing : 0),0));
     }
 
-    private void update() {
-        camera.update();
-        window.update();
-    }
-
-    private void render() {
-        renderer.renderMesh(object, camera);
-        window.swapBuffers();
-    }
-
-    private void close() {
-        System.out.println("[INFO] Closing game...");
-        disconnect();
-        window.destroy();
-        mesh.destroy();
-        shader.destroy();
-    }
-
-    public static void main(String[] args) {
-        new Bordersite().start();
+    private float lerp(float a, float b, float f) {
+        return a + f * (b - a);
     }
 
 }

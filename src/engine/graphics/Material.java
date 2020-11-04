@@ -7,6 +7,7 @@ import org.newdawn.slick.opengl.TextureLoader;
 
 import java.io.IOException;
 
+// Stores Materials that create the appearance of an Object
 public class Material {
 
     private String texturePath;
@@ -18,6 +19,7 @@ public class Material {
         texturePath = path;
     }
 
+    // Creates the material and loads it
     public void create() {
         try {
             texture = TextureLoader.getTexture(texturePath.split("[.]")[1], Material.class.getResourceAsStream(texturePath), GL11.GL_LINEAR);
@@ -29,6 +31,7 @@ public class Material {
         textureID = texture.getTextureID();
     }
 
+    // Unloads the
     public void destroy() {
         GL13.glDeleteTextures(textureID);
     }
