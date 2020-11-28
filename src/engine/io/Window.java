@@ -17,6 +17,9 @@ public class Window {
     private int fpsFrames;
     private long fpsTime;
 
+    private long pastFrame;
+    public float deltaTime;
+
     public float frameRate = 60;
 
     public Input input;
@@ -27,12 +30,18 @@ public class Window {
     private boolean isResized;
 
     private Matrix4f projection;
+    private Matrix4f ortho;
+
+    public float fov = 80.0f;
 
     public Window(int width, int height, String title) {
         this.width = width;
         this.height = height;
         this.title = title;
-        projection = Matrix4f.projection(80.0f, (float) width / (float) height, 0.1f, 1000);
+        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 1000);
+        //ortho = Matrix4f.ortho(-1, 1, -1, 1, 0.001f, 1000);
+        ortho = Matrix4f.ortho(-(16.0f / 9.0f) / (9.0f / 16.0f), (16.0f / 9.0f) / (9.0f / 16.0f), -1.0f, 1.0f, 0.0001f, 1000);
+        pastFrame = System.currentTimeMillis();
     }
 
     public void create() {
@@ -87,6 +96,7 @@ public class Window {
     }
 
     public void update() {
+        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 1000);
         if (isResized) {
             GL11.glViewport(0, 0, width, height);
             isResized = false;
@@ -94,6 +104,10 @@ public class Window {
         GL11.glClearColor(background.getX(), background.getY(), background.getZ(), 1.0f);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GLFW.glfwPollEvents();
+
+        deltaTime = System.currentTimeMillis() - pastFrame;
+        deltaTime /= 1000f;
+        pastFrame = System.currentTimeMillis();
 
         fpsFrames ++;
         if (System.currentTimeMillis() > fpsTime + 1000) {
@@ -146,6 +160,18 @@ public class Window {
 
     public Matrix4f getProjectionMatrix() {
         return projection;
+    }
+
+    public Matrix4f getOrthoMatrix() {
+        return ortho;
+    }
+
+    public float getPixelHeight() {
+        return 4f / height;
+    }
+
+    public float getPixelHeight(float amount) {
+        return (4f / height) * amount;
     }
 
 }

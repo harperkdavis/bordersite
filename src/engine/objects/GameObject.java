@@ -8,14 +8,22 @@ import org.lwjgl.system.CallbackI;
 
 public class GameObject {
 
-    private Vector3f position, rotation, scale;
-    private Mesh mesh;
+    public Vector3f position, rotation, scale;
+    public Mesh mesh;
 
     public GameObject(Vector3f position, Vector3f rotation, Vector3f scale, Mesh mesh) {
         this.position = new Vector3f(position);
         this.rotation = new Vector3f(rotation);
         this.scale = new Vector3f(scale);
         this.mesh = mesh;
+    }
+
+    public void load() {
+        mesh.create();
+    }
+
+    public void unload() {
+        mesh.destroy();
     }
 
     public Vector3f getPosition() {

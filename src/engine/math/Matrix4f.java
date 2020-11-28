@@ -66,7 +66,7 @@ public class Matrix4f {
     public static Matrix4f transform(Vector3f position, Vector3f rotation, Vector3f scale) {
         Matrix4f result = Matrix4f.identity();
 
-        Matrix4f translationMatrix = Matrix4f.translate(position);
+        Matrix4f translationMatrix = Matrix4f.translate(new Vector3f(position).divide(scale));
         Matrix4f rotXMatrix = Matrix4f.rotate(rotation.getX(), new Vector3f(1, 0, 0));
         Matrix4f rotYMatrix = Matrix4f.rotate(rotation.getY(), new Vector3f(0, 1, 0));
         Matrix4f rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f(0, 0, 1));
@@ -74,7 +74,7 @@ public class Matrix4f {
 
         Matrix4f rotationMatrix = Matrix4f.multiply(rotXMatrix, Matrix4f.multiply(rotYMatrix, rotZMatrix));
 
-        result = Matrix4f.multiply(translationMatrix, Matrix4f.multiply(rotationMatrix, scaleMatrix));
+        result = Matrix4f.multiply(rotationMatrix, Matrix4f.multiply(translationMatrix, scaleMatrix));
 
         return result;
     }
@@ -91,6 +91,21 @@ public class Matrix4f {
         result.set(2, 3, -1);
         result.set(3, 2, -((2 * far * near) / range));
         result.set(3, 3, 0);
+
+        return result;
+    }
+
+    public static Matrix4f ortho(float left, float right, float top, float bottom, float near, float far) {
+        Matrix4f result = Matrix4f.identity();
+
+        float range = far - near;
+
+        result.set(0, 0, 2.0f / (right - left));
+        result.set(1, 1, 1.0f / (top - bottom));
+        result.set(2, 2, -2.0f / range);
+        result.set(3, 0, -(right + left) / (right - left));
+        result.set(3, 1, -(top + bottom) / (top - bottom));
+        result.set(3, 2, -(far + near) / (far - near));
 
         return result;
     }

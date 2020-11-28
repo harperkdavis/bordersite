@@ -16,10 +16,12 @@ import java.util.Arrays;
 public class Renderer {
     private Shader shader;
     private Window window;
+    private boolean ortho;
 
-    public Renderer(Window window, Shader shader) {
+    public Renderer(Window window, Shader shader, boolean ortho) {
         this.shader = shader;
         this.window = window;
+        this.ortho = ortho;
     }
 
     public void renderMesh(GameObject object, Camera camera) {
@@ -34,9 +36,14 @@ public class Renderer {
 
         Matrix4f model = Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale());
         shader.bind();
+        if (ortho) {
+            shader.setUniform("view", Matrix4f.view(Vector3f.zero(), new Vector3f(0, 180, 180)));
+            shader.setUniform("projection", window.getOrthoMatrix());
+        } else {
+            shader.setUniform("view", Matrix4f.view(camera.getPosition(), camera.getRotation()));
+            shader.setUniform("projection", window.getProjectionMatrix());
+        }
         shader.setUniform("model", model);
-        shader.setUniform("view", Matrix4f.view(camera.getPosition(), camera.getRotation()));
-        shader.setUniform("projection", window.getProjectionMatrix());
         GL11.glDrawElements(GL11.GL_TRIANGLES, object.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
         shader.unbind();
 

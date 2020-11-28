@@ -6,7 +6,6 @@ import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector3f;
 import engine.objects.Camera;
-import engine.objects.GameObject;
 import net.Client;
 import net.packets.PacketDisconnect;
 import net.packets.PacketLogin;
@@ -19,9 +18,12 @@ public class Main implements Runnable {
     public Thread game;
     public Window window;
     public Renderer renderer;
+    public Renderer uirenderer;
     public Shader shader;
+    public Shader uishader;
 
-    public final int WIDTH = 1280, HEIGHT = 720;
+    public final int WIDTH = 1600, HEIGHT = 900;
+    public final float PIXEL = 4.0f / 900.0f;
     public final String TITLE = "Bordersite";
 
     public World world;
@@ -29,11 +31,16 @@ public class Main implements Runnable {
     public Camera camera = new Camera(new Vector3f(0, 0, 0), Vector3f.zero());
 
     private Client socketClient;
-    private Bordersite bordersite;
+    public PlayerMovement playerMovement;
 
     private String username;
 
+    private long startTime;
+    public int elapsedTime;
+
     public void start() {
+        startTime = System.currentTimeMillis();
+
         username = "";
         String message = "Enter username.";
         while (!(username.length() >= 3 && username.length() <= 16)) {
@@ -41,7 +48,7 @@ public class Main implements Runnable {
             message = "Invalid username. Try again.";
         }
 
-        bordersite = new Bordersite(this);
+        playerMovement = new PlayerMovement(this);
 
         world = new World(this);
         game = new Thread(this,"game");
@@ -64,10 +71,13 @@ public class Main implements Runnable {
         System.out.println("[INFO] Loading shader...");
         shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
         shader.create();
+        uishader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
+        uishader.create();
         System.out.println("[INFO] Loading shader complete.");
 
         System.out.println("[INFO] Initializing renderer...");
-        renderer = new Renderer(window, shader);
+        renderer = new Renderer(window, shader, false);
+        uirenderer = new Renderer(window, uishader, true);
         System.out.println("[INFO] Renderer initialized!");
         window.setBackgroundColor(new Vector3f(0.8f, 0.8f, 0.8f));
 
@@ -97,6 +107,7 @@ public class Main implements Runnable {
     public void run() {
         init();
         while (!window.shouldClose()) {
+            elapsedTime = (int) (System.currentTimeMillis() - startTime);
             update();
             render();
             if (Input.isKey(GLFW.GLFW_KEY_ESCAPE)) { break; }
@@ -108,8 +119,8 @@ public class Main implements Runnable {
     private void update() {
         camera.update();
         window.update();
-        world.render();
-        bordersite.update();
+        world.update();
+        playerMovement.update();
     }
 
     private void render() {
