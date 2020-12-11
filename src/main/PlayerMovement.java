@@ -30,7 +30,10 @@ public class PlayerMovement {
     private float headBobbing = 0;
     private float headBobbingMultiplier = 0;
 
-    private final float MOVE_SPEED = 0.08f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.06f;
+    private final float MOVE_SPEED = 0.06f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.12f;
+    private final float GRAVITY = 0.003f;
+
+    private float averageFPS = 120f;
 
     private long timeStart;
     private int timeElapsed;
@@ -57,28 +60,33 @@ public class PlayerMovement {
 
         timeElapsed = (int) (System.currentTimeMillis() - timeStart);
 
-        float deltaTime = main.window.deltaTime * 60;
+        averageFPS = lerp(averageFPS, main.window.frameRate, 0.02f);
+
+        float deltaTime = 60 / averageFPS;
+
+        System.out.println("[INFO] Current Delta Time: " + averageFPS);
 
         isCrouched = Input.isKey(GLFW.GLFW_KEY_LEFT_CONTROL);
         isSprinting = Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT);
         isAiming = Input.isMouseButton(1);
 
-        boolean feetWithinWall = wallRegion.isWithin(new Vector3f(position).add(0, 0.04f, 0));
+        boolean feetWithinWall = wallRegion.isWithin(new Vector3f(position).add(0, -0.02f, 0));
 
         isGrounded = position.getY() <= 0 || feetWithinWall;
 
         if (isGrounded) {
             if (Input.isKey(GLFW.GLFW_KEY_SPACE)) {
                 jump();
+                isGrounded = false;
             } else {
-                velocity.setX(velocity.getX() / (1 + (5.0f * deltaTime)));
-                velocity.setZ(velocity.getZ() / (1 + (5.0f * deltaTime)));
+                velocity.setX(velocity.getX() / (1 + (5.0f)));
+                velocity.setZ(velocity.getZ() / (1 + (5.0f)));
                 velocity.setY(0);
             }
         } else {
-            velocity.setX(velocity.getX() / (1 + (1.5f * deltaTime)));
-            velocity.setZ(velocity.getZ() / (1 + (1.5f * deltaTime)));
-            velocity.setY(velocity.getY() - (0.003f * deltaTime));
+            velocity.setX(velocity.getX() / (1 + (1.5f)));
+            velocity.setZ(velocity.getZ() / (1 + (1.5f)));
+            velocity.setY(velocity.getY() - (GRAVITY));
         }
 
         if (isCrouched || !isGrounded || isAiming) {
@@ -109,10 +117,10 @@ public class PlayerMovement {
 
         float speed = MOVE_SPEED * (isCrouched ? CROUCH_SPEED : 1) * (isSprinting ? SPRINT_SPEED : 1) * (isAiming ? 0.5f : 1);
 
-        velocity.add(vectorForward.multiply(velocityForward).multiply(speed).multiply(main.window.deltaTime).multiply(60));
-        velocity.add(vectorLeft.multiply(velocityLeft).multiply(speed).multiply(main.window.deltaTime).multiply(60));
-        velocity.add(vectorRight.multiply(velocityRight).multiply(speed).multiply(main.window.deltaTime).multiply(60));
-        velocity.add(vectorBack.multiply(velocityBack).multiply(speed).multiply(main.window.deltaTime).multiply(60));
+        velocity.add(vectorForward.multiply(velocityForward).multiply(speed));
+        velocity.add(vectorLeft.multiply(velocityLeft).multiply(speed));
+        velocity.add(vectorRight.multiply(velocityRight).multiply(speed));
+        velocity.add(vectorBack.multiply(velocityBack).multiply(speed));
 
         headBobbingMultiplier = lerp(headBobbingMultiplier, moving, 0.2f * deltaTime);
         headBobbing = (float) (Math.sin(timeElapsed / (80f * (isSprinting ? 0.6f : 1))) * 0.05f * (isCrouched ? 0.5f : 1f) * headBobbingMultiplier);
@@ -130,11 +138,7 @@ public class PlayerMovement {
         float recoilValue = (isAiming ? 0.4f : 0.8f) + (velocitySum > 0.5f ? 0.5f : 0.0f) + (isCrouched ? -0.1f : 0.0f) + (isGrounded ? 0.0f : 1.0f) + (isSprinting ? 0.5f : 0.0f);
         recoil = lerp(recoil, recoilValue, 0.1f * deltaTime);
 
-        Vector3f predictedPosition = new Vector3f(position).add(velocity);
-
-        predictedPosition = wallRegion.collision(predictedPosition, 0.1f);
-
-        position = new Vector3f(predictedPosition);
+        position = wallRegion.collision(position, new Vector3f(velocity).multiply(deltaTime), 0.1f);
 
         main.camera.setPosition(new Vector3f(position).add(0, cameraHeight + (isGrounded ? headBobbing : 0),0));
     }
@@ -146,6 +150,7 @@ public class PlayerMovement {
     private void jump() {
         float magnitude = new Vector2f(velocity.getX(), velocity.getZ()).magnitude();
         velocity.setY(JUMP_HEIGHT * (1 + (magnitude)));
+        System.out.println("[INFO] Jump Velocity: " + velocity.getY());
         velocity.set(velocity.getX(), velocity.getY(), velocity.getZ());
         isGrounded = false;
     }

@@ -47,39 +47,35 @@ public class Region3f {
         return distance * distance < radius * radius;
     }
 
-    public Vector3f collision(Vector3f point, float threshold) {
-        if (!isWithin(point, threshold)) {
-            return point;
+    public Vector3f collision(Vector3f point, Vector3f movement, float threshold) {
+
+        Vector3f pointMovement = Vector3f.add(point, movement);
+
+        if (!isWithin(pointMovement, threshold)) {
+            return pointMovement;
         }
 
-        Vector3f newPoint = new Vector3f(point);
+        Vector3f newPoint = new Vector3f(pointMovement);
 
-        float xVector = Math.min(Math.abs(point.getX() - minX), Math.abs(point.getX() - maxX));
-        float yVector = Math.min(Math.abs(point.getY() - minY), Math.abs(point.getY() - maxY));
-        float zVector = Math.min(Math.abs(point.getZ() - minZ), Math.abs(point.getZ() - maxZ));
-
-        threshold += 0.2f;
-
-        if (yVector <= xVector && yVector <= zVector) { // Push Y
-            if (Math.abs(point.getY() - minY) >= Math.abs(point.getY() - maxY)) { // Push Y to MAX
-                newPoint.setY(maxY + threshold);
-            } else { // Push Y to MIN
-                newPoint.setY(minY - threshold);
+        if (pointMovement.getY() >= minY && pointMovement.getY() <= maxY) {
+            // MINX SIDE
+            if (Mathf.intersect(minX, minZ, minX, maxZ, point.getX(), point.getZ(), pointMovement.getX(), pointMovement.getZ())) {
+                newPoint.setX(minX - 0.001f);
             }
-        } else if (xVector <= yVector && xVector <= zVector) { // Push X
-            if (Math.abs(point.getX() - minX) >= Math.abs(point.getX() - maxX)) { // Push X to MAX
-                newPoint.setX(maxX + threshold);
-            } else { // Push X to MIN
-                newPoint.setX(minX - threshold);
+            // MAXX SIDE
+            if (Mathf.intersect(maxX, minZ, maxX, maxZ, point.getX(), point.getZ(), pointMovement.getX(), pointMovement.getZ())) {
+                newPoint.setX(maxX + 0.001f);
             }
-        } else if (zVector <= xVector && zVector <= yVector) { // Push Z
-            if (Math.abs(point.getZ() - minZ) >= Math.abs(point.getZ() - maxZ)) { // Push Z to MAX
-                newPoint.setZ(maxZ + threshold);
-            } else { // Push Z to MIN
-                newPoint.setZ(minZ - threshold);
+            // MINZ SIDE
+            if (Mathf.intersect(minX, minZ, maxX, minZ, point.getX(), point.getZ(), pointMovement.getX(), pointMovement.getZ())) {
+                newPoint.setZ(minZ - 0.001f);
+            }
+            // MAXZ SIDE
+            if (Mathf.intersect(minX, maxZ, maxX, maxZ, point.getX(), point.getZ(), pointMovement.getX(), pointMovement.getZ())) {
+                newPoint.setZ(maxZ + 0.001f);
             }
         }
-
         return newPoint;
     }
+
 }

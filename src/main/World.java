@@ -19,7 +19,7 @@ public class World {
 
     private Material wallMaterial = new Material("/textures/stone.png");
     public Mesh wallMesh = MeshBuilder.Cube(1, wallMaterial);
-    public GameObject wallObject = new GameObject(new Vector3f(10, 0, 10), Vector3f.zero(), new Vector3f(5, 5, 5), wallMesh);
+    public GameObject wallObject = new GameObject(new Vector3f(10, -1.25f, 10), Vector3f.zero(), new Vector3f(5, 5, 5), wallMesh);
     public Region3f wallRegion = new Region3f(new Vector3f(7.5f, 2.5f, 7.5f), new Vector3f( 12.5f, -2.5f, 12.5f));
 
     public GameObject test = new GameObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), MeshBuilder.Cube(1, new Material("/textures/test.png")));
@@ -28,6 +28,7 @@ public class World {
 
     public List<Mesh> tallGrassMeshes = new ArrayList<>();
     public List<GameObject> grassObjects = new ArrayList<>();
+
     private final int GRASS_COUNT = 10;
 
     public World(Main main) {
