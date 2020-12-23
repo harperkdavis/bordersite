@@ -22,6 +22,12 @@ public class GameObject {
         mesh.create();
     }
 
+    public void setMesh(Mesh mesh) {
+        this.mesh.destroy();
+        this.mesh = mesh;
+        this.mesh.create();
+    }
+
     public void unload() {
         mesh.destroy();
     }

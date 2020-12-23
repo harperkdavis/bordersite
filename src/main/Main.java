@@ -27,6 +27,7 @@ public class Main implements Runnable {
     public final String TITLE = "Bordersite";
 
     public World world;
+    private UserInterface ui;
 
     public Camera camera = new Camera(new Vector3f(0, 0, 0), Vector3f.zero());
 
@@ -51,6 +52,7 @@ public class Main implements Runnable {
         playerMovement = new PlayerMovement(this);
 
         world = new World(this);
+        ui = new UserInterface(this);
         game = new Thread(this,"game");
         game.start();
     }
@@ -65,6 +67,7 @@ public class Main implements Runnable {
         System.out.println("[INFO] GLFW window created!");
 
         System.out.println("[INFO] Loading world...");
+        ui.load();
         world.load();
         System.out.println("[INFO] World created!");
 
@@ -111,7 +114,8 @@ public class Main implements Runnable {
             update();
             render();
             if (Input.isKey(GLFW.GLFW_KEY_ESCAPE)) { break; }
-            if (Input.isMouseButton(GLFW.GLFW_MOUSE_BUTTON_LEFT)) { window.mouseState(true); }
+            if (Input.isMouseButton(GLFW.GLFW_MOUSE_BUTTON_LEFT)) { window.mouseState(socketClient.isConnected()); }
+            if (Input.isKey(GLFW.GLFW_KEY_E)) { window.mouseState(false); }
         }
         close();
     }
@@ -119,12 +123,18 @@ public class Main implements Runnable {
     private void update() {
         camera.update();
         window.update();
-        world.update();
-        playerMovement.update();
+        ui.update();
+        if (socketClient.isConnected()) {
+            playerMovement.update();
+            world.update();
+        }
     }
 
     private void render() {
-        world.render();
+        if (socketClient.isConnected()) {
+            world.render();
+        }
+        ui.render(uirenderer);
         window.swapBuffers();
     }
 
@@ -134,6 +144,7 @@ public class Main implements Runnable {
         System.out.println("[INFO] Disconnected from server");
         window.destroy();
         world.unload();
+        ui.unload();
         shader.destroy();
         System.out.println("[INFO] Game Closed");
     }
@@ -142,4 +153,7 @@ public class Main implements Runnable {
         new Main().start();
     }
 
+    public Client getSocketClient() {
+        return socketClient;
+    }
 }

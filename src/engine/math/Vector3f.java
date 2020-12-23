@@ -7,6 +7,7 @@ public class Vector3f {
     private float x, y, z;
 
     public static Vector3f zero() { return new Vector3f(0, 0, 0); }
+    public static Vector3f uirzero() { return new Vector3f(90, 0, 0); }
     public static Vector3f one() { return new Vector3f(1, 1, 1); }
     public static Vector3f oneX() { return new Vector3f(1, 0, 0); }
     public static Vector3f oneY() { return new Vector3f(0, 1, 0); }

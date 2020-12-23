@@ -24,8 +24,6 @@ public class World {
 
     public GameObject test = new GameObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), MeshBuilder.Cube(1, new Material("/textures/test.png")));
 
-    private UserInterface ui;
-
     public List<Mesh> tallGrassMeshes = new ArrayList<>();
     public List<GameObject> grassObjects = new ArrayList<>();
 
@@ -33,14 +31,13 @@ public class World {
 
     public World(Main main) {
         this.main = main;
-        ui = new UserInterface(main);
     }
 
     public void load() {
         groundPlane.load();
         wallObject.load();
         test.load();
-        ui.load();
+
         Random random = new Random();
         for (int i = 0; i < GRASS_COUNT; i++) {
             Mesh mesh = MeshBuilder.Plane(1f, new Material("/textures/tallgrass.png"));
@@ -51,7 +48,6 @@ public class World {
     }
 
     public void update() {
-        ui.update();
         test.position = wallRegion.closestPoint(main.playerMovement.getPosition());
     }
 
@@ -62,14 +58,13 @@ public class World {
         for (GameObject object : grassObjects) {
             main.renderer.renderMesh(object, main.camera);
         }
-        ui.render(main.uirenderer);
+
     }
 
     public void unload() {
         groundPlane.unload();
         wallObject.unload();
         test.unload();
-        ui.unload();
         for (Mesh mesh : tallGrassMeshes) {
             mesh.destroy();
         }

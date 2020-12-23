@@ -13,7 +13,8 @@ public class Client extends Thread {
     private InetAddress ipAddress;
     private DatagramSocket socket;
     private Main game;
-    private boolean running = true;
+
+    public boolean running = true;
 
     private boolean connected = false;
     private int playerId = 0;
@@ -78,6 +79,10 @@ public class Client extends Thread {
 
     }
 
+    public void sendJsonData(JSONObject data) {
+        sendData(data.toJSONString().getBytes());
+    }
+
     public void sendData(byte[] data) {
         DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, 7777);
         try {
@@ -91,4 +96,11 @@ public class Client extends Thread {
         this.running = running;
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public int getPlayerId() {
+        return playerId;
+    }
 }
