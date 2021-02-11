@@ -5,6 +5,7 @@ import engine.math.Vector3f;
 
 public class MeshBuilder {
 
+    // Creates a cube
     public static Mesh Cube(float size, Material m) {
         Mesh mesh = new Mesh(new Vertex[] {
                 //Back face
@@ -70,6 +71,7 @@ public class MeshBuilder {
         return mesh;
     }
 
+    // Creates a rectangular prism
     public static Mesh Rect(Vector3f a, Vector3f b, Material m) {
         Mesh mesh = new Mesh(new Vertex[] {
                 //Back face
@@ -135,6 +137,7 @@ public class MeshBuilder {
         return mesh;
     }
 
+    // Creates a plane
     public static Mesh Plane(float size, Material m) {
         Mesh mesh = new Mesh(new Vertex[] {
                 new Vertex(new Vector3f(-0.5f * size,  0.0f,  0.5f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
@@ -148,6 +151,7 @@ public class MeshBuilder {
         return mesh;
     }
 
+    // Creates a tiled plane
     public static Mesh TiledPlane(int size, Material m) {
         Vertex[] vertices = new Vertex[size * size * 4];
         int[] tris = new int[size * size * 6];
@@ -172,6 +176,7 @@ public class MeshBuilder {
         return new Mesh(vertices, tris, m);
     }
 
+    // Creates the mesh for the player head
     public static Mesh PlayerHead(Material m) {
         float size = 0.5f;
         float atlasScale = 20.0f / 256.0f;
@@ -239,6 +244,7 @@ public class MeshBuilder {
         return mesh;
     }
 
+    // Creates the mesh for the player torso
     public static Mesh PlayerTorso(Material m) {
         float atlasScale = 20.0f / 256.0f;
         Mesh mesh = new Mesh(new Vertex[] {
@@ -305,6 +311,7 @@ public class MeshBuilder {
         return mesh;
     }
 
+    // Creates the mesh for the player arm
     public static Mesh PlayerArm(Material m) {
         float atlasScale = 20.0f / 256.0f;
         Mesh mesh = new Mesh(new Vertex[] {
@@ -371,6 +378,7 @@ public class MeshBuilder {
         return mesh;
     }
 
+    // Creates the mesh for the player leg
     public static Mesh PlayerLeg(Material m) {
         float atlasScale = 20.0f / 256.0f;
         Mesh mesh = new Mesh(new Vertex[] {
@@ -437,6 +445,7 @@ public class MeshBuilder {
         return mesh;
     }
 
+    // Creates the mesh for text
     public static Mesh TextMesh(String text, float characterHeight, TextMode textMode) {
         text = " " + text;
         Material textMaterial = new Material("/textures/gamefont.png");

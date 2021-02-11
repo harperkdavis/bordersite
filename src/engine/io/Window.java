@@ -10,6 +10,8 @@ import org.lwjgl.opengl.GL11;
 
 public class Window {
 
+    private static Window gameWindow;
+
     private int width, height;
     private String title;
     private long window;
@@ -32,19 +34,21 @@ public class Window {
     private Matrix4f projection;
     private Matrix4f ortho;
 
-    public float fov = 80.0f;
+    private float fov = 80.0f;
 
     public Window(int width, int height, String title) {
         this.width = width;
         this.height = height;
         this.title = title;
+
         projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 1000);
-        //ortho = Matrix4f.ortho(-1, 1, -1, 1, 0.001f, 1000);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000);
+
         pastFrame = System.currentTimeMillis();
     }
 
     public void create() {
+
         if (!GLFW.glfwInit()) {
             System.err.println("[ERROR] GLFW wasn't initialized.");
             return;
@@ -174,4 +178,19 @@ public class Window {
         return (4f / height) * amount;
     }
 
+    public float getFov() {
+        return fov;
+    }
+
+    public void setFov(float fov) {
+        this.fov = fov;
+    }
+
+    public static Window getGameWindow() {
+        return gameWindow;
+    }
+
+    public static void setGameWindow(Window gameWindow) {
+        Window.gameWindow = gameWindow;
+    }
 }

@@ -8,11 +8,13 @@ import engine.math.Vector3f;
 import engine.objects.GameObject;
 import engine.objects.GameObjectGroup;
 import engine.objects.GameObjectMesh;
+import net.Client;
 
 public class UserInterface {
 
+    private static UserInterface ui;
+
     private final float PIXEL = 0.0025f;
-    private Main main;
 
     private static List<GameObject> uiObjects = new ArrayList<>();
     private List<GameObject> crosshair = new ArrayList<>();
@@ -20,23 +22,22 @@ public class UserInterface {
     private GameObjectMesh gameScreen;
     private GameObjectMesh gameText;
 
-    public UserInterface(Main main) {
+    public UserInterface() {
 
         crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(0, 0, 1), new Vector3f(90, 0, 0), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
                 MeshBuilder.Plane(1, new Material("/textures/crosshair-mid.png")))));
-        crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(0, -PIXEL * 24 * main.playerMovement.getRecoil(), 1), new Vector3f(90, 0, 90), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
+        crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(0, -PIXEL * 24 * PlayerMovement.getPlayerMovement().getRecoil(), 1), new Vector3f(90, 0, 90), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
                 MeshBuilder.Plane(1, new Material("/textures/crosshair-out.png"))))); // Top
-        crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(0, PIXEL * 24 * main.playerMovement.getRecoil(), 1), new Vector3f(90, 0, 90), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
+        crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(0, PIXEL * 24 * PlayerMovement.getPlayerMovement().getRecoil(), 1), new Vector3f(90, 0, 90), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
                 MeshBuilder.Plane(1, new Material("/textures/crosshair-out.png"))))); // Bottom
-        crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(-PIXEL * 24 * main.playerMovement.getRecoil(), 0, 1), new Vector3f(90, 0, 0), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
+        crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(-PIXEL * 24 * PlayerMovement.getPlayerMovement().getRecoil(), 0, 1), new Vector3f(90, 0, 0), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
                 MeshBuilder.Plane(1, new Material("/textures/crosshair-out.png"))))); // Left
-        crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(PIXEL * 24 * main.playerMovement.getRecoil(), 0, 1), new Vector3f(90, 0, 0), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
+        crosshair.add(addObjectWithoutLoading(new GameObjectMesh(new Vector3f(PIXEL * 24 * PlayerMovement.getPlayerMovement().getRecoil(), 0, 1), new Vector3f(90, 0, 0), new Vector3f(PIXEL * 8, PIXEL * 8, PIXEL * 8),
                 MeshBuilder.Plane(1, new Material("/textures/crosshair-out.png"))))); // Right
 
         gameScreen = new GameObjectMesh(Vector3f.oneZ(), Vector3f.uirzero(), Vector3f.one().multiply(5), MeshBuilder.Plane(2, new Material("/textures/black.png")));
         gameText = new GameObjectMesh(Vector3f.oneZ(), Vector3f.zero(), Vector3f.one(), MeshBuilder.TextMesh("connecting to server...", PIXEL * 15, TextMode.CENTER));
 
-        this.main = main;
     }
 
     public void load() {
@@ -52,8 +53,9 @@ public class UserInterface {
     }
 
     public void update() {
-        if (main.getSocketClient().isConnected()) {
-            float recoilOffset = main.playerMovement.getRecoil() > 1 ? main.playerMovement.getRecoil() * main.playerMovement.getRecoil() : main.playerMovement.getRecoil();
+        if (Client.getSocketClient().isConnected()) {
+            float recoil = PlayerMovement.getPlayerMovement().getRecoil();
+            float recoilOffset = recoil > 1 ? recoil * recoil : recoil;
             crosshair.get(1).setPosition(new Vector3f(0, PIXEL * 24 * recoilOffset, 1));
             crosshair.get(2).setPosition(new Vector3f(0, -PIXEL * 24 * recoilOffset, 1));
             crosshair.get(3).setPosition(new Vector3f(-PIXEL * 24 * recoilOffset, 0, 1));
@@ -65,7 +67,7 @@ public class UserInterface {
     }
 
     public void render(Renderer renderer) {
-        if (main.getSocketClient().isConnected()) {
+        if (Client.getSocketClient().isConnected()) {
             for (GameObject o : uiObjects) {
                 renderer.renderMesh(o, null);
             }
@@ -109,5 +111,13 @@ public class UserInterface {
         } else if (object instanceof GameObjectMesh) {
             ((GameObjectMesh) object).unload();
         }
+    }
+
+    public static UserInterface getUi() {
+        return ui;
+    }
+
+    public static void setUi(UserInterface ui) {
+        UserInterface.ui = ui;
     }
 }

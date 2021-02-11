@@ -20,12 +20,16 @@ public class Renderer {
     private Window window;
     private boolean ortho;
 
+    private static Renderer renderer;
+    private static Renderer uiRenderer;
+
     public Renderer(Window window, Shader shader, boolean ortho) {
         this.shader = shader;
         this.window = window;
         this.ortho = ortho;
     }
 
+    // Group renderer
     public void renderMesh(GameObjectGroup object, Camera camera) {
         for (GameObject go : object.getChildren()) {
             if (go instanceof GameObjectMesh || go instanceof GameObjectGroup) {
@@ -34,6 +38,7 @@ public class Renderer {
         }
     }
 
+    // Single renderer
     public void renderMesh(GameObject object, Camera camera) {
         if (object instanceof GameObjectMesh) {
             GameObjectMesh objectMesh = (GameObjectMesh) object;
@@ -69,4 +74,19 @@ public class Renderer {
         }
     }
 
+    public static Renderer getRenderer() {
+        return renderer;
+    }
+
+    public static void setRenderer(Renderer renderer) {
+        Renderer.renderer = renderer;
+    }
+
+    public static Renderer getUiRenderer() {
+        return uiRenderer;
+    }
+
+    public static void setUiRenderer(Renderer uiRenderer) {
+        Renderer.uiRenderer = uiRenderer;
+    }
 }

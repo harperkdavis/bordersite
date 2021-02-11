@@ -1,5 +1,6 @@
 package net;
 
+import engine.objects.Camera;
 import main.Main;
 import main.PlayerMovement;
 import org.json.simple.JSONArray;
@@ -9,15 +10,13 @@ public class DataSender implements Runnable {
 
     private Client client;
     private PlayerMovement player;
-    private Main main;
     private Thread thread;
     private long lastTime;
     private boolean stopped;
 
-    public DataSender(Client client, PlayerMovement player, Main main) {
+    public DataSender(Client client, PlayerMovement player) {
         this.client = client;
         this.player = player;
-        this.main = main;
         lastTime = System.currentTimeMillis();
     }
 
@@ -46,9 +45,9 @@ public class DataSender implements Runnable {
         data.put("position.y", player.getPosition().getY());
         data.put("position.z", player.getPosition().getZ());
 
-        data.put("rotation.x", main.camera.getRotation().getX());
-        data.put("rotation.y", main.camera.getRotation().getY());
-        data.put("rotation.z", main.camera.getRotation().getZ());
+        data.put("rotation.x", Camera.getMainCamera().getRotation().getX());
+        data.put("rotation.y", Camera.getMainCamera().getRotation().getY());
+        data.put("rotation.z", Camera.getMainCamera().getRotation().getZ());
 
         return data;
     }

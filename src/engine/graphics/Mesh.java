@@ -24,6 +24,7 @@ public class Mesh {
         this.material = material;
     }
 
+    // Create the buffers to store mesh data
     public void create() {
         material.create();
 
@@ -91,6 +92,7 @@ public class Mesh {
 
     }
 
+    // Store data in buffer
     private int storeData(FloatBuffer buffer, int index, int size) {
         int bufferID = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, bufferID);
@@ -100,6 +102,7 @@ public class Mesh {
         return bufferID;
     }
 
+    // Destroy buffers
     public void destroy() {
         GL15.glDeleteBuffers(pbo);
         GL15.glDeleteBuffers(cbo);

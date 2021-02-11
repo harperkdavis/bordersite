@@ -2,9 +2,11 @@ package main;
 
 import com.google.gson.Gson;
 import engine.io.Input;
+import engine.io.Window;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.math.Region3f;
+import engine.objects.Camera;
 import jdk.nashorn.internal.parser.JSONParser;
 import net.Client;
 import org.json.simple.JSONObject;
@@ -15,7 +17,8 @@ import static engine.math.Mathf.lerp;
 
 public class PlayerMovement {
 
-    private Main main;
+    private static PlayerMovement playerMovement;
+
     private Vector3f position, velocity;
 
     private boolean isCrouched = false;
@@ -53,18 +56,17 @@ public class PlayerMovement {
     // In-Air +0.5
     // Crouching -0.2
 
-    public PlayerMovement(Main main) {
+    public PlayerMovement() {
         position = new Vector3f(0, 0, 0);
         velocity = new Vector3f(0, 0, 0);
         timeStart = System.currentTimeMillis();
-        this.main = main;
     }
 
     public void update() {
 
         timeElapsed = (int) (System.currentTimeMillis() - timeStart);
 
-        averageFPS = lerp(averageFPS, main.window.frameRate, 0.02f);
+        averageFPS = lerp(averageFPS, Window.getGameWindow().frameRate, 0.02f);
 
         float deltaTime = 60 / averageFPS;
 
@@ -95,7 +97,7 @@ public class PlayerMovement {
             isSprinting = false;
         }
 
-        float rot = (float) Math.toRadians(main.camera.getRotation().getY());
+        float rot = (float) Math.toRadians(Camera.getMainCameraRotation().getY());
 
         velocityForward = lerp(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, SMOOTHING * deltaTime);
         velocityLeft = lerp(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, SMOOTHING * deltaTime);
@@ -130,11 +132,11 @@ public class PlayerMovement {
         cameraHeight = lerp(cameraHeight, isCrouched ? 1.5f : 2, 0.02f);
 
         if (isSprinting) {
-            main.window.fov = lerp(main.window.fov, 85.0f, 0.1f * deltaTime);
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 85.0f, 0.1f * deltaTime));
         } else if (isAiming) {
-            main.window.fov = lerp(main.window.fov, 70.0f, 0.1f * deltaTime);
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 70.0f, 0.1f * deltaTime));
         } else {
-            main.window.fov = lerp(main.window.fov, 80.0f, 0.1f * deltaTime);
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 80.0f, 0.1f * deltaTime));
         }
 
         float recoilValue = (isAiming ? 0.4f : 0.8f) + (velocitySum > 0.5f ? 0.5f : 0.0f) + (isCrouched ? -0.1f : 0.0f) + (isGrounded ? 0.0f : 1.0f) + (isSprinting ? 0.5f : 0.0f);
@@ -142,7 +144,7 @@ public class PlayerMovement {
 
         position = wallRegion.collision(position, new Vector3f(velocity).multiply(deltaTime), 0.1f);
 
-        main.camera.setPosition(new Vector3f(position).add(0, cameraHeight + (isGrounded ? headBobbing : 0),0));
+        Camera.setMainCameraPosition(new Vector3f(position).add(0, cameraHeight + (isGrounded ? headBobbing : 0),0));
     }
 
     public float getRecoil() {
@@ -163,5 +165,13 @@ public class PlayerMovement {
 
     public Vector3f getVelocity() {
         return velocity;
+    }
+
+    public static PlayerMovement getPlayerMovement() {
+        return playerMovement;
+    }
+
+    public static void setPlayerMovement(PlayerMovement playerMovement) {
+        PlayerMovement.playerMovement = playerMovement;
     }
 }

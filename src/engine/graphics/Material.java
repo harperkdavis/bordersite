@@ -21,17 +21,19 @@ public class Material {
 
     // Creates the material and loads it
     public void create() {
+        // Try to load the texture
         try {
             texture = TextureLoader.getTexture(texturePath.split("[.]")[1], Material.class.getResourceAsStream(texturePath), GL11.GL_NEAREST);
         } catch (IOException e) {
             System.err.println("[ERROR] Invalid texture at " + texturePath);
         }
+        // Gets the width and height
         width = texture.getWidth();
         height = texture.getHeight();
         textureID = texture.getTextureID();
     }
 
-    // Unloads the
+    // Unloads the texture
     public void destroy() {
         GL13.glDeleteTextures(textureID);
     }

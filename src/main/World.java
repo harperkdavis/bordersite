@@ -3,7 +3,9 @@ package main;
 import engine.graphics.Material;
 import engine.graphics.Mesh;
 import engine.graphics.MeshBuilder;
+import engine.graphics.Renderer;
 import engine.math.Vector3f;
+import engine.objects.Camera;
 import engine.objects.GameObject;
 import engine.math.Region3f;
 import engine.objects.GameObjectGroup;
@@ -16,7 +18,7 @@ import java.util.Random;
 
 public class World {
 
-    private Main main;
+    private static World world;
 
     public GameObject groundPlane = new GameObjectMesh(new Vector3f(0, 0, 0), Vector3f.zero(), new Vector3f(4, 4, 4), MeshBuilder.TiledPlane(400, new Material("/textures/grass.png")));
 
@@ -27,8 +29,7 @@ public class World {
 
     private long time;
 
-    public World(Main main) {
-        this.main = main;
+    public World() {
         objects.add(groundPlane);
 
         time = System.currentTimeMillis();
@@ -63,7 +64,7 @@ public class World {
 
     public void render() {
         for (GameObject go : objects) {
-            main.renderer.renderMesh(go, main.camera);
+            Renderer.getRenderer().renderMesh(go, Camera.getMainCamera());
         }
     }
 
@@ -96,4 +97,11 @@ public class World {
         }
     }
 
+    public static World getWorld() {
+        return world;
+    }
+
+    public static void setWorld(World world) {
+        World.world = world;
+    }
 }

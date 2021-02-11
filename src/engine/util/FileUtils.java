@@ -1,4 +1,4 @@
-package engine.utils;
+package engine.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 
 import engine.objects.Player;
 import main.Main;
+import main.PlayerMovement;
 import net.packets.Packet;
 import org.json.simple.JSONObject;
 
@@ -14,10 +15,11 @@ import java.util.ArrayList;
 
 public class Client implements Runnable {
 
+    private static Client socketClient;
+
     private Thread thread;
     private InetAddress ipAddress;
     private DatagramSocket socket;
-    private Main game;
     private DataSender sender;
 
     private List<Player> localPlayers = new ArrayList<>();
@@ -27,8 +29,7 @@ public class Client implements Runnable {
     private boolean connected = false;
     private int playerId = 0;
 
-    public Client(Main game, String ipAddress) {
-        this.game = game;
+    public Client(String ipAddress) {
         try {
             this.socket = new DatagramSocket();
             this.ipAddress = InetAddress.getByName(ipAddress);
@@ -37,7 +38,7 @@ public class Client implements Runnable {
         } catch (UnknownHostException e) {
             System.err.println("[ERROR] Unknown Host Exception: " + e);
         }
-        sender = new DataSender(this, game.playerMovement, game);
+        sender = new DataSender(this, PlayerMovement.getPlayerMovement());
     }
 
     public void start() {
@@ -128,5 +129,13 @@ public class Client implements Runnable {
 
     public int getPlayerId() {
         return playerId;
+    }
+
+    public static Client getSocketClient() {
+        return socketClient;
+    }
+
+    public static void setSocketClient(Client client) {
+        socketClient = client;
     }
 }
