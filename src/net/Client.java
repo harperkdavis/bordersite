@@ -1,18 +1,26 @@
 package net;
 
 import com.google.gson.Gson;
+
+import engine.objects.Player;
 import main.Main;
 import net.packets.Packet;
 import org.json.simple.JSONObject;
 
+import java.util.List;
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
 
-public class Client extends Thread {
+public class Client implements Runnable {
 
+    private Thread thread;
     private InetAddress ipAddress;
     private DatagramSocket socket;
     private Main game;
+    private DataSender sender;
+
+    private List<Player> localPlayers = new ArrayList<>();
 
     public boolean running = true;
 
@@ -29,7 +37,18 @@ public class Client extends Thread {
         } catch (UnknownHostException e) {
             System.err.println("[ERROR] Unknown Host Exception: " + e);
         }
+        sender = new DataSender(this, game.playerMovement, game);
+    }
 
+    public void start() {
+        thread = new Thread(this);
+        thread.start();
+        sender.start();
+    }
+
+    public void stop() {
+        sender.stop();
+        running = false;
     }
 
     public void run() {
@@ -58,8 +77,11 @@ public class Client extends Thread {
                 break;
             case CONNECT:
                 playerConnect(jsonData);
-            case PLAYERDATA:
+            case PUBLICPLAYERDATA:
                 playerData(jsonData);
+                break;
+            case PLAYERSPAWN:
+                playerSpawn(jsonData);
                 break;
         }
     }
@@ -76,6 +98,10 @@ public class Client extends Thread {
     }
 
     private void playerData(JSONObject data) {
+
+    }
+
+    private void playerSpawn(JSONObject data) {
 
     }
 

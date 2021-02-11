@@ -40,7 +40,7 @@ public class Window {
         this.title = title;
         projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 1000);
         //ortho = Matrix4f.ortho(-1, 1, -1, 1, 0.001f, 1000);
-        ortho = Matrix4f.ortho(-(16.0f / 9.0f) / (9.0f / 16.0f), (16.0f / 9.0f) / (9.0f / 16.0f), -1.0f, 1.0f, 0.0001f, 1000);
+        ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000);
         pastFrame = System.currentTimeMillis();
     }
 

@@ -9,8 +9,10 @@ public abstract class Packet {
         INVALID(-1),
         CONNECT(0),
         DISCONNECT(1),
-        PLAYERDATA(2),
-        INPUTS(3);
+        PUBLICPLAYERDATA(2),
+        PRIVATEPLAYERDATA(3),
+        PLAYERSPAWN(4),
+        PLAYERDELETE(5);
 
         private int packetId;
 

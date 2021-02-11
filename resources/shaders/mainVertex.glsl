@@ -7,6 +7,7 @@ layout(location = 3) in vec3 normals;
 
 out vec3 passColor;
 out vec2 passUV;
+out vec3 passNormal;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -16,4 +17,5 @@ void main() {
     gl_Position = projection * view * model * vec4(position, 1.0);
     passColor = color;
     passUV = uv;
+    passNormal = normals;
 }

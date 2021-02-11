@@ -172,6 +172,271 @@ public class MeshBuilder {
         return new Mesh(vertices, tris, m);
     }
 
+    public static Mesh PlayerHead(Material m) {
+        float size = 0.5f;
+        float atlasScale = 20.0f / 256.0f;
+        Mesh mesh = new Mesh(new Vertex[] {
+                //Back face
+                new Vertex(new Vector3f(-0.5f * size, 1.0f * size, -0.5f * size), new Vector3f(0, 0, -1), new Vector2f(3.0f * atlasScale, 1.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.5f * size, 0.0f * size, -0.5f * size), new Vector3f(0, 0, -1), new Vector2f(3.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 0.0f * size, -0.5f * size), new Vector3f(0, 0, -1), new Vector2f(4.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 1.0f * size, -0.5f * size), new Vector3f(0, 0, -1), new Vector2f(4.0f * atlasScale, 1.0f * atlasScale)),
+
+                //Front face
+                new Vertex(new Vector3f(-0.5f * size, 1.0f * size,  0.5f * size), new Vector3f(0, 0, 1), new Vector2f(1.0f * atlasScale, 1.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.5f * size, 0.0f * size,  0.5f * size), new Vector3f(0, 0, 1), new Vector2f(1.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 0.0f * size,  0.5f * size), new Vector3f(0, 0, 1), new Vector2f(2.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 1.0f * size,  0.5f * size), new Vector3f(0, 0, 1), new Vector2f(2.0f * atlasScale, 1.0f * atlasScale)),
+
+                //Right face
+                new Vertex(new Vector3f( 0.5f * size, 1.0f * size, 0.5f * size), new Vector3f(1, 0, 0), new Vector2f(2.0f * atlasScale, 1.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 0.0f * size, 0.5f * size), new Vector3f(1, 0, 0), new Vector2f(2.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 0.0f * size, -0.5f * size), new Vector3f(1, 0, 0), new Vector2f(3.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 1.0f * size, -0.5f * size), new Vector3f(1, 0, 0), new Vector2f(3.0f * atlasScale, 1.0f * atlasScale)),
+
+                //Left face
+                new Vertex(new Vector3f(-0.5f * size, 1.0f * size, -0.5f * size), new Vector3f(-1, 0, 0), new Vector2f(0.0f * atlasScale, 1.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.5f * size, 0.0f * size, -0.5f * size), new Vector3f(-1, 0, 0), new Vector2f(0.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.5f * size, 0.0f * size,  0.5f * size), new Vector3f(-1, 0, 0), new Vector2f(1.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.5f * size, 1.0f * size,  0.5f * size), new Vector3f(-1, 0, 0), new Vector2f(1.0f * atlasScale, 1.0f * atlasScale)),
+
+                //Top face
+                new Vertex(new Vector3f(-0.5f * size, 1.0f * size,  0.5f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f * atlasScale, 0.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.5f * size, 1.0f * size, -0.5f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f * atlasScale, 1.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 1.0f * size, -0.5f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f * atlasScale, 1.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 1.0f * size,  0.5f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f * atlasScale, 0.0f * atlasScale)),
+
+                //Bottom face
+                new Vertex(new Vector3f(-0.5f * size, 0.0f * size,  0.5f * size), new Vector3f(0, -1, 0), new Vector2f(1.0f * atlasScale, 0.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.5f * size, 0.0f * size, -0.5f * size), new Vector3f(0, -1, 0), new Vector2f(1.0f * atlasScale, 1.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 0.0f * size, -0.5f * size), new Vector3f(0, -1, 0), new Vector2f(2.0f * atlasScale, 1.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.5f * size, 0.0f * size,  0.5f * size), new Vector3f(0, -1, 0), new Vector2f(2.0f * atlasScale, 0.0f * atlasScale)),
+        }, new int[] {
+                //Back face
+                0, 1, 3,
+                3, 1, 2,
+
+                //Front face
+                4, 5, 7,
+                7, 5, 6,
+
+                //Right face
+                8, 9, 11,
+                11, 9, 10,
+
+                //Left face
+                12, 13, 15,
+                15, 13, 14,
+
+                //Top face
+                16, 17, 19,
+                19, 17, 18,
+
+                //Bottom face
+                20, 21, 23,
+                23, 21, 22
+        }, m);
+        return mesh;
+    }
+
+    public static Mesh PlayerTorso(Material m) {
+        float atlasScale = 20.0f / 256.0f;
+        Mesh mesh = new Mesh(new Vertex[] {
+                //Back face
+                new Vertex(new Vector3f(-0.35f, 0.75f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(3.2f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.35f, -0.15f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(3.2f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f( 0.35f, -0.15f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(4.6f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f( 0.35f, 0.75f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(4.6f * atlasScale, 2.0f * atlasScale)),
+
+                //Front face
+                new Vertex(new Vector3f(-0.35f, 0.75f, 0.15f), new Vector3f(0, 0, 1), new Vector2f(0.8f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.35f, -0.15f, 0.15f), new Vector3f(0, 0, 1), new Vector2f(0.8f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, -0.15f, 0.15f), new Vector3f(0, 0, 1), new Vector2f(2.2f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, 0.75f, 0.15f), new Vector3f(0, 0, 1), new Vector2f(2.2f * atlasScale, 2.0f * atlasScale)),
+
+                //Right face
+                new Vertex(new Vector3f(0.35f, 0.75f, 0.15f), new Vector3f(1, 0, 0), new Vector2f(2.4f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, -0.15f, 0.15f), new Vector3f(1, 0, 0), new Vector2f(2.4f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, -0.15f, -0.15f), new Vector3f(1, 0, 0), new Vector2f(3.0f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, 0.75f, -0.15f), new Vector3f(1, 0, 0), new Vector2f(3.0f * atlasScale, 2.0f * atlasScale)),
+
+                //Left face
+                new Vertex(new Vector3f(-0.35f, 0.75f, -0.15f), new Vector3f(-1, 0, 0), new Vector2f(0.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.35f, -0.15f, -0.15f), new Vector3f(-1, 0, 0), new Vector2f(0.0f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(-0.35f, -0.15f, 0.15f), new Vector3f(-1, 0, 0), new Vector2f(0.6f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(-0.35f, 0.75f, 0.15f), new Vector3f(-1, 0, 0), new Vector2f(0.6f * atlasScale, 2.0f * atlasScale)),
+
+                //Top face
+                new Vertex(new Vector3f(-0.35f, 0.75f, 0.15f), new Vector3f(0, 1, 0), new Vector2f(0.8f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(-0.35f, 0.75f, -0.15f), new Vector3f(0, 1, 0), new Vector2f(0.8f * atlasScale, 4.3f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, 0.75f, -0.15f), new Vector3f(0, 1, 0), new Vector2f(2.2f * atlasScale, 4.3f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, 0.75f, 0.15f), new Vector3f(0, 1, 0), new Vector2f(2.2f * atlasScale, 3.7f * atlasScale)),
+
+                //Bottom face
+                new Vertex(new Vector3f(-0.35f,-0.15f, 0.15f), new Vector3f(0, -1, 0), new Vector2f(3.2f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(-0.35f,-0.15f, -0.15f), new Vector3f(0, -1, 0), new Vector2f(3.2f * atlasScale, 4.3f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, -0.15f, -0.15f), new Vector3f(0, -1, 0), new Vector2f(4.6f * atlasScale, 4.3f * atlasScale)),
+                new Vertex(new Vector3f(0.35f, -0.15f, 0.15f), new Vector3f(0, -1, 0), new Vector2f(4.6f * atlasScale, 3.7f * atlasScale)),
+        }, new int[] {
+                //Back face
+                0, 1, 3,
+                3, 1, 2,
+
+                //Front face
+                4, 5, 7,
+                7, 5, 6,
+
+                //Right face
+                8, 9, 11,
+                11, 9, 10,
+
+                //Left face
+                12, 13, 15,
+                15, 13, 14,
+
+                //Top face
+                16, 17, 19,
+                19, 17, 18,
+
+                //Bottom face
+                20, 21, 23,
+                23, 21, 22
+        }, m);
+        return mesh;
+    }
+
+    public static Mesh PlayerArm(Material m) {
+        float atlasScale = 20.0f / 256.0f;
+        Mesh mesh = new Mesh(new Vertex[] {
+                //Back face
+                new Vertex(new Vector3f(-0.15f, 0.2f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(7.4f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.15f, -0.55f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(7.4f * atlasScale, 3.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, -0.55f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(8.0f * atlasScale, 3.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, 0.2f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(8.0f * atlasScale, 2.0f * atlasScale)),
+
+                //Front face
+                new Vertex(new Vector3f(-0.15f, 0.2f,  0.15f), new Vector3f(0, 0, 1), new Vector2f(5.8f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.15f, -0.55f,  0.15f), new Vector3f(0, 0, 1), new Vector2f(5.8f * atlasScale, 3.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, -0.55f,  0.15f), new Vector3f(0, 0, 1), new Vector2f(6.4f * atlasScale, 3.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, 0.2f,  0.15f), new Vector3f(0, 0, 1), new Vector2f(6.4f * atlasScale, 2.0f * atlasScale)),
+
+                //Right face
+                new Vertex(new Vector3f( 0.15f, 0.2f, 0.15f), new Vector3f(1, 0, 0), new Vector2f(6.6f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, -0.55f, 0.15f), new Vector3f(1, 0, 0), new Vector2f(6.6f * atlasScale, 3.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, -0.55f, -0.15f), new Vector3f(1, 0, 0), new Vector2f(7.2f * atlasScale, 3.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, 0.2f, -0.15f), new Vector3f(1, 0, 0), new Vector2f(7.2f * atlasScale, 2.0f * atlasScale)),
+
+                //Left face
+                new Vertex(new Vector3f(-0.15f, 0.2f, -0.15f), new Vector3f(-1, 0, 0), new Vector2f(5.0f * atlasScale, 2.0f * atlasScale)),
+                new Vertex(new Vector3f(-0.15f, -0.55f, -0.15f), new Vector3f(-1, 0, 0), new Vector2f(5.0f * atlasScale, 3.5f * atlasScale)),
+                new Vertex(new Vector3f(-0.15f, -0.55f,  0.15f), new Vector3f(-1, 0, 0), new Vector2f(5.6f * atlasScale, 3.5f * atlasScale)),
+                new Vertex(new Vector3f(-0.15f, 0.2f,  0.15f), new Vector3f(-1, 0, 0), new Vector2f(5.6f * atlasScale, 2.0f * atlasScale)),
+
+                //Top face
+                new Vertex(new Vector3f(-0.15f, 0.2f,  0.15f), new Vector3f(0, 1, 0), new Vector2f(7.4f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(-0.15f, 0.2f, -0.15f), new Vector3f(0, 1, 0), new Vector2f(7.4f * atlasScale, 4.3f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, 0.2f, -0.15f), new Vector3f(0, 1, 0), new Vector2f(8.0f * atlasScale, 4.3f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, 0.2f,  0.15f), new Vector3f(0, 1, 0), new Vector2f(8.0f * atlasScale, 3.7f * atlasScale)),
+
+                //Bottom face
+                new Vertex(new Vector3f(-0.15f, -0.55f,  0.15f), new Vector3f(0, -1, 0), new Vector2f(5.8f * atlasScale, 3.7f * atlasScale)),
+                new Vertex(new Vector3f(-0.15f, -0.55f, -0.15f), new Vector3f(0, -1, 0), new Vector2f(5.8f * atlasScale, 4.3f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, -0.55f, -0.15f), new Vector3f(0, -1, 0), new Vector2f(4.6f * atlasScale, 4.3f * atlasScale)),
+                new Vertex(new Vector3f( 0.15f, -0.55f,  0.15f), new Vector3f(0, -1, 0), new Vector2f(4.6f * atlasScale, 3.7f * atlasScale)),
+        }, new int[] {
+                //Back face
+                0, 1, 3,
+                3, 1, 2,
+
+                //Front face
+                4, 5, 7,
+                7, 5, 6,
+
+                //Right face
+                8, 9, 11,
+                11, 9, 10,
+
+                //Left face
+                12, 13, 15,
+                15, 13, 14,
+
+                //Top face
+                16, 17, 19,
+                19, 17, 18,
+
+                //Bottom face
+                20, 21, 23,
+                23, 21, 22
+        }, m);
+        return mesh;
+    }
+
+    public static Mesh PlayerLeg(Material m) {
+        float atlasScale = 20.0f / 256.0f;
+        Mesh mesh = new Mesh(new Vertex[] {
+                //Back face
+                new Vertex(new Vector3f(-0.175f, 0.0f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(7.4f * atlasScale, 4.8f * atlasScale)),
+                new Vertex(new Vector3f(-0.175f, -0.85f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(7.4f * atlasScale, 6.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, -0.85f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(8.0f * atlasScale, 6.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, 0.0f, -0.15f), new Vector3f(0, 0, -1), new Vector2f(8.0f * atlasScale, 4.8f * atlasScale)),
+
+                //Front face
+                new Vertex(new Vector3f(-0.175f, 0.0f,  0.15f), new Vector3f(0, 0, 1), new Vector2f(5.8f * atlasScale, 4.8f * atlasScale)),
+                new Vertex(new Vector3f(-0.175f, -0.85f,  0.15f), new Vector3f(0, 0, 1), new Vector2f(5.8f * atlasScale, 6.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, -0.85f,  0.15f), new Vector3f(0, 0, 1), new Vector2f(6.4f * atlasScale, 6.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, 0.0f,  0.15f), new Vector3f(0, 0, 1), new Vector2f(6.4f * atlasScale, 4.8f * atlasScale)),
+
+                //Right face
+                new Vertex(new Vector3f( 0.175f, 0.0f, 0.15f), new Vector3f(1, 0, 0), new Vector2f(6.6f * atlasScale, 4.8f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, -0.85f, 0.15f), new Vector3f(1, 0, 0), new Vector2f(6.6f * atlasScale, 6.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, -0.85f, -0.15f), new Vector3f(1, 0, 0), new Vector2f(7.2f * atlasScale, 6.5f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, 0.0f, -0.15f), new Vector3f(1, 0, 0), new Vector2f(7.2f * atlasScale, 4.8f * atlasScale)),
+
+                //Left face
+                new Vertex(new Vector3f(-0.175f, 0.0f, -0.15f), new Vector3f(-1, 0, 0), new Vector2f(5.0f * atlasScale, 4.8f * atlasScale)),
+                new Vertex(new Vector3f(-0.175f, -0.85f, -0.15f), new Vector3f(-1, 0, 0), new Vector2f(5.0f * atlasScale, 6.5f * atlasScale)),
+                new Vertex(new Vector3f(-0.175f, -0.85f,  0.15f), new Vector3f(-1, 0, 0), new Vector2f(5.6f * atlasScale, 6.5f * atlasScale)),
+                new Vertex(new Vector3f(-0.175f, 0.0f,  0.15f), new Vector3f(-1, 0, 0), new Vector2f(5.6f * atlasScale, 4.8f * atlasScale)),
+
+                //Top face
+                new Vertex(new Vector3f(-0.175f, 0.0f,  0.15f), new Vector3f(0, 1, 0), new Vector2f(7.4f * atlasScale, 7.7f * atlasScale)),
+                new Vertex(new Vector3f(-0.175f, 0.0f, -0.15f), new Vector3f(0, 1, 0), new Vector2f(7.4f * atlasScale, 8.3f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, 0.0f, -0.15f), new Vector3f(0, 1, 0), new Vector2f(8.0f * atlasScale, 8.3f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, 0.0f,  0.15f), new Vector3f(0, 1, 0), new Vector2f(8.0f * atlasScale, 7.7f * atlasScale)),
+
+                //Bottom face
+                new Vertex(new Vector3f(-0.175f, -0.85f,  0.15f), new Vector3f(0, -1, 0), new Vector2f(5.8f * atlasScale, 7.7f * atlasScale)),
+                new Vertex(new Vector3f(-0.175f, -0.85f, -0.15f), new Vector3f(0, -1, 0), new Vector2f(5.8f * atlasScale, 8.3f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, -0.85f, -0.15f), new Vector3f(0, -1, 0), new Vector2f(4.6f * atlasScale, 8.3f * atlasScale)),
+                new Vertex(new Vector3f( 0.175f, -0.85f,  0.15f), new Vector3f(0, -1, 0), new Vector2f(4.6f * atlasScale, 7.7f * atlasScale)),
+        }, new int[] {
+                //Back face
+                0, 1, 3,
+                3, 1, 2,
+
+                //Front face
+                4, 5, 7,
+                7, 5, 6,
+
+                //Right face
+                8, 9, 11,
+                11, 9, 10,
+
+                //Left face
+                12, 13, 15,
+                15, 13, 14,
+
+                //Top face
+                16, 17, 19,
+                19, 17, 18,
+
+                //Bottom face
+                20, 21, 23,
+                23, 21, 22
+        }, m);
+        return mesh;
+    }
+
     public static Mesh TextMesh(String text, float characterHeight, TextMode textMode) {
         text = " " + text;
         Material textMaterial = new Material("/textures/gamefont.png");

@@ -6,6 +6,9 @@ import engine.graphics.MeshBuilder;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
 import engine.math.Region3f;
+import engine.objects.GameObjectGroup;
+import engine.objects.GameObjectMesh;
+import org.lwjglx.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,58 +18,81 @@ public class World {
 
     private Main main;
 
-    public GameObject groundPlane = new GameObject(new Vector3f(0, 0, 0), Vector3f.zero(), new Vector3f(4, 4, 4), MeshBuilder.TiledPlane(400, new Material("/textures/grass.png")));
+    public GameObject groundPlane = new GameObjectMesh(new Vector3f(0, 0, 0), Vector3f.zero(), new Vector3f(4, 4, 4), MeshBuilder.TiledPlane(400, new Material("/textures/grass.png")));
 
-    private Material wallMaterial = new Material("/textures/stone.png");
-    public Mesh wallMesh = MeshBuilder.Cube(1, wallMaterial);
-    public GameObject wallObject = new GameObject(new Vector3f(10, -1.25f, 10), Vector3f.zero(), new Vector3f(5, 5, 5), wallMesh);
-    public Region3f wallRegion = new Region3f(new Vector3f(7.5f, 2.5f, 7.5f), new Vector3f( 12.5f, -2.5f, 12.5f));
+    public static List<GameObject> objects = new ArrayList<>();
+    public static List<GameObject> playerObjects = new ArrayList<>();
 
-    public GameObject test = new GameObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), MeshBuilder.Cube(1, new Material("/textures/test.png")));
+    private List<GameObject> playerObjectList = new ArrayList<>();
 
-    public List<Mesh> tallGrassMeshes = new ArrayList<>();
-    public List<GameObject> grassObjects = new ArrayList<>();
-
-    private final int GRASS_COUNT = 10;
+    private long time;
 
     public World(Main main) {
         this.main = main;
+        objects.add(groundPlane);
+
+        time = System.currentTimeMillis();
+        // Head
+        playerObjectList.add(new GameObjectMesh(new Vector3f(0, 1.75f, 0), Vector3f.zero(), Vector3f.one(), MeshBuilder.PlayerHead(new Material("/textures/player.png"))));
+        playerObjectList.add(new GameObjectMesh(new Vector3f(0, 1.0f, 0), Vector3f.zero(), Vector3f.one(), MeshBuilder.PlayerTorso(new Material("/textures/player.png"))));
+
+        playerObjectList.add(new GameObjectMesh(new Vector3f(-0.5f, 1.55f, 0), Vector3f.zero(), new Vector3f(1.0f, 1.0f, 1.0f), MeshBuilder.PlayerArm(new Material("/textures/player.png"))));
+        playerObjectList.add(new GameObjectMesh(new Vector3f(0.5f, 1.55f, 0), Vector3f.zero(), new Vector3f(-1.0f, 1.0f, 1.0f), MeshBuilder.PlayerArm(new Material("/textures/player.png"))));
+
+        playerObjectList.add(new GameObjectMesh(new Vector3f(-0.175f, 0.85f, 0), Vector3f.zero(), Vector3f.one(), MeshBuilder.PlayerLeg(new Material("/textures/player.png"))));
+        playerObjectList.add(new GameObjectMesh(new Vector3f(0.175f, 0.85f, 0), Vector3f.zero(), Vector3f.one(), MeshBuilder.PlayerLeg(new Material("/textures/player.png"))));
+
+        for (GameObject go : playerObjectList) {
+            objects.add(go);
+        }
     }
 
     public void load() {
-        groundPlane.load();
-        wallObject.load();
-        test.load();
-
-        Random random = new Random();
-        for (int i = 0; i < GRASS_COUNT; i++) {
-            Mesh mesh = MeshBuilder.Plane(1f, new Material("/textures/tallgrass.png"));
-            mesh.create();
-            tallGrassMeshes.add(mesh);
-            grassObjects.add(new GameObject(new Vector3f(random.nextFloat() * 40, 0.15f, random.nextFloat() * 40), new Vector3f(90, random.nextFloat() * 360,0),  new Vector3f(0.5f, 0.5f, 0.5f), mesh));
+        for (GameObject go : objects) {
+            if (go instanceof GameObjectMesh) {
+                ((GameObjectMesh) go).load();
+            } else if (go instanceof GameObjectGroup) {
+                ((GameObjectGroup) go).load();
+            }
         }
     }
 
     public void update() {
-        test.position = wallRegion.closestPoint(main.playerMovement.getPosition());
+
     }
 
     public void render() {
-        main.renderer.renderMesh(groundPlane, main.camera);
-        main.renderer.renderMesh(wallObject, main.camera);
-        main.renderer.renderMesh(test, main.camera);
-        for (GameObject object : grassObjects) {
-            main.renderer.renderMesh(object, main.camera);
+        for (GameObject go : objects) {
+            main.renderer.renderMesh(go, main.camera);
         }
-
     }
 
+
     public void unload() {
-        groundPlane.unload();
-        wallObject.unload();
-        test.unload();
-        for (Mesh mesh : tallGrassMeshes) {
-            mesh.destroy();
+        for (GameObject go : objects) {
+            if (go instanceof GameObjectMesh) {
+                ((GameObjectMesh) go).unload();
+            } else if (go instanceof GameObjectGroup) {
+                ((GameObjectGroup) go).unload();
+            }
+        }
+    }
+
+    public static void addObject(GameObject object) {
+        objects.add(object);
+        if (object instanceof GameObjectGroup) {
+            ((GameObjectGroup) object).load();
+        } else if (object instanceof GameObjectMesh) {
+            ((GameObjectMesh) object).load();
+        }
+    }
+
+    public static void removeObject(GameObject object) {
+        objects.remove(object);
+        if (object instanceof GameObjectGroup) {
+            ((GameObjectGroup) object).unload();
+        } else if (object instanceof GameObjectMesh) {
+            ((GameObjectMesh) object).unload();
         }
     }
 

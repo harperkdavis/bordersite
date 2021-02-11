@@ -5,6 +5,7 @@ import engine.io.Input;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.math.Region3f;
+import jdk.nashorn.internal.parser.JSONParser;
 import net.Client;
 import org.json.simple.JSONObject;
 import org.lwjgl.glfw.GLFW;
@@ -142,20 +143,6 @@ public class PlayerMovement {
         position = wallRegion.collision(position, new Vector3f(velocity).multiply(deltaTime), 0.1f);
 
         main.camera.setPosition(new Vector3f(position).add(0, cameraHeight + (isGrounded ? headBobbing : 0),0));
-    }
-
-    public void sendPlayerData() {
-        Client client = main.getSocketClient();
-        JSONObject json = new JSONObject();
-
-        json.put("posX", position.getX());
-        json.put("posY", position.getY());
-        json.put("posZ", position.getZ());
-
-        json.put("rotX", main.camera.getRotation().getX());
-        json.put("rotY", main.camera.getRotation().getY());
-        json.put("rotZ", main.camera.getRotation().getZ());
-
     }
 
     public float getRecoil() {

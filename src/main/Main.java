@@ -104,7 +104,7 @@ public class Main implements Runnable {
         packet.writeData(socketClient);
         System.out.println("[INFO] Ending client thread");
         socketClient.setRunning(false);
-        socketClient.interrupt();
+        socketClient.stop();
     }
 
     public void run() {
