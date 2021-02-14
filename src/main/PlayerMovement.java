@@ -1,17 +1,12 @@
 package main;
 
-import com.google.gson.Gson;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.math.Region3f;
 import engine.objects.Camera;
-import jdk.nashorn.internal.parser.JSONParser;
-import net.Client;
-import org.json.simple.JSONObject;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.system.CallbackI;
 
 import static engine.math.Mathf.lerp;
 
@@ -38,7 +33,7 @@ public class PlayerMovement {
     private float headBobbingMultiplier = 0;
 
     private final float MOVE_SPEED = 0.06f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.12f;
-    private final float GRAVITY = 0.003f;
+    private final float GRAVITY = 0.006f;
 
     private float averageFPS = 120f;
 
@@ -90,7 +85,7 @@ public class PlayerMovement {
         } else {
             velocity.setX(velocity.getX() / (1 + (1.5f)));
             velocity.setZ(velocity.getZ() / (1 + (1.5f)));
-            velocity.setY(velocity.getY() - (GRAVITY));
+            velocity.setY(velocity.getY() - (GRAVITY) * deltaTime);
         }
 
         if (isCrouched || !isGrounded || isAiming) {
@@ -99,10 +94,10 @@ public class PlayerMovement {
 
         float rot = (float) Math.toRadians(Camera.getMainCameraRotation().getY());
 
-        velocityForward = lerp(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, SMOOTHING * deltaTime);
-        velocityLeft = lerp(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, SMOOTHING * deltaTime);
-        velocityRight = lerp(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0, SMOOTHING * deltaTime);
-        velocityBack = lerp(velocityBack, Input.isKey(GLFW.GLFW_KEY_S) ? 1 : 0, SMOOTHING * deltaTime);
+        velocityForward = lerp(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, SMOOTHING);
+        velocityLeft = lerp(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, SMOOTHING);
+        velocityRight = lerp(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0, SMOOTHING);
+        velocityBack = lerp(velocityBack, Input.isKey(GLFW.GLFW_KEY_S) ? 1 : 0, SMOOTHING);
 
         float velocitySum = velocityForward + velocityLeft + velocityRight + velocityBack;
         float moving = velocitySum > 0.1f ? 1 : 0;
@@ -129,7 +124,7 @@ public class PlayerMovement {
         headBobbingMultiplier = lerp(headBobbingMultiplier, moving, 0.2f * deltaTime);
         headBobbing = (float) (Math.sin(timeElapsed / (80f * (isSprinting ? 0.6f : 1))) * 0.05f * (isCrouched ? 0.5f : 1f) * headBobbingMultiplier);
 
-        cameraHeight = lerp(cameraHeight, isCrouched ? 1.5f : 2, 0.02f);
+        cameraHeight = lerp(cameraHeight, isCrouched ? 1.5f : 2, 0.1f * deltaTime);
 
         if (isSprinting) {
             Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 85.0f, 0.1f * deltaTime));
@@ -154,7 +149,6 @@ public class PlayerMovement {
     private void jump() {
         float magnitude = new Vector2f(velocity.getX(), velocity.getZ()).magnitude();
         velocity.setY(JUMP_HEIGHT * (1 + (magnitude)));
-        System.out.println("[INFO] Jump Velocity: " + velocity.getY());
         velocity.set(velocity.getX(), velocity.getY(), velocity.getZ());
         isGrounded = false;
     }

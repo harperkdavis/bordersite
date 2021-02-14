@@ -12,6 +12,7 @@ import net.packets.PacketLogin;
 import org.lwjgl.glfw.GLFW;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class Main implements Runnable {
 
@@ -19,11 +20,12 @@ public class Main implements Runnable {
     public Shader shader;
     public Shader uishader;
 
-    public final int WIDTH = 1600, HEIGHT = 900;
+    public int WIDTH, HEIGHT;
+    public boolean FULLSCREEN;
     public final float PIXEL = 4.0f / 900.0f;
     public final String TITLE = "Bordersite";
 
-    private String username;
+    private String username = "Player";
 
     private long startTime;
     public int elapsedTime;
@@ -31,12 +33,64 @@ public class Main implements Runnable {
     public void start() {
         startTime = System.currentTimeMillis();
 
-        username = "";
-        String message = "Enter username.";
-        while (!(username.length() >= 3 && username.length() <= 16)) {
-            username = JOptionPane.showInputDialog(new JFrame(), message);
-            message = "Invalid username. Try again.";
+        String[] resolutionOptions = new String[]{"1920x1080", "1024x576", "1280x720", "1336x768", "1600x900", "2560x1440"};
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3,2));
+
+        panel.add(new JLabel("Resolution"));
+        JComboBox<String> res = new JComboBox<String>(resolutionOptions);
+        res.setVisible(true);
+        panel.add(res);
+
+        panel.add(new JLabel("Fullscreen"));
+        JCheckBox box = new JCheckBox();
+        box.setVisible(true);
+        panel.add(box);
+
+        panel.add(new JLabel("Username"));
+        JTextField usr = new JTextField();
+        usr.setVisible(true);
+        panel.add(usr);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Bordersite Launching", JOptionPane.OK_CANCEL_OPTION);
+
+        if (result == 2 || result == -1) {
+            return;
         }
+        if (res.getSelectedItem() != null) {
+            switch ((String) res.getSelectedItem()) {
+                case "1024x576":
+                    WIDTH = 1024;
+                    HEIGHT = 576;
+                    break;
+                case "1280x720":
+                    WIDTH = 1280;
+                    HEIGHT = 720;
+                    break;
+                case "1336x768":
+                    WIDTH = 1336;
+                    HEIGHT = 768;
+                    break;
+                case "1600x900":
+                    WIDTH = 1600;
+                    HEIGHT = 900;
+                    break;
+                case "2560x1440":
+                    WIDTH = 2560;
+                    HEIGHT = 1440;
+                    break;
+                default:
+                    WIDTH = 1920;
+                    HEIGHT = 1080;
+                    break;
+            }
+        } else {
+            WIDTH = 1920;
+            HEIGHT = 1080;
+        }
+        FULLSCREEN = box.isSelected();
+        username = usr.getText();
 
         PlayerMovement.setPlayerMovement(new PlayerMovement());
 
@@ -50,8 +104,9 @@ public class Main implements Runnable {
         System.out.println("[INFO] Initializing game...");
         System.out.println("[INFO] Creating GLFW window..");
 
-        Window.setGameWindow(new Window(WIDTH, HEIGHT, TITLE));
+        Window.setGameWindow(new Window(WIDTH, HEIGHT, FULLSCREEN, TITLE));
         Window.getGameWindow().create();
+        Window.getGameWindow().setFullscreen(FULLSCREEN);
 
         System.out.println("[INFO] GLFW window created!");
 

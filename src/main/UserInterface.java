@@ -38,6 +38,8 @@ public class UserInterface {
         gameScreen = new GameObjectMesh(Vector3f.oneZ(), Vector3f.uirzero(), Vector3f.one().multiply(5), MeshBuilder.Plane(2, new Material("/textures/black.png")));
         gameText = new GameObjectMesh(Vector3f.oneZ(), Vector3f.zero(), Vector3f.one(), MeshBuilder.TextMesh("connecting to server...", PIXEL * 15, TextMode.CENTER));
 
+        uiObjects.add(new GameObjectMesh(Vector3f.oneZ(), Vector3f.uirzero(), Vector3f.one(), MeshBuilder.Plane(0.5f, new Material("/textures/bordersite-logo.png"))));
+
     }
 
     public void load() {

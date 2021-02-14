@@ -13,6 +13,7 @@ public class Window {
     private static Window gameWindow;
 
     private int width, height;
+    private boolean fullscreen;
     private String title;
     private long window;
 
@@ -36,10 +37,13 @@ public class Window {
 
     private float fov = 80.0f;
 
-    public Window(int width, int height, String title) {
+    private int[] windowPosX = new int[1], windowPosY = new int[1];
+
+    public Window(int width, int height, boolean fullscreen, String title) {
         this.width = width;
         this.height = height;
         this.title = title;
+        this.fullscreen = fullscreen;
 
         projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 1000);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000);
@@ -63,7 +67,9 @@ public class Window {
         }
 
         GLFWVidMode videoMode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-        GLFW.glfwSetWindowPos(window, (videoMode.width() - width) / 2,(videoMode.height() - height) / 2);
+        windowPosX[0] = (videoMode.width() - width) / 2;
+        windowPosY[0] = (videoMode.height() - height) / 2;
+        GLFW.glfwSetWindowPos(window, windowPosX[0], windowPosY[0]);
 
         GLFW.glfwMakeContextCurrent(window);
         GL.createCapabilities();
@@ -80,6 +86,7 @@ public class Window {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         fpsTime = System.currentTimeMillis();
+
     }
 
     private void createCallbacks() {
@@ -119,6 +126,17 @@ public class Window {
             frameRate = fpsFrames;
             fpsFrames = 0;
             fpsTime = System.currentTimeMillis();
+        }
+    }
+
+    public void setFullscreen(boolean fullscreen) {
+        this.fullscreen = fullscreen;
+        isResized = true;
+        if (fullscreen) {
+            GLFW.glfwGetWindowPos(window, windowPosX, windowPosY);
+            GLFW.glfwSetWindowMonitor(window, GLFW.glfwGetPrimaryMonitor(), 0, 0, width, height, 0);
+        } else {
+            GLFW.glfwSetWindowMonitor(window, 0, windowPosX[0], windowPosY[0], width, height, 0);
         }
     }
 
