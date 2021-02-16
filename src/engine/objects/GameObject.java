@@ -9,6 +9,7 @@ import org.lwjgl.system.CallbackI;
 public class GameObject {
 
     private Vector3f position, rotation, scale;
+    private boolean visible = true;
 
     public GameObject(Vector3f position, Vector3f rotation, Vector3f scale) {
         this.position = new Vector3f(position);
@@ -38,6 +39,14 @@ public class GameObject {
 
     public void setScale(Vector3f scale) {
         this.scale = scale;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
 }

@@ -8,11 +8,13 @@ import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
+import static engine.math.Mathf.lerp;
+
 public class Window {
 
     private static Window gameWindow;
 
-    private int width, height;
+    private static int width, height;
     private boolean fullscreen;
     private String title;
     private long window;
@@ -21,9 +23,10 @@ public class Window {
     private long fpsTime;
 
     private long pastFrame;
-    public float deltaTime;
 
-    public float frameRate = 60;
+    private float frameRate = 60;
+    private float averageFPS = 60;
+    private float deltaTime = 0;
 
     public Input input;
 
@@ -40,13 +43,13 @@ public class Window {
     private int[] windowPosX = new int[1], windowPosY = new int[1];
 
     public Window(int width, int height, boolean fullscreen, String title) {
-        this.width = width;
-        this.height = height;
+        Window.width = width;
+        Window.height = height;
         this.title = title;
         this.fullscreen = fullscreen;
 
-        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 1000);
-        ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000);
+        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 10000.0f);
+        ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
 
         pastFrame = System.currentTimeMillis();
     }
@@ -59,7 +62,7 @@ public class Window {
         }
 
         input = new Input();
-        window = GLFW.glfwCreateWindow(width, height,title, 0,0);
+        window = GLFW.glfwCreateWindow(width, height, title, 0,0);
 
         if (window == 0) {
             System.err.println("[ERROR] Window wasn't created.");
@@ -67,6 +70,9 @@ public class Window {
         }
 
         GLFWVidMode videoMode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
+
+        GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, GLFW.GLFW_DONT_CARE);
+
         windowPosX[0] = (videoMode.width() - width) / 2;
         windowPosY[0] = (videoMode.height() - height) / 2;
         GLFW.glfwSetWindowPos(window, windowPosX[0], windowPosY[0]);
@@ -84,6 +90,9 @@ public class Window {
 
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
 
         fpsTime = System.currentTimeMillis();
 
@@ -107,7 +116,7 @@ public class Window {
     }
 
     public void update() {
-        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 1000);
+        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 10000.0f);
         if (isResized) {
             GL11.glViewport(0, 0, width, height);
             isResized = false;
@@ -116,8 +125,6 @@ public class Window {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GLFW.glfwPollEvents();
 
-        deltaTime = System.currentTimeMillis() - pastFrame;
-        deltaTime /= 1000f;
         pastFrame = System.currentTimeMillis();
 
         fpsFrames ++;
@@ -127,6 +134,10 @@ public class Window {
             fpsFrames = 0;
             fpsTime = System.currentTimeMillis();
         }
+
+        averageFPS = lerp(averageFPS, Window.getGameWindow().frameRate, 0.02f);
+
+        deltaTime = 60 / averageFPS;
     }
 
     public void setFullscreen(boolean fullscreen) {
@@ -134,9 +145,9 @@ public class Window {
         isResized = true;
         if (fullscreen) {
             GLFW.glfwGetWindowPos(window, windowPosX, windowPosY);
-            GLFW.glfwSetWindowMonitor(window, GLFW.glfwGetPrimaryMonitor(), 0, 0, width, height, 0);
+            GLFW.glfwSetWindowMonitor(window, GLFW.glfwGetPrimaryMonitor(), 0, 0, width, height, 144);
         } else {
-            GLFW.glfwSetWindowMonitor(window, 0, windowPosX[0], windowPosY[0], width, height, 0);
+            GLFW.glfwSetWindowMonitor(window, 0, windowPosX[0], windowPosY[0], width, height, 144);
         }
     }
 
@@ -164,11 +175,11 @@ public class Window {
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, lock ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL);
     }
 
-    public int getWidth() {
+    public static int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    public static int getHeight() {
         return height;
     }
 
@@ -211,4 +222,11 @@ public class Window {
     public static void setGameWindow(Window gameWindow) {
         Window.gameWindow = gameWindow;
     }
+
+    public static float getDeltaTime() {
+        return Window.getGameWindow().deltaTime;
+    }
+
+
+
 }

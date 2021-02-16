@@ -32,7 +32,7 @@ public class PlayerMovement {
     private float headBobbing = 0;
     private float headBobbingMultiplier = 0;
 
-    private final float MOVE_SPEED = 0.06f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.12f;
+    private final float MOVE_SPEED = 0.07f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.12f, AIR_FRICTION = 1.5f, GROUND_FRICTION = 5.0f;
     private final float GRAVITY = 0.006f;
 
     private float averageFPS = 120f;
@@ -61,31 +61,31 @@ public class PlayerMovement {
 
         timeElapsed = (int) (System.currentTimeMillis() - timeStart);
 
-        averageFPS = lerp(averageFPS, Window.getGameWindow().frameRate, 0.02f);
-
-        float deltaTime = 60 / averageFPS;
-
         isCrouched = Input.isKey(GLFW.GLFW_KEY_LEFT_CONTROL);
         isSprinting = Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT);
         isAiming = Input.isMouseButton(1);
 
         boolean feetWithinWall = wallRegion.isWithin(new Vector3f(position).add(0, -0.02f, 0));
 
-        isGrounded = position.getY() <= 0 || feetWithinWall;
+        if (isGrounded && position.getY() <= World.getTerrainHeight(position.getX(), position.getZ()) + 0.1f) {
+            position.setY(World.getTerrainHeight(position.getX(), position.getZ()));
+        }
+
+        isGrounded = position.getY() <= World.getTerrainHeight(position.getX(), position.getZ()) || feetWithinWall;
 
         if (isGrounded) {
             if (Input.isKey(GLFW.GLFW_KEY_SPACE)) {
                 jump();
                 isGrounded = false;
             } else {
-                velocity.setX(velocity.getX() / (1 + (5.0f)));
-                velocity.setZ(velocity.getZ() / (1 + (5.0f)));
+                velocity.setX(velocity.getX() / (1 + (GROUND_FRICTION)));
+                velocity.setZ(velocity.getZ() / (1 + (GROUND_FRICTION)));
                 velocity.setY(0);
             }
         } else {
-            velocity.setX(velocity.getX() / (1 + (1.5f)));
-            velocity.setZ(velocity.getZ() / (1 + (1.5f)));
-            velocity.setY(velocity.getY() - (GRAVITY) * deltaTime);
+            velocity.setX(velocity.getX() / (1 + (AIR_FRICTION)));
+            velocity.setZ(velocity.getZ() / (1 + (AIR_FRICTION)));
+            velocity.setY(velocity.getY() - (GRAVITY) * Window.getDeltaTime());
         }
 
         if (isCrouched || !isGrounded || isAiming) {
@@ -121,25 +121,47 @@ public class PlayerMovement {
         velocity.add(vectorRight.multiply(velocityRight).multiply(speed));
         velocity.add(vectorBack.multiply(velocityBack).multiply(speed));
 
-        headBobbingMultiplier = lerp(headBobbingMultiplier, moving, 0.2f * deltaTime);
+        headBobbingMultiplier = lerp(headBobbingMultiplier, moving, 0.2f * Window.getDeltaTime());
         headBobbing = (float) (Math.sin(timeElapsed / (80f * (isSprinting ? 0.6f : 1))) * 0.05f * (isCrouched ? 0.5f : 1f) * headBobbingMultiplier);
 
-        cameraHeight = lerp(cameraHeight, isCrouched ? 1.5f : 2, 0.1f * deltaTime);
+        cameraHeight = lerp(cameraHeight, isCrouched ? 1.5f : 2, 0.1f * Window.getDeltaTime());
 
         if (isSprinting) {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 85.0f, 0.1f * deltaTime));
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 85.0f, 0.1f * Window.getDeltaTime()));
         } else if (isAiming) {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 70.0f, 0.1f * deltaTime));
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 1.0f, 0.05f * Window.getDeltaTime()));
         } else {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 80.0f, 0.1f * deltaTime));
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 80.0f, 0.1f * Window.getDeltaTime()));
         }
 
         float recoilValue = (isAiming ? 0.4f : 0.8f) + (velocitySum > 0.5f ? 0.5f : 0.0f) + (isCrouched ? -0.1f : 0.0f) + (isGrounded ? 0.0f : 1.0f) + (isSprinting ? 0.5f : 0.0f);
-        recoil = lerp(recoil, recoilValue, 0.1f * deltaTime);
+        recoil = lerp(recoil, recoilValue, 0.1f * Window.getDeltaTime());
 
-        position = wallRegion.collision(position, new Vector3f(velocity).multiply(deltaTime), 0.1f);
+        position = wallRegion.collision(position, new Vector3f(velocity).multiply(Window.getDeltaTime()), 0.1f);
+
+        // Position Bounds
+        if (position.getX() < 0) {
+            position.setX(0);
+        }
+        if (position.getZ() < 0) {
+            position.setZ(0);
+        }
+        Vector3f scale = World.getWorld().groundPlane.getScale();
+        if (position.getX() > 512 * scale.getX()) {
+            position.setX(512 * scale.getX());
+        }
+        if (position.getZ() > 512 * scale.getZ()) {
+            position.setZ(512 * scale.getZ());
+        }
+        if (position.getY() < World.getTerrainHeight(position.getX(), position.getZ())) {
+            position.setY(World.getTerrainHeight(position.getX(), position.getZ()));
+        }
+        if (position.getY() > 1000) {
+            position.setY(1000);
+        }
 
         Camera.setMainCameraPosition(new Vector3f(position).add(0, cameraHeight + (isGrounded ? headBobbing : 0),0));
+
     }
 
     public float getRecoil() {

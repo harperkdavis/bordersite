@@ -10,7 +10,14 @@ public class Vertex {
 
     public Vertex(Vector3f position, Vector3f normal, Vector2f uv) {
         this.position = position;
-        this.color = new Vector3f(0, 0, 0);
+        this.color = new Vector3f(1, 1, 1);
+        this.normal = normal;
+        this.uv = uv;
+    }
+
+    public Vertex(Vector3f position, Vector3f normal, Vector2f uv, Vector3f color) {
+        this.position = position;
+        this.color = color;
         this.normal = normal;
         this.uv = uv;
     }

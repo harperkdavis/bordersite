@@ -17,16 +17,29 @@ public class Mesh {
     public int[] indices;
     public Material material;
     private int vao, pbo, ibo, cbo, tbo, nbo;
+    private boolean linear;
 
     public Mesh(Vertex[] vertices, int[] indices, Material material) {
         this.vertices = vertices;
         this.indices = indices;
         this.material = material;
+        linear = false;
+    }
+
+    public Mesh(Vertex[] vertices, int[] indices, Material material, boolean linear) {
+        this.vertices = vertices;
+        this.indices = indices;
+        this.material = material;
+        this.linear = linear;
     }
 
     // Create the buffers to store mesh data
     public void create() {
-        material.create();
+        material.create(linear);
+        createMesh();
+    }
+
+    private void createMesh() {
 
         vao = GL30.glGenVertexArrays();
         GL30.glBindVertexArray(vao);

@@ -6,6 +6,11 @@ public class Input {
 
     private static boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
     private static boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static boolean[] keysDown = new boolean[GLFW.GLFW_KEY_LAST];
+    private static boolean[] buttonsDown = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static boolean[] keysUp = new boolean[GLFW.GLFW_KEY_LAST];
+    private static boolean[] buttonsUp = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+
     private static double mouseX, mouseY;
     private static double scrollX, scrollY;
 

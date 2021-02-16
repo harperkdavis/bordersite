@@ -34,6 +34,20 @@ public class Material {
         textureID = texture.getTextureID();
     }
 
+    public void create(boolean linear) {
+        // Try to load the texture
+        try {
+            int mode = linear ? GL11.GL_LINEAR : GL11.GL_NEAREST;
+            texture = TextureLoader.getTexture(texturePath.split("[.]")[1], Material.class.getResourceAsStream(texturePath), mode);
+        } catch (IOException e) {
+            System.err.println("[ERROR] Invalid texture at " + texturePath);
+        }
+        // Gets the width and height
+        width = texture.getWidth();
+        height = texture.getHeight();
+        textureID = texture.getTextureID();
+    }
+
     // Unloads the texture
     public void destroy() {
         GL13.glDeleteTextures(textureID);
@@ -51,4 +65,7 @@ public class Material {
         return textureID;
     }
 
+    public Texture getTexture() {
+        return texture;
+    }
 }

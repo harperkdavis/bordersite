@@ -95,7 +95,7 @@ public class Main implements Runnable {
         PlayerMovement.setPlayerMovement(new PlayerMovement());
 
         World.setWorld(new World());
-        UserInterface.setUi(new UserInterface());
+        UserInterface.setUi(new UserInterface(WIDTH, HEIGHT));
         game = new Thread(this,"game");
         game.start();
     }
@@ -112,8 +112,6 @@ public class Main implements Runnable {
 
         System.out.println("[INFO] Loading world...");
         UserInterface.getUi().load();
-        World.getWorld().load();
-        System.out.println("[INFO] World created!");
 
         System.out.println("[INFO] Loading shader...");
         shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
@@ -130,11 +128,12 @@ public class Main implements Runnable {
 
         System.out.println("[INFO] Initialization completed!");
 
-        System.out.println("[INFO] Connecting to server...");
-        connect();
     }
 
     private void connect() {
+        World.getWorld().load();
+        System.out.println("[INFO] World created!");
+
         Client.setSocketClient(new Client( "localhost"));
         Client.getSocketClient().start();
 
@@ -144,11 +143,13 @@ public class Main implements Runnable {
 
     private void disconnect() {
         System.out.println("[INFO] Sending disconnect packet");
-        PacketDisconnect packet = new PacketDisconnect();
-        packet.writeData(Client.getSocketClient());
-        System.out.println("[INFO] Ending client thread");
-        Client.getSocketClient().setRunning(false);
-        Client.getSocketClient().stop();
+        if (Client.isConnected()) {
+            PacketDisconnect packet = new PacketDisconnect();
+            packet.writeData(Client.getSocketClient());
+            System.out.println("[INFO] Ending client thread");
+            Client.getSocketClient().setRunning(false);
+            Client.getSocketClient().stop();
+        }
     }
 
     public void run() {

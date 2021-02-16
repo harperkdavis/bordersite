@@ -3,10 +3,7 @@ package engine.graphics;
 import engine.io.Window;
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
-import engine.objects.Camera;
-import engine.objects.GameObject;
-import engine.objects.GameObjectGroup;
-import engine.objects.GameObjectMesh;
+import engine.objects.*;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
@@ -40,6 +37,9 @@ public class Renderer {
 
     // Single renderer
     public void renderMesh(GameObject object, Camera camera) {
+        if (!object.isVisible()) {
+            return;
+        }
         if (object instanceof GameObjectMesh) {
             GameObjectMesh objectMesh = (GameObjectMesh) object;
             GL30.glBindVertexArray(objectMesh.getMesh().getVAO());

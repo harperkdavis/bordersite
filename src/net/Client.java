@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public class Client implements Runnable {
 
     private static Client socketClient;
+    private static boolean connected = false;
 
     private Thread thread;
     private InetAddress ipAddress;
@@ -26,7 +27,6 @@ public class Client implements Runnable {
 
     public boolean running = true;
 
-    private boolean connected = false;
     private int playerId = 0;
 
     public Client(String ipAddress) {
@@ -123,7 +123,7 @@ public class Client implements Runnable {
         this.running = running;
     }
 
-    public boolean isConnected() {
+    public static boolean isConnected() {
         return connected;
     }
 

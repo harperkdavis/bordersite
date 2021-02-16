@@ -138,6 +138,10 @@ public class Vector3f {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
+    public static Vector3f lerp(Vector3f a, Vector3f b, float c) {
+        return new Vector3f(Mathf.lerp(a.getX(), b.getX(), c), Mathf.lerp(a.getY(), b.getY(), c), Mathf.lerp(a.getZ(), b.getZ(), c));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

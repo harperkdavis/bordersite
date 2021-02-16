@@ -2,6 +2,11 @@ package engine.graphics;
 
 import engine.math.Vector2f;
 import engine.math.Vector3f;
+import main.World;
+import java.util.List;
+import org.newdawn.slick.opengl.Texture;
+
+import java.util.ArrayList;
 
 public class MeshBuilder {
 
@@ -151,6 +156,45 @@ public class MeshBuilder {
         return mesh;
     }
 
+    public static Mesh UIRect(float size, Material m) {
+        Mesh mesh = new Mesh(new Vertex[] {
+                new Vertex(new Vector3f(0.0f, -1.0f * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(1.0f * size, 0.0f, 0.0f), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3f(1.0f * size, -1.0f * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+        }, new int[] {
+                0, 1, 3,
+                3, 1, 2,
+        }, m);
+        return mesh;
+    }
+
+    public static Mesh UICenter(float size, Material m) {
+        Mesh mesh = new Mesh(new Vertex[] {
+                new Vertex(new Vector3f(-0.5f * size, 0.5f * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(-0.5f * size, -0.5f * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(0.5f * size, -0.5f * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+                new Vertex(new Vector3f(0.5f * size, 0.5f * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+        }, new int[] {
+                0, 1, 3,
+                3, 1, 2,
+        }, m);
+        return mesh;
+    }
+
+    public static Mesh UIOrigin(float size, float x, float y, Material m) {
+        Mesh mesh = new Mesh(new Vertex[] {
+                new Vertex(new Vector3f((0.0f - x) * size, (-1.0f - y) * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f((0.0f - x) * size, (0.0f - y) * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f((1.0f - x) * size, (0.0f - y) * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+                new Vertex(new Vector3f((1.0f - x) * size, (-1.0f - y) * size, 0.0f), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+        }, new int[] {
+                0, 1, 3,
+                3, 1, 2,
+        }, m);
+        return mesh;
+    }
+
     // Creates a tiled plane
     public static Mesh TiledPlane(int size, Material m) {
         Vertex[] vertices = new Vertex[size * size * 4];
@@ -161,6 +205,32 @@ public class MeshBuilder {
                 vertices[i + 1] = new Vertex(new Vector3f((0.0f + x),  0.0f,  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f));
                 vertices[i + 2] = new Vertex(new Vector3f((1.0f + x),  0.0f,  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f));
                 vertices[i + 3] = new Vertex(new Vector3f((1.0f + x),  0.0f,  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f));
+                tris[j] = i;
+                tris[j + 1] = i + 1;
+                tris[j + 2] = i + 3;
+                tris[j + 3] = i + 3;
+                tris[j + 4] = i + 1;
+                tris[j + 5] = i + 2;
+
+                i += 4;
+                j += 6;
+            }
+        }
+
+        return new Mesh(vertices, tris, m);
+    }
+
+    public static Mesh Terrain(Material m) {
+        Vertex[] vertices = new Vertex[511 * 511 * 4];
+        int[] tris = new int[511 * 511 * 6];
+
+        for (int x = 0, i = 0, j = 0; x < 511; x++) {
+            for (int z = 0; z < 511; z++) {
+
+                vertices[i] = new Vertex(new Vector3f((0.0f + x),  World.getHeightMap()[x][z + 1],  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f));
+                vertices[i + 1] = new Vertex(new Vector3f((0.0f + x),  World.getHeightMap()[x][z],  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f));
+                vertices[i + 2] = new Vertex(new Vector3f((1.0f + x),  World.getHeightMap()[x + 1][z],  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f));
+                vertices[i + 3] = new Vertex(new Vector3f((1.0f + x),  World.getHeightMap()[x + 1][z + 1],  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f));
                 tris[j] = i;
                 tris[j + 1] = i + 1;
                 tris[j + 2] = i + 3;
@@ -445,70 +515,272 @@ public class MeshBuilder {
         return mesh;
     }
 
-    // Creates the mesh for text
-    public static Mesh TextMesh(String text, float characterHeight, TextMode textMode) {
-        text = " " + text;
-        Material textMaterial = new Material("/textures/gamefont.png");
-        Vertex[] vertices = new Vertex[text.length() * 4];
-        int[] tris = new int[text.length() * 6];
-        float xUnit = 1.0f / 16.0f;
-        float yUnit = 1.0f / 8.0f;
-        float metric = characterHeight / 1.5f;
-        float textWidth = text.length() * metric;
-        float modifier = 0;
-        float length = 0;
-        switch (textMode) {
-            case LEFT:
-                modifier = 0;
-                break;
-            case CENTER:
-                modifier = -textWidth / 2;
-                break;
-            case RIGHT:
-                modifier = -textWidth;
-                break;
+    public static Mesh Tree(float size, float seedA, float seedB, Material m) {
+
+        Vertex[] treeVertices = new Vertex[] {
+                //Back face
+                new Vertex(new Vector3f(0.0f, size, 0.0f), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(-0.5f, 0.0f, -0.5f), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.25f)),
+                new Vertex(new Vector3f( 0.5f, 0.0f, -0.5f), new Vector3f(0, 0, -1), new Vector2f(0.25f, 0.25f)),
+                new Vertex(new Vector3f( 0.0f, size, 0.0f), new Vector3f(0, 0, -1), new Vector2f(0.25f, 0.0f)),
+
+                //Front face
+                new Vertex(new Vector3f(0.0f, size,  0.0f), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(-0.5f, 0.0f,  0.5f), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.25f)),
+                new Vertex(new Vector3f( 0.5f, 0.0f,  0.5f), new Vector3f(0, 0, 1), new Vector2f(0.25f, 0.25f)),
+                new Vertex(new Vector3f( 0.0f, size,  0.0f), new Vector3f(0, 0, 1), new Vector2f(0.25f, 0.0f)),
+
+                //Right face
+                new Vertex(new Vector3f( 0.0f, size, 0.0f), new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f( 0.5f, 0.0f, -0.5f), new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.25f)),
+                new Vertex(new Vector3f( 0.5f, 0.0f,  0.5f), new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.25f)),
+                new Vertex(new Vector3f( 0.0f, size,  0.0f), new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.0f)),
+
+                //Left face
+                new Vertex(new Vector3f(0.0f, size, 0.0f), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(-0.5f, 0.0f, -0.5f), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.25f)),
+                new Vertex(new Vector3f(-0.5f, 0.0f, 0.5f), new Vector3f(-1, 0, 0), new Vector2f(0.25f, 0.25f)),
+                new Vertex(new Vector3f(0.0f, size,  0.0f), new Vector3f(-1, 0, 0), new Vector2f(0.25f, 0.0f)),
+
+                //Bottom face
+                new Vertex(new Vector3f(-0.5f, 0.0f, 0.5f), new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(-0.5f, 0.0f, -0.5f), new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.25f)),
+                new Vertex(new Vector3f( 0.5f, 0.0f, -0.5f), new Vector3f(0, -1, 0), new Vector2f(0.25f, 0.25f)),
+                new Vertex(new Vector3f( 0.5f, 0.0f, 0.5f), new Vector3f(0, -1, 0), new Vector2f(0.25f, 0.0f)),
+        };
+        int[] treeTriangles = new int[] {
+                //Back face
+                0, 1, 3,
+                3, 1, 2,
+
+                //Front face
+                4, 5, 7,
+                7, 5, 6,
+
+                //Right face
+                8, 9, 11,
+                11, 9, 10,
+
+                //Left face
+                12, 13, 15,
+                15, 13, 14,
+
+                //Bottom Face face
+                16, 17, 19,
+                19, 17, 18,
+        };
+        int branches = (int) ((size - 2.0f) * 5);
+        Vertex[] vertices = new Vertex[20 + (branches * 4 * 2)]; // 4 Verts per face, 2 Faces per branch, 5 branches per size
+        int[] triangles = new int[30 + (branches * 6 * 2)];
+        System.arraycopy(treeVertices, 0, vertices, 0, 20);
+        System.arraycopy(treeTriangles, 0, triangles, 0, 30);
+        for (int i = 0; i < branches; i++) {
+            float turn = (i * 0.9266462599f + i) + seedA * seedB;
+            float height = i * 0.2f + 2.0f;
+            float branchSize = 1 + ((float) (branches - i) / branches) * 4;
+            float halfBranchSize = branchSize / 2.0f;
+            float longBranchSize = (float) Math.sqrt(branchSize * branchSize + (branchSize / 2.0f) * (branchSize / 2.0f));
+
+            Vector3f c = new Vector3f(0.0f, height, 0.0f);
+            Vector3f f = new Vector3f((float) Math.sin(turn) * branchSize, height - 0.25f, (float) Math.cos(turn) * branchSize);
+
+            Vector3f r = new Vector3f((float) Math.sin(turn + Math.PI / 2.0f) * halfBranchSize, height - 0.5f, (float) Math.cos(turn + Math.PI / 2.0f) * halfBranchSize);
+            Vector3f fr = new Vector3f((float) Math.sin(turn + Math.PI / 6.0f) * longBranchSize, height - 0.75f, (float) Math.cos(turn + Math.PI / 6.0f) * longBranchSize);
+
+            Vector3f l = new Vector3f((float) Math.sin(turn - Math.PI / 2.0f) * halfBranchSize, height - 0.5f, (float) Math.cos(turn - Math.PI / 2.0f) * halfBranchSize);
+            Vector3f fl = new Vector3f((float) Math.sin(turn - Math.PI / 6.0f) * longBranchSize, height - 0.75f, (float) Math.cos(turn - Math.PI / 6.0f) * longBranchSize);
+
+            vertices[20 + i * 8    ] = new Vertex(f, new Vector3f(1, 0, 0), new Vector2f(0.625f, 1.0f));
+            vertices[20 + i * 8 + 1] = new Vertex(c, new Vector3f(1, 0, 0), new Vector2f(0.625f, 0.0f));
+            vertices[20 + i * 8 + 2] = new Vertex(r, new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.0f));
+            vertices[20 + i * 8 + 3] = new Vertex(fr, new Vector3f(1, 0, 0), new Vector2f(0.25f, 1.0f));
+
+            vertices[20 + i * 8 + 4] = new Vertex(fl, new Vector3f(-1, 0, 0), new Vector2f(1.0f, 1.0f));
+            vertices[20 + i * 8 + 5] = new Vertex(l, new Vector3f(-1, 0, 0), new Vector2f(1.0f, 0.0f));
+            vertices[20 + i * 8 + 6] = new Vertex(c, new Vector3f(-1, 0, 0), new Vector2f(0.625f, 0.0f));
+            vertices[20 + i * 8 + 7] = new Vertex(f, new Vector3f(-1, 0, 0), new Vector2f(0.625f, 1.0f));
+
+            triangles[30 + i * 12] = 20 + i * 8;
+            triangles[30 + i * 12 + 1] = 20 + i * 8 + 1;
+            triangles[30 + i * 12 + 2] = 20 + i * 8 + 3;
+            triangles[30 + i * 12 + 3] = 20 + i * 8 + 3;
+            triangles[30 + i * 12 + 4] = 20 + i * 8 + 1;
+            triangles[30 + i * 12 + 5] = 20 + i * 8 + 2;
+
+            triangles[30 + i * 12 + 6] = 20 + i * 8 + 4;
+            triangles[30 + i * 12 + 7] = 20 + i * 8 + 5;
+            triangles[30 + i * 12 + 8] = 20 + i * 8 + 7;
+            triangles[30 + i * 12 + 9] = 20 + i * 8 + 7;
+            triangles[30 + i * 12 + 10] = 20 + i * 8 + 5;
+            triangles[30 + i * 12 + 11] = 20 + i * 8 + 6;
         }
-
-        for (int i = 0, j = 0, k = 0; i < text.length(); i++) {
-
-            int character = text.charAt(i) - 32;
-            int xTex = (character % 16);
-            int yTex = (character / 16);
-
-            vertices[j] = new Vertex(new Vector3f(modifier + length * metric, characterHeight, -length / 1000), new Vector3f(0, 1, 0), new Vector2f(xTex * xUnit, yTex * yUnit ));
-            vertices[j + 1] = new Vertex(new Vector3f(modifier + length * metric, 0, -length / 1000), new Vector3f(0, 1, 0), new Vector2f(xTex * xUnit, yTex * yUnit + yUnit / 2));
-            vertices[j + 2] = new Vertex(new Vector3f(modifier + length * metric + characterHeight, 0, -length / 1000), new Vector3f(0, 1, 0), new Vector2f(xTex * xUnit + xUnit, yTex * yUnit + yUnit / 2));
-            vertices[j + 3] = new Vertex(new Vector3f(modifier + length * metric + characterHeight, characterHeight, -length / 1000), new Vector3f(0, 1, 0), new Vector2f(xTex * xUnit + xUnit, yTex * yUnit));
-
-            tris[k] = j;
-            tris[k + 1] = j + 1;
-            tris[k + 2] = j + 3;
-            tris[k + 3] = j + 3;
-            tris[k + 4] = j + 1;
-            tris[k + 5] = j + 2;
-
-            j += 4;
-            k += 6;
-
-            if (("" + text.charAt(i)).toUpperCase().equals("" + text.charAt(i))) {
-                length += 0.2f;
-            }
-            if (text.charAt(i) == '.' || text.charAt(i) == ',' || text.charAt(i) == '!') {
-                length += 0.2f;
-            } else if (text.charAt(i) == 'i' || text.charAt(i) == 'I' || text.charAt(i) == 'j') {
-                length += 0.5f;
-            } else if (text.charAt(i) == 'l' || text.charAt(i) == 'f') {
-                length += 0.6f;
-            } else if (text.charAt(i) == 't' || text.charAt(i) == 'r' || text.charAt(i) == 's') {
-                length += 0.8f;
-            } else if (text.charAt(i) == 'w' || text.charAt(i) == 'W' || text.charAt(i) == 'M' || text.charAt(i) == 'Q' || text.charAt(i) == 'O' || text.charAt(i) == 'D') {
-                length += 1.4f;
-            } else {
-                length += 1;
-            }
-        }
-
-        return new Mesh(vertices, tris, textMaterial);
+        return new Mesh(vertices, triangles, m);
     }
+
+    // CHUNK TREE
+
+    public static Mesh TreeChunk(float size, List<Vector3f> positions, List<Integer> seedA, List<Integer> seedB, Material m) {
+        int branches = (int) ((size - 2.0f) * 5);
+        Vertex[] vertices = new Vertex[(20 + (branches * 4 * 2)) * positions.size()]; // 4 Verts per face, 2 Faces per branch, 5 branches per size
+        int[] triangles = new int[(30 + (branches * 6 * 2)) * positions.size()];
+        for (int t = 0; t < positions.size(); t++) {
+            int vertIndex = (20 + (branches * 4 * 2)) * t;
+            int triIndex = (30 + (branches * 6 * 2)) * t;
+
+            float xPos = positions.get(t).getX();
+            float yPos = positions.get(t).getY();
+            float zPos = positions.get(t).getZ();
+
+            Vector3f position = new Vector3f(xPos, yPos, zPos);
+
+            Vertex[] treeVertices = new Vertex[]{
+                    //Back face
+                    new Vertex(new Vector3f(0.0f, size, 0.0f).add(position), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.8f, 0.0f, -0.8f).add(position), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.25f)),
+                    new Vertex(new Vector3f(0.8f, 0.0f, -0.8f).add(position), new Vector3f(0, 0, -1), new Vector2f(0.25f, 0.25f)),
+                    new Vertex(new Vector3f(0.0f, size, 0.0f).add(position), new Vector3f(0, 0, -1), new Vector2f(0.25f, 0.0f)),
+
+                    //Front face
+                    new Vertex(new Vector3f(0.0f, size, 0.0f).add(position), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.8f, 0.0f, 0.8f).add(position), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.25f)),
+                    new Vertex(new Vector3f(0.8f, 0.0f, 0.8f).add(position), new Vector3f(0, 0, 1), new Vector2f(0.25f, 0.25f)),
+                    new Vertex(new Vector3f(0.0f, size, 0.0f).add(position), new Vector3f(0, 0, 1), new Vector2f(0.25f, 0.0f)),
+
+                    //Right face
+                    new Vertex(new Vector3f(0.0f, size, 0.0f).add(position), new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(0.8f, 0.0f, -0.8f).add(position), new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.25f)),
+                    new Vertex(new Vector3f(0.8f, 0.0f, 0.8f).add(position), new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.25f)),
+                    new Vertex(new Vector3f(0.0f, size, 0.0f).add(position), new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.0f)),
+
+                    //Left face
+                    new Vertex(new Vector3f(0.0f, size, 0.0f).add(position), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.8f, 0.0f, -0.8f).add(position), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.25f)),
+                    new Vertex(new Vector3f(-0.8f, 0.0f, 0.8f).add(position), new Vector3f(-1, 0, 0), new Vector2f(0.25f, 0.25f)),
+                    new Vertex(new Vector3f(0.0f, size, 0.0f).add(position), new Vector3f(-1, 0, 0), new Vector2f(0.25f, 0.0f)),
+
+                    //Bottom face
+                    new Vertex(new Vector3f(-0.8f, 0.0f, 0.8f).add(position), new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.8f, 0.0f, -0.8f).add(position), new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.25f)),
+                    new Vertex(new Vector3f(0.8f, 0.0f, -0.8f).add(position), new Vector3f(0, -1, 0), new Vector2f(0.25f, 0.25f)),
+                    new Vertex(new Vector3f(0.8f, 0.0f, 0.8f).add(position), new Vector3f(0, -1, 0), new Vector2f(0.25f, 0.0f)),
+            };
+            int[] treeTriangles = new int[]{
+                    //Back face
+                    vertIndex + 0, vertIndex + 1, vertIndex + 3,
+                    vertIndex + 3, vertIndex + 1, vertIndex + 2,
+
+                    //Front face
+                    vertIndex + 4, vertIndex + 5, vertIndex + 7,
+                    vertIndex + 7, vertIndex + 5, vertIndex + 6,
+
+                    //Right face
+                    vertIndex + 8, vertIndex + 9, vertIndex + 11,
+                    vertIndex + 11, vertIndex + 9, vertIndex + 10,
+
+                    //Left face
+                    vertIndex + 12, vertIndex + 13, vertIndex + 15,
+                    vertIndex + 15, vertIndex + 13, vertIndex + 14,
+
+                    //Bottom Face face
+                    vertIndex + 16, vertIndex + 17, vertIndex + 19,
+                    vertIndex + 19, vertIndex + 17, vertIndex + 18,
+            };
+            System.arraycopy(treeVertices, 0, vertices, vertIndex, 20);
+            System.arraycopy(treeTriangles, 0, triangles, triIndex, 30);
+            for (int i = 0; i < branches; i++) {
+                float turn = (i * (1 / 1.6180339887f))  + seedA.get(t) * seedB.get(t);
+                float height = i * 0.2f + 2.0f;
+                float branchSize = 1 + ((float) (branches - i) / branches) * 7;
+                float halfBranchSize = branchSize / 2.0f;
+                float longBranchSize = (float) Math.sqrt(branchSize * branchSize + (branchSize / 2.0f) * (branchSize / 2.0f));
+
+                Vector3f c = new Vector3f(0.0f, height, 0.0f);
+                Vector3f f = new Vector3f((float) Math.sin(turn) * branchSize, height - 0.3f * branchSize, (float) Math.cos(turn) * branchSize);
+
+                Vector3f r = new Vector3f((float) Math.sin(turn + Math.PI / 2.0f) * halfBranchSize, height - 0.5f * branchSize, (float) Math.cos(turn + Math.PI / 2.0f) * halfBranchSize);
+                Vector3f fr = new Vector3f((float) Math.sin(turn + Math.PI / 6.0f) * longBranchSize, height - 0.7f * branchSize, (float) Math.cos(turn + Math.PI / 6.0f) * longBranchSize);
+
+                Vector3f l = new Vector3f((float) Math.sin(turn - Math.PI / 2.0f) * halfBranchSize, height - 0.5f * branchSize, (float) Math.cos(turn - Math.PI / 2.0f) * halfBranchSize);
+                Vector3f fl = new Vector3f((float) Math.sin(turn - Math.PI / 6.0f) * longBranchSize, height - 0.7f * branchSize, (float) Math.cos(turn - Math.PI / 6.0f) * longBranchSize);
+
+                vertices[vertIndex + 20 + i * 8] = new Vertex(Vector3f.add(position, f), new Vector3f(1, 0, 0), new Vector2f(0.625f, 1.0f));
+                vertices[vertIndex + 20 + i * 8 + 1] = new Vertex(Vector3f.add(position, c), new Vector3f(1, 0, 0), new Vector2f(0.625f, 0.0f));
+                vertices[vertIndex + 20 + i * 8 + 2] = new Vertex(Vector3f.add(position, r), new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.0f));
+                vertices[vertIndex + 20 + i * 8 + 3] = new Vertex(Vector3f.add(position, fr), new Vector3f(1, 0, 0), new Vector2f(0.25f, 1.0f));
+
+                vertices[vertIndex + 20 + i * 8 + 4] = new Vertex(Vector3f.add(position, fl), new Vector3f(-1, 0, 0), new Vector2f(1.0f, 1.0f));
+                vertices[vertIndex + 20 + i * 8 + 5] = new Vertex(Vector3f.add(position, l), new Vector3f(-1, 0, 0), new Vector2f(1.0f, 0.0f));
+                vertices[vertIndex + 20 + i * 8 + 6] = new Vertex(Vector3f.add(position, c), new Vector3f(-1, 0, 0), new Vector2f(0.625f, 0.0f));
+                vertices[vertIndex + 20 + i * 8 + 7] = new Vertex(Vector3f.add(position, f), new Vector3f(-1, 0, 0), new Vector2f(0.625f, 1.0f));
+
+                triangles[triIndex + 30 + i * 12] = vertIndex + 20 + i * 8;
+                triangles[triIndex + 30 + i * 12 + 1] = vertIndex + 20 + i * 8 + 1;
+                triangles[triIndex + 30 + i * 12 + 2] = vertIndex + 20 + i * 8 + 3;
+                triangles[triIndex + 30 + i * 12 + 3] = vertIndex + 20 + i * 8 + 3;
+                triangles[triIndex + 30 + i * 12 + 4] = vertIndex + 20 + i * 8 + 1;
+                triangles[triIndex + 30 + i * 12 + 5] = vertIndex + 20 + i * 8 + 2;
+
+                triangles[triIndex + 30 + i * 12 + 6] = vertIndex + 20 + i * 8 + 4;
+                triangles[triIndex + 30 + i * 12 + 7] = vertIndex + 20 + i * 8 + 5;
+                triangles[triIndex + 30 + i * 12 + 8] = vertIndex + 20 + i * 8 + 7;
+                triangles[triIndex + 30 + i * 12 + 9] = vertIndex + 20 + i * 8 + 7;
+                triangles[triIndex + 30 + i * 12 + 10] = vertIndex + 20 + i * 8 + 5;
+                triangles[triIndex + 30 + i * 12 + 11] = vertIndex + 20 + i * 8 + 6;
+            }
+        }
+        return new Mesh(vertices, triangles, m);
+    }
+
+    public static Mesh TreeLowQuality(float size, Material m) {
+        Mesh mesh = new Mesh(new Vertex[] {
+                //X face
+                new Vertex(new Vector3f(-0.75f * size,  1.0f * size, 0.0f), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(-0.75f * size, 0.0f, 0.0f), new Vector3f(0, 0, -1), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f( 0.75f * size, 0.0f, 0.0f), new Vector3f(0, 0, -1), new Vector2f(1.0f, 1.0f)),
+                new Vertex(new Vector3f( 0.75f * size,  1.0f * size, 0.0f), new Vector3f(0, 0, -1), new Vector2f(1.0f, 0.0f)),
+
+                //Z face
+                new Vertex(new Vector3f(0.0f,  1.0f * size,  -0.75f * size), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(0.0f, 0.0f,  -0.75f * size), new Vector3f(0, 0, 1), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(0.0f, 0.0f,  0.75f * size), new Vector3f(0, 0, 1), new Vector2f(1.0f, 1.0f)),
+                new Vertex(new Vector3f(0.0f,  1.0f * size,  0.75f * size), new Vector3f(0, 0, 1), new Vector2f(1.0f, 0.0f)),
+        }, new int[] {
+                //Back face
+                0, 1, 3,
+                3, 1, 2,
+
+                //Front face
+                4, 5, 7,
+                7, 5, 6
+        }, m);
+        return mesh;
+    }
+
+    public static Mesh TreeLowQuality(float size, List<Vector3f> list, Material m) {
+
+        Mesh mesh = new Mesh(new Vertex[] {
+                //X face
+                new Vertex(new Vector3f(-0.75f * size,  1.0f * size, 0.0f), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(-0.75f * size, 0.0f, 0.0f), new Vector3f(0, 0, -1), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f( 0.75f * size, 0.0f, 0.0f), new Vector3f(0, 0, -1), new Vector2f(1.0f, 1.0f)),
+                new Vertex(new Vector3f( 0.75f * size,  1.0f * size, 0.0f), new Vector3f(0, 0, -1), new Vector2f(1.0f, 0.0f)),
+
+                //Z face
+                new Vertex(new Vector3f(0.0f,  1.0f * size,  -0.75f * size), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(0.0f, 0.0f,  -0.75f * size), new Vector3f(0, 0, 1), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(0.0f, 0.0f,  0.75f * size), new Vector3f(0, 0, 1), new Vector2f(1.0f, 1.0f)),
+                new Vertex(new Vector3f(0.0f,  1.0f * size,  0.75f * size), new Vector3f(0, 0, 1), new Vector2f(1.0f, 0.0f)),
+        }, new int[] {
+                //Back face
+                0, 1, 3,
+                3, 1, 2,
+
+                //Front face
+                4, 5, 7,
+                7, 5, 6
+        }, m);
+        return mesh;
+    }
+
 
 }
