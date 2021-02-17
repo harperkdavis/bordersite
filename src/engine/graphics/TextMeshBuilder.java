@@ -62,7 +62,7 @@ public class TextMeshBuilder {
             k += 6;
             if (!kremlinFont) {
                 if (("" + text.charAt(i)).toUpperCase().equals("" + text.charAt(i))) {
-                    length += 0.2f;
+                    length += 0.0f;
                 }
                 if (text.charAt(i) == '.' || text.charAt(i) == ',' || text.charAt(i) == '!') {
                     length += 0.2f;

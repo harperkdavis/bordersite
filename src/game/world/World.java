@@ -1,22 +1,17 @@
-package main;
+package game.world;
 
 import engine.graphics.Material;
-import engine.graphics.Mesh;
 import engine.graphics.MeshBuilder;
 import engine.graphics.Renderer;
 import engine.math.Mathf;
 import engine.math.Vector3f;
 import engine.objects.Camera;
 import engine.objects.GameObject;
-import engine.math.Region3f;
 import engine.objects.GameObjectGroup;
 import engine.objects.GameObjectMesh;
-import org.lwjglx.Sys;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class World {
 

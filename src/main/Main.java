@@ -6,6 +6,9 @@ import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector3f;
 import engine.objects.Camera;
+import game.PlayerMovement;
+import game.UserInterface;
+import game.world.World;
 import net.Client;
 import net.packets.PacketDisconnect;
 import net.packets.PacketLogin;
@@ -27,7 +30,7 @@ public class Main implements Runnable {
 
     private String username = "Player";
 
-    private long startTime;
+    private static long startTime;
     public int elapsedTime;
 
     public void start() {
@@ -158,7 +161,7 @@ public class Main implements Runnable {
             elapsedTime = (int) (System.currentTimeMillis() - startTime);
             update();
             render();
-            if (Input.isKey(GLFW.GLFW_KEY_ESCAPE)) { break; }
+            if (Input.isKey(GLFW.GLFW_KEY_ESCAPE) && Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT)) { break; }
             if (Input.isMouseButton(GLFW.GLFW_MOUSE_BUTTON_LEFT)) { Window.getGameWindow().mouseState(Client.getSocketClient().isConnected()); }
             if (Input.isKey(GLFW.GLFW_KEY_E)) { Window.getGameWindow().mouseState(false); }
         }
@@ -168,16 +171,17 @@ public class Main implements Runnable {
     private void update() {
         Camera.getMainCamera().update();
         Window.getGameWindow().update();
+        Input.update();
         UserInterface.getUi().update();
 
-        if (Client.getSocketClient().isConnected()) {
+        if (Client.isConnected()) {
             PlayerMovement.getPlayerMovement().update();
             World.getWorld().update();
         }
     }
 
     private void render() {
-        if (Client.getSocketClient().isConnected()) {
+        if (Client.isConnected()) {
             World.getWorld().render();
         }
         UserInterface.getUi().render(Renderer.getUiRenderer());
@@ -202,5 +206,7 @@ public class Main implements Runnable {
         new Main().start();
     }
 
-
+    public static long getStartTime() {
+        return startTime;
+    }
 }

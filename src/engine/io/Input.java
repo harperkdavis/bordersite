@@ -1,11 +1,14 @@
 package engine.io;
 
 import org.lwjgl.glfw.*;
+import org.lwjgl.system.CallbackI;
 
 public class Input {
 
     private static boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
     private static boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static boolean[] prevKeys = new boolean[GLFW.GLFW_KEY_LAST];
+    private static boolean[] prevButtons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
     private static boolean[] keysDown = new boolean[GLFW.GLFW_KEY_LAST];
     private static boolean[] buttonsDown = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
     private static boolean[] keysUp = new boolean[GLFW.GLFW_KEY_LAST];
@@ -57,6 +60,35 @@ public class Input {
 
     public static boolean isMouseButton(int button) {
         return buttons[button];
+    }
+
+    public static boolean isKeyDown(int key) {
+        return keysDown[key];
+    }
+
+    public static boolean isMouseButtonDown(int button) {
+        return buttonsDown[button];
+    }
+
+    public static boolean isKeyUp(int key) {
+        return keysUp[key];
+    }
+
+    public static boolean isMouseButtonUp(int button) {
+        return buttonsUp[button];
+    }
+
+    public static void update() {
+        for (int i = 0; i < keys.length; i++) {
+            keysDown[i] = keys[i] && !prevKeys[i];
+            keysUp[i] = !keys[i] && prevKeys[i];
+        }
+        for (int i = 0; i < buttons.length; i++) {
+            buttonsDown[i] = buttons[i] && !prevButtons[i];
+            buttonsUp[i] = !buttons[i] && prevButtons[i];
+        }
+        prevKeys = keys.clone();
+
     }
 
     public void destroy() {

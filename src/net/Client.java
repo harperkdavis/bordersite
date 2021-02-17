@@ -3,8 +3,7 @@ package net;
 import com.google.gson.Gson;
 
 import engine.objects.Player;
-import main.Main;
-import main.PlayerMovement;
+import game.PlayerMovement;
 import net.packets.Packet;
 import org.json.simple.JSONObject;
 

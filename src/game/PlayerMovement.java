@@ -1,4 +1,4 @@
-package main;
+package game;
 
 import engine.io.Input;
 import engine.io.Window;
@@ -6,6 +6,7 @@ import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.math.Region3f;
 import engine.objects.Camera;
+import game.world.World;
 import org.lwjgl.glfw.GLFW;
 
 import static engine.math.Mathf.lerp;

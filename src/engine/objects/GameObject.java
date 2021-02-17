@@ -10,6 +10,7 @@ public class GameObject {
 
     private Vector3f position, rotation, scale;
     private boolean visible = true;
+    private List<String> tags;
 
     public GameObject(Vector3f position, Vector3f rotation, Vector3f scale) {
         this.position = new Vector3f(position);
@@ -49,4 +50,15 @@ public class GameObject {
         this.visible = visible;
     }
 
+    public void addTag(String tag) {
+        tags.add(tag);
+    }
+
+    public void removeTag(String tag) {
+        tags.remove(tag);
+    }
+
+    public boolean hasTag(String tag) {
+        return tags.contains(tag);
+    }
 }

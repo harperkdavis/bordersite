@@ -2,11 +2,8 @@ package engine.graphics;
 
 import engine.math.Vector2f;
 import engine.math.Vector3f;
-import main.World;
+import game.world.World;
 import java.util.List;
-import org.newdawn.slick.opengl.Texture;
-
-import java.util.ArrayList;
 
 public class MeshBuilder {
 

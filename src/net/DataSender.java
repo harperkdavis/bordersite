@@ -1,9 +1,7 @@
 package net;
 
 import engine.objects.Camera;
-import main.Main;
-import main.PlayerMovement;
-import org.json.simple.JSONArray;
+import game.PlayerMovement;
 import org.json.simple.JSONObject;
 
 public class DataSender implements Runnable {
