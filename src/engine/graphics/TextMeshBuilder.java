@@ -61,22 +61,7 @@ public class TextMeshBuilder {
             j += 4;
             k += 6;
             if (!kremlinFont) {
-                if (("" + text.charAt(i)).toUpperCase().equals("" + text.charAt(i))) {
-                    length += 0.0f;
-                }
-                if (text.charAt(i) == '.' || text.charAt(i) == ',' || text.charAt(i) == '!') {
-                    length += 0.2f;
-                } else if (text.charAt(i) == 'i' || text.charAt(i) == 'I' || text.charAt(i) == 'j') {
-                    length += 0.5f;
-                } else if (text.charAt(i) == 'l' || text.charAt(i) == 'f') {
-                    length += 0.6f;
-                } else if (text.charAt(i) == 't' || text.charAt(i) == 'r' || text.charAt(i) == 's') {
-                    length += 0.8f;
-                } else if (text.charAt(i) == 'w' || text.charAt(i) == 'W' || text.charAt(i) == 'M' || text.charAt(i) == 'Q' || text.charAt(i) == 'O' || text.charAt(i) == 'D') {
-                    length += 1.2f;
-                } else {
-                    length += 1;
-                }
+                length += 0.6f;
             } else {
                 length += (text.charAt(i) == 'i' || text.charAt(i) == 'I' || text.charAt(i) == '1' || text.charAt(i) == '.' || text.charAt(i) == ',' || text.charAt(i) == '\"') ? 0.3f : 0.95f;
             }
@@ -89,22 +74,7 @@ public class TextMeshBuilder {
         float length = 0;
         for (int i = 0; i < text.length(); i++) {
             if (!kremlin) {
-                if (("" + text.charAt(i)).toUpperCase().equals("" + text.charAt(i))) {
-                    length += 0.2f;
-                }
-                if (text.charAt(i) == '.' || text.charAt(i) == ',' || text.charAt(i) == '!') {
-                    length += 0.2f;
-                } else if (text.charAt(i) == 'i' || text.charAt(i) == 'I' || text.charAt(i) == 'j') {
-                    length += 0.5f;
-                } else if (text.charAt(i) == 'l' || text.charAt(i) == 'f') {
-                    length += 0.6f;
-                } else if (text.charAt(i) == 't' || text.charAt(i) == 'r' || text.charAt(i) == 's') {
-                    length += 0.8f;
-                } else if (text.charAt(i) == 'w' || text.charAt(i) == 'W' || text.charAt(i) == 'M' || text.charAt(i) == 'Q' || text.charAt(i) == 'O' || text.charAt(i) == 'D') {
-                    length += 1.4f;
-                } else {
-                    length += 1;
-                }
+                length += 0.6f;
             } else {
                 length += (text.charAt(i) == 'i' || text.charAt(i) == 'I' || text.charAt(i) == '1' || text.charAt(i) == '.' || text.charAt(i) == ',' || text.charAt(i) == '\"') ? 0.5f : 1.2f;
             }

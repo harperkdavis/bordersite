@@ -7,7 +7,7 @@ import engine.io.Window;
 import engine.math.Vector3f;
 import engine.objects.Camera;
 import game.PlayerMovement;
-import game.UserInterface;
+import game.ui.UserInterface;
 import game.world.World;
 import net.Client;
 import net.packets.PacketDisconnect;
@@ -32,6 +32,9 @@ public class Main implements Runnable {
 
     private static long startTime;
     public int elapsedTime;
+    private long lastDataSend;
+
+    private boolean hasSentLoadedPacket = false;
 
     public void start() {
         startTime = System.currentTimeMillis();
@@ -42,7 +45,7 @@ public class Main implements Runnable {
         panel.setLayout(new GridLayout(3,2));
 
         panel.add(new JLabel("Resolution"));
-        JComboBox<String> res = new JComboBox<String>(resolutionOptions);
+        JComboBox<String> res = new JComboBox<>(resolutionOptions);
         res.setVisible(true);
         panel.add(res);
 
@@ -131,14 +134,14 @@ public class Main implements Runnable {
 
         System.out.println("[INFO] Initialization completed!");
 
+        connect();
     }
 
     private void connect() {
-        World.getWorld().load();
-        System.out.println("[INFO] World created!");
-
         Client.setSocketClient(new Client( "localhost"));
         Client.getSocketClient().start();
+
+        World.getWorld().load();
 
         PacketLogin packet = new PacketLogin(username);
         packet.writeData(Client.getSocketClient());
@@ -177,6 +180,10 @@ public class Main implements Runnable {
         if (Client.isConnected()) {
             PlayerMovement.getPlayerMovement().update();
             World.getWorld().update();
+            if (System.currentTimeMillis() - lastDataSend >= 10 && World.isLoaded()) {
+                Client.getSocketClient().getSender().sendData();
+                lastDataSend = System.currentTimeMillis();
+            }
         }
     }
 

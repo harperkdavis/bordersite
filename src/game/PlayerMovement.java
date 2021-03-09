@@ -7,9 +7,13 @@ import engine.math.Vector3f;
 import engine.math.Region3f;
 import engine.objects.Camera;
 import game.world.World;
+import net.Client;
 import org.lwjgl.glfw.GLFW;
 
 import static engine.math.Mathf.lerp;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerMovement {
 
@@ -33,7 +37,7 @@ public class PlayerMovement {
     private float headBobbing = 0;
     private float headBobbingMultiplier = 0;
 
-    private final float MOVE_SPEED = 0.07f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.12f, AIR_FRICTION = 1.5f, GROUND_FRICTION = 5.0f;
+    private final float MOVE_SPEED = 0.07f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.62f, AIR_FRICTION = 1.5f, GROUND_FRICTION = 5.0f;
     private final float GRAVITY = 0.006f;
 
     private float averageFPS = 120f;
@@ -45,7 +49,7 @@ public class PlayerMovement {
 
     private float root2 = (float) Math.sqrt(2);
 
-    public Region3f wallRegion = new Region3f(new Vector3f(7.5f, 1.0f, 7.5f), new Vector3f( 12.5f, -2.5f, 12.5f));
+    private static List<Region3f> collision;
     // Hipfire 1.0
     // ADS 0.5
     // Moving +0.5
@@ -56,9 +60,14 @@ public class PlayerMovement {
         position = new Vector3f(0, 0, 0);
         velocity = new Vector3f(0, 0, 0);
         timeStart = System.currentTimeMillis();
+        collision = new ArrayList<>();
     }
 
     public void update() {
+
+        if (!(Client.isConnected() && World.isLoaded())) {
+            return;
+        }
 
         timeElapsed = (int) (System.currentTimeMillis() - timeStart);
 
@@ -66,7 +75,7 @@ public class PlayerMovement {
         isSprinting = Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT);
         isAiming = Input.isMouseButton(1);
 
-        boolean feetWithinWall = wallRegion.isWithin(new Vector3f(position).add(0, -0.02f, 0));
+        boolean feetWithinWall = false;
 
         if (isGrounded && position.getY() <= World.getTerrainHeight(position.getX(), position.getZ()) + 0.1f) {
             position.setY(World.getTerrainHeight(position.getX(), position.getZ()));
@@ -130,7 +139,7 @@ public class PlayerMovement {
         if (isSprinting) {
             Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 85.0f, 0.1f * Window.getDeltaTime()));
         } else if (isAiming) {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 1.0f, 0.05f * Window.getDeltaTime()));
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 5.0f, 0.05f * Window.getDeltaTime()));
         } else {
             Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 80.0f, 0.1f * Window.getDeltaTime()));
         }
@@ -138,7 +147,11 @@ public class PlayerMovement {
         float recoilValue = (isAiming ? 0.4f : 0.8f) + (velocitySum > 0.5f ? 0.5f : 0.0f) + (isCrouched ? -0.1f : 0.0f) + (isGrounded ? 0.0f : 1.0f) + (isSprinting ? 0.5f : 0.0f);
         recoil = lerp(recoil, recoilValue, 0.1f * Window.getDeltaTime());
 
-        position = wallRegion.collision(position, new Vector3f(velocity).multiply(Window.getDeltaTime()), 0.1f);
+        for (Region3f region : collision) {
+            // position = region.collision(position, , 0.1f);
+        }
+
+        position = Vector3f.add(position, new Vector3f(velocity).multiply(Window.getDeltaTime()));
 
         // Position Bounds
         if (position.getX() < 0) {
@@ -190,5 +203,9 @@ public class PlayerMovement {
 
     public static void setPlayerMovement(PlayerMovement playerMovement) {
         PlayerMovement.playerMovement = playerMovement;
+    }
+
+    public static void addCollisionRegion(Region3f region) {
+        collision.add(region);
     }
 }

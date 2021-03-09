@@ -617,7 +617,7 @@ public class MeshBuilder {
     // CHUNK TREE
 
     public static Mesh TreeChunk(float size, List<Vector3f> positions, List<Integer> seedA, List<Integer> seedB, Material m) {
-        int branches = (int) ((size - 2.0f) * 5);
+        int branches = (int) ((size - 2.0f) * 4);
         Vertex[] vertices = new Vertex[(20 + (branches * 4 * 2)) * positions.size()]; // 4 Verts per face, 2 Faces per branch, 5 branches per size
         int[] triangles = new int[(30 + (branches * 6 * 2)) * positions.size()];
         for (int t = 0; t < positions.size(); t++) {
@@ -686,7 +686,7 @@ public class MeshBuilder {
             System.arraycopy(treeTriangles, 0, triangles, triIndex, 30);
             for (int i = 0; i < branches; i++) {
                 float turn = (i * (1 / 1.6180339887f))  + seedA.get(t) * seedB.get(t);
-                float height = i * 0.2f + 2.0f;
+                float height = i * 0.25f + 2.0f;
                 float branchSize = 1 + ((float) (branches - i) / branches) * 7;
                 float halfBranchSize = branchSize / 2.0f;
                 float longBranchSize = (float) Math.sqrt(branchSize * branchSize + (branchSize / 2.0f) * (branchSize / 2.0f));

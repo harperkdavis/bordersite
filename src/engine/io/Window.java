@@ -56,34 +56,50 @@ public class Window {
 
     public void create() {
 
+        System.out.println("    [INFO] Initializing GLFW...");
         if (!GLFW.glfwInit()) {
             System.err.println("[ERROR] GLFW wasn't initialized.");
             return;
         }
+        System.out.println("    [INFO] GLFW Initialized!");
 
+        System.out.println("    [INFO] Creating input class...");
         input = new Input();
+        System.out.println("    [INFO] Input class created!");
+
+        System.out.println("    [INFO] Creating window...");
         window = GLFW.glfwCreateWindow(width, height, title, 0,0);
 
         if (window == 0) {
             System.err.println("[ERROR] Window wasn't created.");
             return;
         }
+        System.out.println("    [INFO] Window created!");
 
+        System.out.println("    [INFO] Setting video mode and hints...");
         GLFWVidMode videoMode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
 
         GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, GLFW.GLFW_DONT_CARE);
+        GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, 4);
+        GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 4);
 
         windowPosX[0] = (videoMode.width() - width) / 2;
         windowPosY[0] = (videoMode.height() - height) / 2;
         GLFW.glfwSetWindowPos(window, windowPosX[0], windowPosY[0]);
+        System.out.println("    [INFO] Video mode and hints set!");
 
+        System.out.println("    [INFO] Creating capabilities...");
         GLFW.glfwMakeContextCurrent(window);
         GL.createCapabilities();
+        System.out.println("    [INFO] Capabilities created!");
 
+        System.out.println("    [INFO] Creating callbacks");
         GL11.glEnable(GL11.GL_DEPTH_TEST);
 
         createCallbacks();
+        System.out.println("    [INFO] Callbacks created!");
 
+        System.out.println("    [INFO] Finalizing window...");
         GLFW.glfwShowWindow(window);
 
         GLFW.glfwSwapInterval(1);
@@ -95,7 +111,7 @@ public class Window {
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
         fpsTime = System.currentTimeMillis();
-
+        System.out.println("    [INFO] Window process completed.");
     }
 
     private void createCallbacks() {

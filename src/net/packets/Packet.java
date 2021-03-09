@@ -12,7 +12,9 @@ public abstract class Packet {
         PUBLICPLAYERDATA(2),
         PRIVATEPLAYERDATA(3),
         PLAYERSPAWN(4),
-        PLAYERDELETE(5);
+        PLAYERDELETE(5),
+        LOADED(6),
+        ALERT(7);
 
         private int packetId;
 

@@ -2,8 +2,15 @@ package net;
 
 import com.google.gson.Gson;
 
+import engine.graphics.Material;
+import engine.graphics.MeshBuilder;
+import engine.math.Vector3f;
+import engine.objects.GameObject;
+import engine.objects.GameObjectMesh;
 import engine.objects.Player;
+import engine.util.JsonHandler;
 import game.PlayerMovement;
+import game.world.World;
 import net.packets.Packet;
 import org.json.simple.JSONObject;
 
@@ -26,7 +33,7 @@ public class Client implements Runnable {
 
     public boolean running = true;
 
-    private int playerId = 0;
+    private String playerId = "null";
 
     public Client(String ipAddress) {
         try {
@@ -38,27 +45,27 @@ public class Client implements Runnable {
             System.err.println("[ERROR] Unknown Host Exception: " + e);
         }
         sender = new DataSender(this, PlayerMovement.getPlayerMovement());
+        socket.connect(this.ipAddress, 7777);
     }
 
     public void start() {
         thread = new Thread(this);
         thread.start();
-        sender.start();
     }
 
     public void stop() {
-        sender.stop();
         running = false;
     }
 
     public void run() {
         System.out.println("[INFO] Client thread started");
         do {
-            byte[] data = new byte[4096];
+            byte[] data = new byte[65536];
             DatagramPacket packet = new DatagramPacket(data, data.length);
+
             try {
                 socket.receive(packet);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.err.println("[ERROR] Error receiving packet: " + e);
             }
             parsePacket(packet.getData());
@@ -68,8 +75,15 @@ public class Client implements Runnable {
 
     private void parsePacket(byte[] data) {
         String message = new String(data).trim();
-        JSONObject jsonData = new Gson().fromJson(message, JSONObject.class);
-        Packet.PacketType type = Packet.lookupPacket(((Double) jsonData.get("id")).intValue());
+        JSONObject jsonData;
+        Packet.PacketType type;
+        try {
+            jsonData = new Gson().fromJson(message, JSONObject.class);
+            type = Packet.lookupPacket(((Double) jsonData.get("id")).intValue());
+        } catch(Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
         switch (type) {
             case INVALID:
@@ -77,6 +91,7 @@ public class Client implements Runnable {
                 break;
             case CONNECT:
                 playerConnect(jsonData);
+                break;
             case PUBLICPLAYERDATA:
                 playerData(jsonData);
                 break;
@@ -92,17 +107,24 @@ public class Client implements Runnable {
             return;
         }
 
-        playerId = ((Double) data.get("playerId")).intValue();
+        playerId = ((String) data.get("playerId"));
         connected = true;
         System.out.println("[INFO] Connected to server! Player ID " + playerId);
     }
 
     private void playerData(JSONObject data) {
-
+        String id = (String) data.get("playerId");
+        GameObject playerObject = World.getPlayerObjects().get(id);
+        if (true) {
+            Vector3f position = new Vector3f(JsonHandler.getAsFloat(data, "position.x"), JsonHandler.getAsFloat(data, "position.y"), JsonHandler.getAsFloat(data, "position.z"));
+            Vector3f rotation = new Vector3f(JsonHandler.getAsFloat(data, "rotation.x"), JsonHandler.getAsFloat(data, "rotation.y"), JsonHandler.getAsFloat(data, "rotation.z"));
+            World.cube.setPosition(position);
+            World.cube.setRotation(rotation);
+        }
     }
 
     private void playerSpawn(JSONObject data) {
-
+        System.out.println(data.toString());
     }
 
     public void sendJsonData(JSONObject data) {
@@ -118,6 +140,10 @@ public class Client implements Runnable {
         }
     }
 
+    public DataSender getSender() {
+        return sender;
+    }
+
     public void setRunning(boolean running) {
         this.running = running;
     }
@@ -126,7 +152,7 @@ public class Client implements Runnable {
         return connected;
     }
 
-    public int getPlayerId() {
+    public String getPlayerId() {
         return playerId;
     }
 
@@ -136,5 +162,13 @@ public class Client implements Runnable {
 
     public static void setSocketClient(Client client) {
         socketClient = client;
+    }
+
+    public static void sendPacket(Packet packet) {
+        getSocketClient().sendJsonData(packet.getJsonData());
+    }
+
+    public static void sendData(JSONObject jsonData) {
+        getSocketClient().sendJsonData(jsonData);
     }
 }
