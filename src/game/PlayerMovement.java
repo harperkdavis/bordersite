@@ -37,7 +37,7 @@ public class PlayerMovement {
     private float headBobbing = 0;
     private float headBobbingMultiplier = 0;
 
-    private final float MOVE_SPEED = 0.07f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.4f, JUMP_HEIGHT = 0.62f, AIR_FRICTION = 1.5f, GROUND_FRICTION = 5.0f;
+    private final float MOVE_SPEED = 0.07f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.6f, SPRINT_SPEED = 1.2f, JUMP_HEIGHT = 0.1f, AIR_FRICTION = 1.5f, GROUND_FRICTION = 5.0f;
     private final float GRAVITY = 0.006f;
 
     private float averageFPS = 120f;
@@ -104,10 +104,10 @@ public class PlayerMovement {
 
         float rot = (float) Math.toRadians(Camera.getMainCameraRotation().getY());
 
-        velocityForward = lerp(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, SMOOTHING);
-        velocityLeft = lerp(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, SMOOTHING);
-        velocityRight = lerp(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0, SMOOTHING);
-        velocityBack = lerp(velocityBack, Input.isKey(GLFW.GLFW_KEY_S) ? 1 : 0, SMOOTHING);
+    velocityForward = lerp(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, SMOOTHING * Window.getDeltaTime());
+        velocityLeft = lerp(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, SMOOTHING * Window.getDeltaTime());
+        velocityRight = lerp(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0,  SMOOTHING * Window.getDeltaTime());
+        velocityBack = lerp(velocityBack, Input.isKey(GLFW.GLFW_KEY_S) ? 1 : 0, SMOOTHING * Window.getDeltaTime());
 
         float velocitySum = velocityForward + velocityLeft + velocityRight + velocityBack;
         float moving = velocitySum > 0.1f ? 1 : 0;
@@ -118,6 +118,9 @@ public class PlayerMovement {
             velocityRight *= (1 / velocitySum) * root2;
             velocityBack *= (1 / velocitySum) * root2;
         }
+
+        float strafeMultiplier = velocityRight - velocityLeft;
+        Camera.getMainCamera().setCameraTilt(lerp(Camera.getMainCamera().getCameraTilt(), strafeMultiplier * 0.5f * (isCrouched ? 15.0f : 1.0f), (SMOOTHING / 16.0f)  * Window.getDeltaTime()));
 
         Vector3f vectorForward = new Vector3f((float) -Math.sin(rot), 0, (float) -Math.cos(rot));
         Vector3f vectorLeft = new Vector3f((float) -Math.sin(rot + Math.PI / 2), 0, (float) -Math.cos(rot + Math.PI / 2));
@@ -135,13 +138,10 @@ public class PlayerMovement {
         headBobbing = (float) (Math.sin(timeElapsed / (80f * (isSprinting ? 0.6f : 1))) * 0.05f * (isCrouched ? 0.5f : 1f) * headBobbingMultiplier);
 
         cameraHeight = lerp(cameraHeight, isCrouched ? 1.5f : 2, 0.1f * Window.getDeltaTime());
-
-        if (isSprinting) {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 85.0f, 0.1f * Window.getDeltaTime()));
-        } else if (isAiming) {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 5.0f, 0.05f * Window.getDeltaTime()));
+        if (isAiming) {
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 78.0f, 0.05f * Window.getDeltaTime()));
         } else {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 80.0f, 0.1f * Window.getDeltaTime()));
+            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 80.0f + velocity.magnitude() * 8.0f, 0.1f * Window.getDeltaTime()));
         }
 
         float recoilValue = (isAiming ? 0.4f : 0.8f) + (velocitySum > 0.5f ? 0.5f : 0.0f) + (isCrouched ? -0.1f : 0.0f) + (isGrounded ? 0.0f : 1.0f) + (isSprinting ? 0.5f : 0.0f);

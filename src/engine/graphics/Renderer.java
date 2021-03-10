@@ -58,7 +58,7 @@ public class Renderer {
                 shader.setUniform("view", Matrix4f.view(Vector3f.zero(), new Vector3f(0, 180, 180)));
                 shader.setUniform("projection", window.getOrthoMatrix());
             } else {
-                shader.setUniform("view", Matrix4f.view(camera.getPosition(), camera.getRotation()));
+                shader.setUniform("view", Matrix4f.view(camera.getPosition(), camera.getRotation(), true));
                 shader.setUniform("projection", window.getProjectionMatrix());
             }
             shader.setUniform("model", model);

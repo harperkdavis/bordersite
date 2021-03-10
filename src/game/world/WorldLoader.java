@@ -151,8 +151,8 @@ public class WorldLoader {
 
                         if (b >= n) {
                             float v = 1.0f;
-                            v *= x % 2 == 0 ? 1.0f : 0.5f;
-                            v *= z % 2 == 0 ? 1.0f : 0.5f;
+                            v *= x % 100 == 0 ? 1.0f : 0.5f;
+                            v *= z % 100 == 0 ? 1.0f : 0.5f;
                             if (v > 0.5f) {
                                 float posX = x * World.SCALE_X + (r - 128.0f);
                                 float posZ = z * World.SCALE_Z + (g - 128.0f);

@@ -13,6 +13,8 @@ public class Camera {
 
     private static Camera mainCamera = new Camera(new Vector3f(0, 0, 0), Vector3f.zero());
 
+    private float cameraTilt = 0;
+
     public Camera(Vector3f position, Vector3f rotation) {
         this.position = position;
         this.rotation = rotation;
@@ -31,6 +33,7 @@ public class Camera {
         preMouseX = mouseX;
         preMouseY = mouseY;
 
+        rotation.setZ(cameraTilt);
     }
 
     public Vector3f getPosition() {
@@ -76,5 +79,14 @@ public class Camera {
     public static void addMainCameraRotation(Vector3f rotation) {
         mainCamera.setRotation(Vector3f.add(mainCamera.getRotation(), rotation));
     }
+
+    public float getCameraTilt() {
+        return cameraTilt;
+    }
+
+    public void setCameraTilt(float cameraTilt) {
+        this.cameraTilt = cameraTilt;
+    }
+
 
 }

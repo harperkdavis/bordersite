@@ -111,6 +111,10 @@ public class Matrix4f {
     }
 
     public static Matrix4f view(Vector3f position, Vector3f rotation) {
+        return view(position, rotation, false);
+    }
+
+    public static Matrix4f view(Vector3f position, Vector3f rotation, boolean zCompatible) {
         Matrix4f result = Matrix4f.identity();
 
         Vector3f negative = new Vector3f(-position.getX(), -position.getY(), - position.getZ());
@@ -118,7 +122,13 @@ public class Matrix4f {
 
         Matrix4f rotXMatrix = Matrix4f.rotate(rotation.getX(), new Vector3f(1, 0, 0));
         Matrix4f rotYMatrix = Matrix4f.rotate(rotation.getY(), new Vector3f(0, 1, 0));
-        Matrix4f rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f(0, 0, 1));
+
+        Matrix4f rotZMatrix;
+        if (zCompatible) {
+            rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f((float) -Math.sin(Math.toRadians(rotation.getY())), 0, (float) -Math.cos(Math.toRadians(rotation.getY()))));
+        } else {
+            rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f(0, 0, 1));
+        }
 
         Matrix4f rotationMatrix = Matrix4f.multiply(rotZMatrix, Matrix4f.multiply(rotYMatrix, rotXMatrix));
 
@@ -126,6 +136,7 @@ public class Matrix4f {
 
         return result;
     }
+
 
     public static Matrix4f multiply(Matrix4f matrix, Matrix4f other) {
         Matrix4f result = Matrix4f.identity();
