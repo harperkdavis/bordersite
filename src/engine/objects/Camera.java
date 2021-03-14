@@ -30,6 +30,14 @@ public class Camera {
 
         rotation = rotation.add(-accY * MOUSE_SENSITIVITY, -accX * MOUSE_SENSITIVITY, 0);
 
+        if (rotation.getX() > 88) {
+            rotation.setX(88);
+        }
+
+        if (rotation.getX() < -88) {
+            rotation.setX(-88);
+        }
+
         preMouseX = mouseX;
         preMouseY = mouseY;
 

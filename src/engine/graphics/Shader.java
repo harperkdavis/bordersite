@@ -3,7 +3,7 @@ package engine.graphics;
 import engine.math.Matrix4f;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
-import engine.util.FileUtils;
+import engine.util.Utils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;
@@ -16,8 +16,8 @@ public class Shader {
     private int vertexID, fragmentID, programID;
 
     public Shader(String vertexPath, String fragmentPath) {
-        vertexFile = FileUtils.loadAsString(vertexPath);
-        fragmentFile = FileUtils.loadAsString(fragmentPath);
+        vertexFile = Utils.loadAsString(vertexPath);
+        fragmentFile = Utils.loadAsString(fragmentPath);
 
     }
 

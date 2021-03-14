@@ -3,11 +3,11 @@
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 color;
 layout(location = 2) in vec2 uv;
-layout(location = 3) in vec3 normals;
+layout(location = 3) in float normals;
 
 out vec3 passColor;
 out vec2 passUV;
-out vec3 passNormal;
+out float passNormal;
 
 uniform mat4 model;
 uniform mat4 view;

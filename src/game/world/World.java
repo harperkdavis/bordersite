@@ -3,6 +3,7 @@ package game.world;
 import engine.graphics.Material;
 import engine.graphics.MeshBuilder;
 import engine.graphics.Renderer;
+import engine.io.MeshLoader;
 import engine.math.Mathf;
 import engine.math.Vector3f;
 import engine.objects.Camera;
@@ -29,6 +30,8 @@ public class World {
     public GameObject groundPlane;
 
     public static List<GameObject> objects = new ArrayList<>();
+    private static List<GameObject> bufferedObjects = new ArrayList<>();
+
     public static Map<String, GameObject> playerObjects = new HashMap<>();
 
     private List<GameObject> playerObjectList = new ArrayList<>();
@@ -36,9 +39,9 @@ public class World {
     public static GameObjectMesh cube;
     private static WorldLoader loader;
 
-    protected static float SCALE_X = 8;
-    protected static float SCALE_Y = 2;
-    protected static float SCALE_Z = 8;
+    protected static float SCALE_X = 4;
+    protected static float SCALE_Y = 1;
+    protected static float SCALE_Z = 4;
 
     public World() {
 
@@ -57,6 +60,8 @@ public class World {
 
         loader = new WorldLoader();
 
+        addObjectWithoutLoading(new GameObjectMesh(Vector3f.zero(), Vector3f.zero(), Vector3f.one().multiply(10), MeshLoader.loadModel("/models/untitled.obj", new Material("/textures/test.png"))));
+
         for (GameObject go : playerObjectList) {
             objects.add(go);
         }
@@ -70,6 +75,16 @@ public class World {
     public void update() {
         if (loading) {
             loader.run();
+            return;
+        }
+        for (int i = 0; i < bufferedObjects.size(); i++) {
+            GameObject object = bufferedObjects.remove(i);
+            if (object instanceof GameObjectMesh) {
+                ((GameObjectMesh) object).load();
+            } else if (object instanceof GameObjectGroup) {
+                ((GameObjectGroup) object).load();
+            }
+            objects.add(object);
         }
     }
 
@@ -116,6 +131,12 @@ public class World {
         }
     }
 
+    public static void addBufferedObject(GameObject object) {
+        bufferedObjects.add(object);
+    }
+
+
+
     public static WorldLoader getLoader() {
         return loader;
     }
@@ -159,5 +180,32 @@ public class World {
 
     public static Map<String, GameObject> getPlayerObjects() {
         return playerObjects;
+    }
+
+    public static float getSlope(int x, int z)  {
+        if (x >= 0 && x < 512 && z >= 0 && z < 512) {
+            float heightSum = 0;
+            float heightPoints = 0;
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i != 0 && j != 0 && x + i >= 0 && x + i < 512 && z + j >= 0 && z + j < 512) {
+                        heightSum += getHeightMap()[x + i][z + j];
+                        heightPoints += 1;
+                    }
+                }
+            }
+            heightSum /= heightPoints;
+            float averageHeight = (heightSum + getHeightMap()[x][z]) / 2.0f;
+            float distance = 0;
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i != 0 && j != 0 && x + i >= 0 && x + i < 512 && z + j >= 0 && z + j < 512) {
+                        distance += Math.abs(averageHeight - getHeightMap()[x + i][z + j]);
+                    }
+                }
+            }
+            return distance;
+        }
+        return 0;
     }
 }

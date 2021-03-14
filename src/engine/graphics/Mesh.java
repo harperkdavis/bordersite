@@ -83,17 +83,15 @@ public class Mesh {
         tbo = storeData(textureBuffer, 2, 2);
 
         // NORMALS
-        FloatBuffer normalBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
+        FloatBuffer normalBuffer = MemoryUtil.memAllocFloat(vertices.length);
 
-        float[] normalData = new float[vertices.length * 3];
+        float[] normalData = new float[vertices.length];
         for (int i = 0; i < vertices.length; i++) {
-            normalData[i * 3] = vertices[i].getNormal().getX();
-            normalData[i * 3 + 1] = vertices[i].getNormal().getY();
-            normalData[i * 3 + 2] = vertices[i].getNormal().getZ();
+            normalData[i] = vertices[i].getNormal();
         }
 
         normalBuffer.put(normalData).flip();
-        nbo = storeData(normalBuffer, 3, 3);
+        nbo = storeData(normalBuffer, 3, 1);
 
         IntBuffer indicesBuffer = MemoryUtil.memAllocInt(indices.length);
         indicesBuffer.put(indices).flip();

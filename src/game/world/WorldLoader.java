@@ -79,10 +79,12 @@ public class WorldLoader {
 
             for (int x = 0; x < 512; x++) {
                 for (int z = 0; z < 512; z++) {
-                    int data = textureData[(z * 512 + x) * 4];
-                    World.heightMap[x][z] = data >= 0 ? data : data + 256.0f;
+                    // int data = textureData[(z * 512 + x) * 4];
+                    // World.heightMap[x][z] = data >= 0 ? data : data + 256.0f;
+                    World.heightMap[x][z] = 0;
                 }
             }
+
             advanceLoading();
             wait(5);
         } else if (loadingStage == 1) {
@@ -195,34 +197,34 @@ public class WorldLoader {
 
                     Vertex[] treeVertices = new Vertex[]{
                             //Back face
-                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.0f)),
-                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.25f)),
-                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, 0, -1), new Vector2f(0.25f, 0.25f)),
-                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 0, -1), new Vector2f(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), 0.8f, new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), 0.8f, new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), 0.8f, new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), 0.8f, new Vector2f(0.25f, 0.0f)),
 
                             //Front face
-                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.0f)),
-                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.25f)),
-                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, 0, 1), new Vector2f(0.25f, 0.25f)),
-                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 0, 1), new Vector2f(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), 0.95f, new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), 0.95f, new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), 0.95f, new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), 0.95f, new Vector2f(0.25f, 0.0f)),
 
                             //Right face
-                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.0f)),
-                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.25f)),
-                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.25f)),
-                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), 0.9f, new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), 0.9f, new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), 0.9f, new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), 0.9f, new Vector2f(0.25f, 0.0f)),
 
                             //Left face
-                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.0f)),
-                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.25f)),
-                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(-1, 0, 0), new Vector2f(0.25f, 0.25f)),
-                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(-1, 0, 0), new Vector2f(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), 0.85f, new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), 0.85f, new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), 0.85f, new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), 0.85f, new Vector2f(0.25f, 0.0f)),
 
                             //Bottom face
-                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.0f)),
-                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.25f)),
-                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, -1, 0), new Vector2f(0.25f, 0.25f)),
-                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, -1, 0), new Vector2f(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), 0.75f, new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), 0.75f, new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), 0.75f, new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), 0.75f, new Vector2f(0.25f, 0.0f)),
                     };
                     int[] treeTriangles = new int[]{
                             //Back face
@@ -263,15 +265,15 @@ public class WorldLoader {
                         Vector3f l = new Vector3f((float) Math.sin(turn - Math.PI / 2.0f) * halfBranchSize, height - 0.5f * branchSize, (float) Math.cos(turn - Math.PI / 2.0f) * halfBranchSize);
                         Vector3f fl = new Vector3f((float) Math.sin(turn - Math.PI / 6.0f) * longBranchSize, height - 0.7f * branchSize, (float) Math.cos(turn - Math.PI / 6.0f) * longBranchSize);
 
-                        vertices[vertIndex + 20 + i * 8] = new Vertex(Vector3f.add(position, f), new Vector3f(1, 0, 0), new Vector2f(0.625f, 1.0f));
-                        vertices[vertIndex + 20 + i * 8 + 1] = new Vertex(Vector3f.add(position, c), new Vector3f(1, 0, 0), new Vector2f(0.625f, 0.0f));
-                        vertices[vertIndex + 20 + i * 8 + 2] = new Vertex(Vector3f.add(position, r), new Vector3f(1, 0, 0), new Vector2f(0.25f, 0.0f));
-                        vertices[vertIndex + 20 + i * 8 + 3] = new Vertex(Vector3f.add(position, fr), new Vector3f(1, 0, 0), new Vector2f(0.25f, 1.0f));
+                        vertices[vertIndex + 20 + i * 8] = new Vertex(Vector3f.add(position, f), 0.9f, new Vector2f(0.625f, 1.0f));
+                        vertices[vertIndex + 20 + i * 8 + 1] = new Vertex(Vector3f.add(position, c), 0.9f, new Vector2f(0.625f, 0.0f));
+                        vertices[vertIndex + 20 + i * 8 + 2] = new Vertex(Vector3f.add(position, r), 0.9f, new Vector2f(0.25f, 0.0f));
+                        vertices[vertIndex + 20 + i * 8 + 3] = new Vertex(Vector3f.add(position, fr), 0.9f, new Vector2f(0.25f, 1.0f));
 
-                        vertices[vertIndex + 20 + i * 8 + 4] = new Vertex(Vector3f.add(position, fl), new Vector3f(-1, 0, 0), new Vector2f(1.0f, 1.0f));
-                        vertices[vertIndex + 20 + i * 8 + 5] = new Vertex(Vector3f.add(position, l), new Vector3f(-1, 0, 0), new Vector2f(1.0f, 0.0f));
-                        vertices[vertIndex + 20 + i * 8 + 6] = new Vertex(Vector3f.add(position, c), new Vector3f(-1, 0, 0), new Vector2f(0.625f, 0.0f));
-                        vertices[vertIndex + 20 + i * 8 + 7] = new Vertex(Vector3f.add(position, f), new Vector3f(-1, 0, 0), new Vector2f(0.625f, 1.0f));
+                        vertices[vertIndex + 20 + i * 8 + 4] = new Vertex(Vector3f.add(position, fl), 0.85f, new Vector2f(1.0f, 1.0f));
+                        vertices[vertIndex + 20 + i * 8 + 5] = new Vertex(Vector3f.add(position, l), 0.85f, new Vector2f(1.0f, 0.0f));
+                        vertices[vertIndex + 20 + i * 8 + 6] = new Vertex(Vector3f.add(position, c), 0.85f, new Vector2f(0.625f, 0.0f));
+                        vertices[vertIndex + 20 + i * 8 + 7] = new Vertex(Vector3f.add(position, f), 0.85f, new Vector2f(0.625f, 1.0f));
 
                         triangles[triIndex + 30 + i * 12] = vertIndex + 20 + i * 8;
                         triangles[triIndex + 30 + i * 12 + 1] = vertIndex + 20 + i * 8 + 1;
@@ -317,6 +319,7 @@ public class WorldLoader {
             World.loaded = true;
 
             System.out.println("[INFO] World Loaded!");
+
             advanceLoading();
         }
     }

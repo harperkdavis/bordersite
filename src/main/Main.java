@@ -1,5 +1,9 @@
 package main;
 
+import engine.audio.AudioBuffer;
+import engine.audio.AudioListener;
+import engine.audio.AudioMaster;
+import engine.audio.AudioSource;
 import engine.graphics.*;
 import engine.graphics.Renderer;
 import engine.io.Input;
@@ -132,6 +136,11 @@ public class Main implements Runnable {
         System.out.println("[INFO] Renderer initialized!");
         Window.getGameWindow().setBackgroundColor(new Vector3f(0.8f, 0.8f, 0.8f));
 
+        System.out.println("[INFO] Initializing audio...");
+        AudioMaster.load();
+        AudioMaster.setListener(new AudioListener(new Vector3f(0, 0, 0)));
+        System.out.println("[INFO] Audio initialized!");
+
         System.out.println("[INFO] Initialization completed!");
 
         connect();
@@ -185,6 +194,14 @@ public class Main implements Runnable {
                 lastDataSend = System.currentTimeMillis();
             }
         }
+
+        if (Input.isKeyDown(GLFW.GLFW_KEY_L)) {
+            AudioSource source = new AudioSource(false, false);
+            AudioBuffer buffer = new AudioBuffer("resources/audio/test.ogg");
+            source.setBuffer(buffer.getBufferId());
+            AudioMaster.addSoundSource("test", source);
+            AudioMaster.playSoundSource("test");
+        }
     }
 
     private void render() {
@@ -206,6 +223,9 @@ public class Main implements Runnable {
 
         shader.destroy();
         uishader.destroy();
+
+        AudioMaster.unload();
+
         System.out.println("[INFO] Game Closed");
     }
 
