@@ -136,5 +136,15 @@ public class Vector2f {
     public static float dot(Vector2f a, Vector2f b) {
         return a.x * b.x + a.y * b.y;
     }
+    
+    public static Vector2f toPolar(Vector2f origin, Vector2f vector) {
+        Vector2f distanceVector = Vector2f.subtract(origin, vector);
+        double angle = Math.atan2(distanceVector.getX(), distanceVector.getY());
+        double distance = Math.sqrt(Math.pow(distanceVector.getX(), 2) + Math.pow(distanceVector.getY(), 2));
+        return new Vector2f((float) angle, (float) distance);
+    }
 
+    public static Vector2f toCartesian(Vector2f origin, Vector2f vector) {
+        return Vector2f.add(origin, new Vector2f((float) Math.sin(vector.getX()) * vector.getY(), (float) Math.cos(vector.getX()) * vector.getY()));
+    }
 }

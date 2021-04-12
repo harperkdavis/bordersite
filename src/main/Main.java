@@ -1,22 +1,24 @@
 package main;
 
-import engine.audio.AudioBuffer;
-import engine.audio.AudioListener;
-import engine.audio.AudioMaster;
-import engine.audio.AudioSource;
+import engine.audio.*;
 import engine.graphics.*;
-import engine.graphics.Renderer;
+import engine.graphics.render.MainRenderer;
+import engine.graphics.render.Renderer;
+import engine.graphics.render.UiRenderer;
+import engine.graphics.render.ViewmodelRenderer;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector3f;
 import engine.objects.Camera;
 import game.PlayerMovement;
 import game.ui.UserInterface;
+import game.viewmodel.Viewmodel;
 import game.world.World;
 import net.Client;
 import net.packets.PacketDisconnect;
 import net.packets.PacketLogin;
 import org.lwjgl.glfw.GLFW;
+import org.lwjglx.Sys;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,8 +26,7 @@ import java.awt.*;
 public class Main implements Runnable {
 
     public Thread game;
-    public Shader shader;
-    public Shader uishader;
+    public Shader mainShader, uiShader, viewmodelShader;
 
     public int WIDTH, HEIGHT;
     public boolean FULLSCREEN;
@@ -35,13 +36,16 @@ public class Main implements Runnable {
     private String username = "Player";
 
     private static long startTime;
-    public int elapsedTime;
-    private long lastDataSend;
+    private static int elapsedTime;
+    private long lastFixedUpdate;
+
+    private static long cycleBegin;
+    private static float deltaTime = 1.0f;
 
     private boolean hasSentLoadedPacket = false;
 
     public void start() {
-        startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
 
         String[] resolutionOptions = new String[]{"1920x1080", "1024x576", "1280x720", "1336x768", "1600x900", "2560x1440"};
 
@@ -105,6 +109,7 @@ public class Main implements Runnable {
         PlayerMovement.setPlayerMovement(new PlayerMovement());
 
         World.setWorld(new World());
+        Viewmodel.setViewmodel(new Viewmodel());
         UserInterface.setUi(new UserInterface(WIDTH, HEIGHT));
         game = new Thread(this,"game");
         game.start();
@@ -124,21 +129,28 @@ public class Main implements Runnable {
         UserInterface.getUi().load();
 
         System.out.println("[INFO] Loading shader...");
-        shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-        shader.create();
-        uishader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-        uishader.create();
+        mainShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
+        mainShader.create();
+        uiShader = new Shader("/shaders/uiVertex.glsl", "/shaders/uiFragment.glsl");
+        uiShader.create();
+        viewmodelShader = new Shader("/shaders/viewmodelVertex.glsl", "/shaders/viewmodelFragment.glsl");
+        viewmodelShader.create();
         System.out.println("[INFO] Loading shader complete.");
 
         System.out.println("[INFO] Initializing renderer...");
-        Renderer.setRenderer(new Renderer(Window.getGameWindow(), shader, false));
-        Renderer.setUiRenderer(new Renderer(Window.getGameWindow(), uishader, true));
+        Renderer.setMain(new MainRenderer(mainShader));
+        Renderer.setUi(new UiRenderer(uiShader));
+        Renderer.setViewmodel(new ViewmodelRenderer(viewmodelShader));
         System.out.println("[INFO] Renderer initialized!");
         Window.getGameWindow().setBackgroundColor(new Vector3f(0.8f, 0.8f, 0.8f));
 
         System.out.println("[INFO] Initializing audio...");
         AudioMaster.load();
-        AudioMaster.setListener(new AudioListener(new Vector3f(0, 0, 0)));
+        AudioListener listener = new AudioListener(new Vector3f(0, 0, 0));
+        listener.setPosition(new Vector3f(0, 0, 0));
+        listener.setOrientation(new Vector3f(0, 0, -1), new Vector3f(0, 1, 0));
+        listener.setVelocity(new Vector3f(0, 0, 0));
+        AudioMaster.setListener(listener);
         System.out.println("[INFO] Audio initialized!");
 
         System.out.println("[INFO] Initialization completed!");
@@ -151,6 +163,7 @@ public class Main implements Runnable {
         Client.getSocketClient().start();
 
         World.getWorld().load();
+        Viewmodel.getViewmodel().load();
 
         PacketLogin packet = new PacketLogin(username);
         packet.writeData(Client.getSocketClient());
@@ -171,11 +184,12 @@ public class Main implements Runnable {
         init();
         while (!Window.getGameWindow().shouldClose()) {
             elapsedTime = (int) (System.currentTimeMillis() - startTime);
+            cycleBegin = System.nanoTime();
             update();
             render();
             if (Input.isKey(GLFW.GLFW_KEY_ESCAPE) && Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT)) { break; }
-            if (Input.isMouseButton(GLFW.GLFW_MOUSE_BUTTON_LEFT)) { Window.getGameWindow().mouseState(Client.getSocketClient().isConnected()); }
-            if (Input.isKey(GLFW.GLFW_KEY_E)) { Window.getGameWindow().mouseState(false); }
+            Window.getGameWindow().mouseState(true);
+            deltaTime = ((System.nanoTime() - cycleBegin) / 1000000.0f);
         }
         close();
     }
@@ -186,29 +200,45 @@ public class Main implements Runnable {
         Input.update();
         UserInterface.getUi().update();
 
+        boolean fixedUpdate = System.currentTimeMillis() - lastFixedUpdate >= 10;
+
+        if (fixedUpdate) {
+            UserInterface.getUi().fixedUpdate();
+            lastFixedUpdate = System.currentTimeMillis();
+        }
+
+
         if (Client.isConnected()) {
             PlayerMovement.getPlayerMovement().update();
+            Viewmodel.getViewmodel().update();
             World.getWorld().update();
-            if (System.currentTimeMillis() - lastDataSend >= 10 && World.isLoaded()) {
+
+            if (fixedUpdate && World.isLoaded()) {
                 Client.getSocketClient().getSender().sendData();
-                lastDataSend = System.currentTimeMillis();
+                lastFixedUpdate = System.currentTimeMillis();
             }
         }
 
         if (Input.isKeyDown(GLFW.GLFW_KEY_L)) {
-            AudioSource source = new AudioSource(false, false);
-            AudioBuffer buffer = new AudioBuffer("resources/audio/test.ogg");
-            source.setBuffer(buffer.getBufferId());
-            AudioMaster.addSoundSource("test", source);
-            AudioMaster.playSoundSource("test");
+            AudioMaster.playSound(SoundEffect.AIRHORN, new Vector3f(50, 0, 50));
         }
+
+        AudioMaster.update();
+    }
+
+    private void fixedUpdate() {
+
     }
 
     private void render() {
+
         if (Client.isConnected()) {
             World.getWorld().render();
+            Viewmodel.getViewmodel().render();
         }
-        UserInterface.getUi().render(Renderer.getUiRenderer());
+        UserInterface.getUi().render();
+
+
         Window.getGameWindow().swapBuffers();
     }
 
@@ -219,10 +249,11 @@ public class Main implements Runnable {
         Window.getGameWindow().destroy();
 
         World.getWorld().unload();
+        Viewmodel.getViewmodel().unload();
         UserInterface.getUi().unload();
 
-        shader.destroy();
-        uishader.destroy();
+        mainShader.destroy();
+        uiShader.destroy();
 
         AudioMaster.unload();
 
@@ -235,5 +266,17 @@ public class Main implements Runnable {
 
     public static long getStartTime() {
         return startTime;
+    }
+
+    public static int getElapsedTime() {
+        return elapsedTime;
+    }
+
+    public static float getDeltaTime() {
+        return deltaTime / 1000.0f;
+    }
+
+    public static float getFrameTime() {
+        return (1000.0f / 60.0f) / deltaTime;
     }
 }

@@ -38,6 +38,17 @@ public class AudioBuffer {
         }
     }
 
+    public static int getSoundEffectBufferId(SoundEffect effect) {
+        String path = "resources/audio/" + effect.name().toLowerCase() + ".ogg";
+        AudioBuffer buffer = new AudioBuffer(path);
+        AudioMaster.addSoundBuffer(buffer);
+        return buffer.getBufferId();
+    }
+
+    public static int getSoundEffectBufferId(String buffer) {
+        return new AudioBuffer(buffer).getBufferId();
+    }
+
     public int getBufferId() {
         return this.bufferId;
     }

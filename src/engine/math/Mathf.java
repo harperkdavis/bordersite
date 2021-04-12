@@ -1,9 +1,16 @@
 package engine.math;
 
+import engine.io.Window;
+import main.Main;
+
 public class Mathf {
 
     public static float lerp(float a, float b, float f) {
         return a + f * (b - a);
+    }
+
+    public static float lerpdt(float a, float b, float f) {
+        return lerp(a, b, (float) (1 - Math.pow(f / 10000.0f, Main.getDeltaTime())));
     }
 
     public static float clamp(float x, float min, float max) {

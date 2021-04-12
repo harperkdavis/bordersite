@@ -1,8 +1,8 @@
 package game.world;
 
 import engine.graphics.Material;
-import engine.graphics.MeshBuilder;
-import engine.graphics.Renderer;
+import engine.graphics.render.Renderer;
+import engine.io.Input;
 import engine.io.MeshLoader;
 import engine.math.Mathf;
 import engine.math.Vector3f;
@@ -10,16 +10,14 @@ import engine.objects.Camera;
 import engine.objects.GameObject;
 import engine.objects.GameObjectGroup;
 import engine.objects.GameObjectMesh;
-import net.Client;
-import net.packets.PacketLoaded;
-import org.lwjgl.system.CallbackI;
+import game.GamePlane;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class World {
+public class World implements GamePlane {
 
     protected static World world;
     protected static float[][] heightMap;
@@ -36,7 +34,6 @@ public class World {
 
     private List<GameObject> playerObjectList = new ArrayList<>();
 
-    public static GameObjectMesh cube;
     private static WorldLoader loader;
 
     protected static float SCALE_X = 4;
@@ -45,97 +42,82 @@ public class World {
 
     public World() {
 
-        // Head
-        playerObjectList.add(new GameObjectMesh(new Vector3f(0, 1.75f, 0), Vector3f.zero(), Vector3f.one(), MeshBuilder.PlayerHead(new Material("/textures/player.png"))));
-        playerObjectList.add(new GameObjectMesh(new Vector3f(0, 1.0f, 0), Vector3f.zero(), Vector3f.one(), MeshBuilder.PlayerTorso(new Material("/textures/player.png"))));
-
-        playerObjectList.add(new GameObjectMesh(new Vector3f(-0.5f, 1.55f, 0), Vector3f.zero(), new Vector3f(1.0f, 1.0f, 1.0f), MeshBuilder.PlayerArm(new Material("/textures/player.png"))));
-        playerObjectList.add(new GameObjectMesh(new Vector3f(0.5f, 1.55f, 0), Vector3f.zero(), new Vector3f(-1.0f, 1.0f, 1.0f), MeshBuilder.PlayerArm(new Material("/textures/player.png"))));
-
-        playerObjectList.add(new GameObjectMesh(new Vector3f(-0.175f, 0.85f, 0), Vector3f.zero(), Vector3f.one(), MeshBuilder.PlayerLeg(new Material("/textures/player.png"))));
-        playerObjectList.add(new GameObjectMesh(new Vector3f(0.175f, 0.85f, 0), Vector3f.zero(), Vector3f.one(), MeshBuilder.PlayerLeg(new Material("/textures/player.png"))));
-
-        cube = new GameObjectMesh(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), MeshBuilder.Cube(2, new Material("/textures/test.png")));
-        objects.add(cube);
-
         loader = new WorldLoader();
-
-        addObjectWithoutLoading(new GameObjectMesh(Vector3f.zero(), Vector3f.zero(), Vector3f.one().multiply(10), MeshLoader.loadModel("/models/untitled.obj", new Material("/textures/test.png"))));
 
         for (GameObject go : playerObjectList) {
             objects.add(go);
         }
     }
 
+    @Override
     public void load() {
         loading = true;
         loaded = false;
     }
 
+    @Override
     public void update() {
         if (loading) {
             loader.run();
             return;
         }
+
+        Vector3f mcr = new Vector3f(Camera.getMainCameraRotation());
+
+        Vector3f hipPosition = Vector3f.add(Camera.getMainCameraPosition(), Camera.getMainCameraRotation().getRelative(new Vector3f(0.7f, -0.2f, -0.7f)));
+        Vector3f adsPosition = Vector3f.add(Camera.getMainCameraPosition(), Camera.getMainCameraRotation().getForward().multiply(0.5f));
+
         for (int i = 0; i < bufferedObjects.size(); i++) {
             GameObject object = bufferedObjects.remove(i);
-            if (object instanceof GameObjectMesh) {
-                ((GameObjectMesh) object).load();
-            } else if (object instanceof GameObjectGroup) {
-                ((GameObjectGroup) object).load();
-            }
+            object.load();
             objects.add(object);
         }
+
     }
 
+    @Override
+    public void fixedUpdate() {
+
+    }
+
+    @Override
     public void render() {
         if (isLoaded()) {
             for (GameObject go : objects) {
                 if (go != null) {
-                    Renderer.getRenderer().renderMesh(go, Camera.getMainCamera());
+                    Renderer.getMain().render(go);
                 }
             }
         }
     }
 
-
+    @Override
     public void unload() {
         for (GameObject go : objects) {
-            if (go instanceof GameObjectMesh) {
-                ((GameObjectMesh) go).unload();
-            } else if (go instanceof GameObjectGroup) {
-                ((GameObjectGroup) go).unload();
-            }
+                go.unload();
         }
     }
 
-    public static void addObject(GameObject object) {
+    public GameObject addObject(GameObject object) {
+        return addObject(object, false);
+    }
+
+    public GameObject addObject(GameObject object, boolean load) {
         objects.add(object);
-        if (object instanceof GameObjectGroup) {
-            ((GameObjectGroup) object).load();
-        } else if (object instanceof GameObjectMesh) {
-            ((GameObjectMesh) object).load();
+        if (load) {
+            object.load();
         }
+        return object;
     }
 
-    public static void addObjectWithoutLoading(GameObject object) {
-        objects.add(object);
-    }
-
-    public static void removeObject(GameObject object) {
+    public void removeObject(GameObject object) {
         objects.remove(object);
-        if (object instanceof GameObjectGroup) {
-            ((GameObjectGroup) object).unload();
-        } else if (object instanceof GameObjectMesh) {
-            ((GameObjectMesh) object).unload();
-        }
+        object.unload();
     }
 
     public static void addBufferedObject(GameObject object) {
         bufferedObjects.add(object);
     }
-
-
 
     public static WorldLoader getLoader() {
         return loader;

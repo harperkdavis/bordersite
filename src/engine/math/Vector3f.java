@@ -25,6 +25,12 @@ public class Vector3f {
         this.z = other.getZ();
     }
 
+    public Vector3f(Vector2f other, float z) {
+        this.x = other.getX();
+        this.y = other.getY();
+        this.z = z;
+    }
+
     public void set(float x, float y, float z) {
         this.x = x;
         this.y = y;
@@ -142,6 +148,10 @@ public class Vector3f {
         return new Vector3f(Mathf.lerp(a.getX(), b.getX(), c), Mathf.lerp(a.getY(), b.getY(), c), Mathf.lerp(a.getZ(), b.getZ(), c));
     }
 
+    public static Vector3f lerpdt(Vector3f a, Vector3f b, float c) {
+        return new Vector3f(Mathf.lerpdt(a.getX(), b.getX(), c), Mathf.lerpdt(a.getY(), b.getY(), c), Mathf.lerpdt(a.getZ(), b.getZ(), c));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -179,5 +189,25 @@ public class Vector3f {
 
     public void setZ(float z) {
         this.z = z;
+    }
+
+    public Vector3f getRelative(Vector3f vector) {
+        Matrix4f rotXMatrix = Matrix4f.rotate(x, new Vector3f(1, 0, 0));
+        Matrix4f rotYMatrix = Matrix4f.rotate(y, new Vector3f(0, 1, 0));
+        Matrix4f rotZMatrix = Matrix4f.rotate(z, new Vector3f(0, 0, 1));
+
+        Matrix4f rotation = Matrix4f.multiply(rotZMatrix, Matrix4f.multiply(rotYMatrix, rotXMatrix));
+        Vector4f vec = new Vector4f(vector, 1);
+        vec.multiply(rotation);
+
+        return new Vector3f(vec.getX(), vec.getY(), vec.getZ());
+    }
+
+    public Vector3f getForward() {
+        return getRelative(new Vector3f(0, 0, -1));
+    }
+
+    public String toString() {
+        return "X: " + x + " Y: " + y + " Z: " + z + " M: " + magnitude();
     }
 }

@@ -13,8 +13,8 @@ public class AudioListener {
         AL10.alListener3f(AL10.AL_VELOCITY, 0, 0, 0);
     }
 
-    public void setSpeed(Vector3f speed) {
-        AL10.alListener3f(AL10.AL_VELOCITY, speed.getX(), speed.getY(), speed.getZ());
+    public void setVelocity(Vector3f velocity) {
+        AL10.alListener3f(AL10.AL_VELOCITY, velocity.getX(), velocity.getY(), velocity.getZ());
     }
 
     public void setPosition(Vector3f position) {

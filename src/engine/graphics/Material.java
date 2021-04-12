@@ -2,6 +2,7 @@ package engine.graphics;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjglx.util.vector.Vector4f;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
@@ -11,6 +12,9 @@ import java.util.Arrays;
 // Stores Materials that create the appearance of an Object
 public class Material {
 
+
+    private float reflectance;
+
     private String texturePath;
     private Texture texture;
     private float width, height;
@@ -18,6 +22,12 @@ public class Material {
 
     public Material(String path) {
         texturePath = path;
+        reflectance = 1.0f;
+    }
+
+    public Material(String path, float reflectance) {
+        texturePath = path;
+        this.reflectance = reflectance;
     }
 
     // Creates the material and loads it
@@ -67,5 +77,9 @@ public class Material {
 
     public Texture getTexture() {
         return texture;
+    }
+
+    public float getReflectance() {
+        return reflectance;
     }
 }

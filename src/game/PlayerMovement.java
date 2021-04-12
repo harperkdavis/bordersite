@@ -1,5 +1,6 @@
 package game;
 
+import engine.audio.AudioMaster;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector2f;
@@ -7,10 +8,12 @@ import engine.math.Vector3f;
 import engine.math.Region3f;
 import engine.objects.Camera;
 import game.world.World;
+import main.Main;
 import net.Client;
 import org.lwjgl.glfw.GLFW;
 
 import static engine.math.Mathf.lerp;
+import static engine.math.Mathf.lerpdt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +98,7 @@ public class PlayerMovement {
         } else {
             velocity.setX(velocity.getX() / (1 + (AIR_FRICTION)));
             velocity.setZ(velocity.getZ() / (1 + (AIR_FRICTION)));
-            velocity.setY(velocity.getY() - (GRAVITY) * Window.getDeltaTime());
+            velocity.setY(velocity.getY() - (GRAVITY) * Main.getFrameTime());
         }
 
         if (isCrouched || !isGrounded || isAiming) {
@@ -104,10 +107,11 @@ public class PlayerMovement {
 
         float rot = (float) Math.toRadians(Camera.getMainCameraRotation().getY());
 
-        velocityForward = lerp(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, SMOOTHING * Window.getDeltaTime());
-        velocityLeft = lerp(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, SMOOTHING * Window.getDeltaTime());
-        velocityRight = lerp(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0,  SMOOTHING * Window.getDeltaTime());
-        velocityBack = lerp(velocityBack, Input.isKey(GLFW.GLFW_KEY_S) ? 1 : 0, SMOOTHING * Window.getDeltaTime());
+
+        velocityForward = lerpdt(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, SMOOTHING);
+        velocityLeft = lerpdt(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, SMOOTHING);
+        velocityRight = lerpdt(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0,  SMOOTHING);
+        velocityBack = lerpdt(velocityBack, Input.isKey(GLFW.GLFW_KEY_S) ? 1 : 0, SMOOTHING);
 
         float velocitySum = velocityForward + velocityLeft + velocityRight + velocityBack;
         float moving = velocitySum > 0.1f ? 1 : 0;
@@ -133,26 +137,26 @@ public class PlayerMovement {
         velocity.add(vectorRight.multiply(velocityRight).multiply(speed));
         velocity.add(vectorBack.multiply(velocityBack).multiply(speed));
 
-        headBobbingMultiplier = lerp(headBobbingMultiplier, moving, 0.2f * Window.getDeltaTime());
+        headBobbingMultiplier = lerpdt(headBobbingMultiplier, moving, 0.2f);
         headBobbing = (float) (Math.sin(timeElapsed / (80f * (isSprinting ? 0.6f : 1) * (isCrouched ? 1.6f : 1) )) * (isCrouched ? 0.8f : 1f) * headBobbingMultiplier);
 
-        Camera.getMainCamera().setCameraTilt(lerp(Camera.getMainCamera().getCameraTilt(), strafeMultiplier * 0.5f * (isCrouched ? 15.0f : 1.0f), (SMOOTHING / 16.0f)  * Window.getDeltaTime()));
+        Camera.getMainCamera().setCameraTilt(lerpdt(Camera.getMainCamera().getCameraTilt(), strafeMultiplier * 0.5f * (isCrouched ? 15.0f : 1.0f), (SMOOTHING / 16.0f)));
 
-        cameraHeight = lerp(cameraHeight, isCrouched ? 1.5f : 2, 0.1f * Window.getDeltaTime());
+        cameraHeight = lerpdt(cameraHeight, isCrouched ? 1.5f : 2, 0.1f);
         if (isAiming) {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 78.0f, 0.05f * Window.getDeltaTime()));
+            Window.getGameWindow().setFov(lerpdt(Window.getGameWindow().getFov(), 78.0f, 0.05f));
         } else {
-            Window.getGameWindow().setFov(lerp(Window.getGameWindow().getFov(), 80.0f + velocity.magnitude() * 8.0f, 0.1f * Window.getDeltaTime()));
+            Window.getGameWindow().setFov(lerpdt(Window.getGameWindow().getFov(), 80.0f + velocity.magnitude() * 8.0f, 0.1f));
         }
 
         float recoilValue = (isAiming ? 0.4f : 0.8f) + (velocitySum > 0.5f ? 0.5f : 0.0f) + (isCrouched ? -0.1f : 0.0f) + (isGrounded ? 0.0f : 1.0f) + (isSprinting ? 0.5f : 0.0f);
-        recoil = lerp(recoil, recoilValue, 0.1f * Window.getDeltaTime());
+        recoil = lerpdt(recoil, recoilValue, 0.1f);
 
         for (Region3f region : collision) {
             // position = region.collision(position, , 0.1f);
         }
 
-        position = Vector3f.add(position, new Vector3f(velocity).multiply(Window.getDeltaTime()));
+        position = Vector3f.add(position, new Vector3f(velocity).multiply(Main.getFrameTime()));
 
         // Position Bounds
         if (position.getX() < 0) {

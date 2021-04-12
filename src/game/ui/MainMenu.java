@@ -1,15 +1,13 @@
 package game.ui;
 
 import engine.graphics.Material;
-import engine.graphics.MeshBuilder;
-import engine.graphics.TextMeshBuilder;
-import engine.graphics.TextMode;
+import engine.graphics.mesh.UiBuilder;
+import engine.graphics.text.TextMeshBuilder;
+import engine.graphics.text.TextMode;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
-import engine.objects.GameObjectGroup;
-import engine.objects.GameObjectMesh;
 import org.lwjgl.glfw.GLFW;
 
 import static game.ui.UserInterface.p;
@@ -42,56 +40,52 @@ public class MainMenu extends Menu {
     @Override
     public void init() {
         mm_mapBackground = addObjectWithoutLoading(
-                new GameObjectMesh(screen(1.0f, 0.0f, 3),
+                new UiObject(screen(1.0f, 0.0f, 3),
                 Vector3f.zero(), Vector3f.one(),
-                MeshBuilder.UICenter(p(4096.0f), new Material("/textures/bordersite-map.png"))));
+                UiBuilder.UICenter(p(4096.0f), new Material("/textures/bordersite-map.png"))));
 
         mm_blackTransparent = addObjectWithoutLoading(
-                new GameObjectMesh(screen(0.0f, 0.0f, 2),
+                new UiObject(screen(0.0f, 0.0f, 2),
                 Vector3f.zero(), Vector3f.one(),
-                MeshBuilder.UIRect(4.0f, new Material("/textures/black-transparent.png"))));
+                        UiBuilder.UIRect(4.0f, new Material("/textures/black-transparent.png"))));
 
         mm_gameLogo = addObjectWithoutLoading(
-                new GameObjectMesh(screen(p(268), 1.0f, 1),
+                new UiObject(screen(p(268), -1.0f, 1),
                 Vector3f.zero(), Vector3f.one(),
-                MeshBuilder.UICenter(p(1024.0f), new Material("/textures/bordersite-logo.png"))));
+                        UiBuilder.UICenter(p(1024.0f), new Material("/textures/bordersite-logo.png"))));
 
         mm_gameVersion = addObjectWithoutLoading(
-                new GameObjectMesh(screen(p(3), 1.0f, 1),
+                new UiObject(screen(p(3), -1.0f, 1),
                 Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("ALPHA V0.1",
                 p(32.0f), TextMode.LEFT)));
 
         mm_optionsButton = addObjectWithoutLoading(
-                new GameObjectMesh(screen(0.0f + p(3), -1.0f + p(50), 1),
+                new UiObject(screen(0.0f + p(3), 1.0f + p(50), 1),
                 Vector3f.zero(), Vector3f.one(),
                 TextMeshBuilder.TextMesh("OPTIONS", p(40.0f), TextMode.LEFT)));
 
         mm_playButton = addObjectWithoutLoading(
-                new GameObjectMesh(screen(0.0f + p(3), -1.0f, 1),
+                new UiObject(screen(0.0f + p(3), 1.0f, 1),
                 Vector3f.zero(), Vector3f.one(),
                 TextMeshBuilder.TextMesh("PLAY", p(40.0f), TextMode.LEFT)));
 
         mm_creditsButton = addObjectWithoutLoading(
-                new GameObjectMesh(screen(0.0f + p(3), -1.0f - p(50), 1),
+                new UiObject(screen(0.0f + p(3), 1.0f - p(50), 1),
                 Vector3f.zero(), Vector3f.one(),
                 TextMeshBuilder.TextMesh("CREDITS", p(40.0f), TextMode.LEFT)));
 
-        mm_sliderButton = addObjectWithoutLoading(new GameObjectMesh(screen(1.0f, 2.0f, 1),
+        mm_sliderButton = addObjectWithoutLoading(new UiObject(screen(1.0f, -2.0f, 1),
                 Vector3f.zero(), Vector3f.one(),
-                MeshBuilder.UICenter(p(1024.0f), new Material("/textures/slider.png"))));
-        mm_slider = addObjectWithoutLoading(new GameObjectMesh(screen(1.0f, 2.0f, 1),
+                UiBuilder.UICenter(p(1024.0f), new Material("/textures/slider.png"))));
+        mm_slider = addObjectWithoutLoading(new UiObject(screen(1.0f, -2.0f, 1),
                 Vector3f.zero(), Vector3f.one(),
-                MeshBuilder.UICenter(p(64.0f), new Material("/textures/slider-button.png"))));
+                UiBuilder.UICenter(p(64.0f), new Material("/textures/slider-button.png"))));
     }
 
     @Override
     public void load() {
         for (GameObject object : objects) {
-            if (object instanceof GameObjectGroup) {
-                ((GameObjectGroup) object).load();
-            } else if (object instanceof GameObjectMesh) {
-                ((GameObjectMesh) object).load();
-            }
+            object.load();
         }
     }
 
@@ -130,10 +124,10 @@ public class MainMenu extends Menu {
 
         Vector3f displacement = new Vector3f(-mouseXNormalized * p(100) - screenX, -mouseYNormalized * p(100) - screenY, 0.0f);
 
-        mm_mapBackground.setPosition(Vector3f.lerp(mm_mapBackground.getPosition(), screen(1.0f, 0.0f, 3).add(Vector3f.divide(displacement, new Vector3f(2, 2, 2))), 0.1f * Window.getDeltaTime()));
+        mm_mapBackground.setPosition(Vector3f.lerpdt(mm_mapBackground.getPosition(), screen(1.0f, 0.0f, 3).add(Vector3f.divide(displacement, new Vector3f(2, 2, 2))), 0.1f));
 
-        mm_gameLogo.setPosition(Vector3f.lerp(mm_gameLogo.getPosition(), screen(p(268), p(-80), 1).add(displacement), 0.2f * Window.getDeltaTime()));
-        mm_gameVersion.setPosition(Vector3f.lerp(mm_gameVersion.getPosition(), screen(p(3), p(-160), 1).add(displacement), 0.2f * Window.getDeltaTime()));
+        mm_gameLogo.setPosition(Vector3f.lerpdt(mm_gameLogo.getPosition(), screen(p(268), p(80), 1).add(displacement), 0.2f));
+        mm_gameVersion.setPosition(Vector3f.lerpdt(mm_gameVersion.getPosition(), screen(p(3), p(160), 1).add(displacement), 0.2f));
 
         // Three Buttons
 
@@ -164,9 +158,9 @@ public class MainMenu extends Menu {
                     playY = -1.0f + p(10);
                 }
             }
-            mm_optionsButton.setScale(Vector3f.lerp(mm_optionsButton.getScale(), new Vector3f(optionsScale, optionsScale, 1.0f), 0.2f * Window.getDeltaTime()));
-            mm_playButton.setScale(Vector3f.lerp(mm_playButton.getScale(), new Vector3f(playScale, playScale, 1.0f), 0.2f * Window.getDeltaTime()));
-            mm_creditsButton.setScale(Vector3f.lerp(mm_creditsButton.getScale(), new Vector3f(creditsScale, creditsScale, 1.0f), 0.2f * Window.getDeltaTime()));
+            mm_optionsButton.setScale(Vector3f.lerpdt(mm_optionsButton.getScale(), new Vector3f(optionsScale, optionsScale, 1.0f), 0.2f));
+            mm_playButton.setScale(Vector3f.lerpdt(mm_playButton.getScale(), new Vector3f(playScale, playScale, 1.0f), 0.2f));
+            mm_creditsButton.setScale(Vector3f.lerpdt(mm_creditsButton.getScale(), new Vector3f(creditsScale, creditsScale, 1.0f), 0.2f));
 
             if (Input.isMouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_1)) {
                 if (optionsSelected) {
@@ -182,23 +176,19 @@ public class MainMenu extends Menu {
         float playDisplace = -p(12.5f * mm_playButton.getScale().getX());
         float creditsDisplace = -p(12.5f * mm_creditsButton.getScale().getX());
 
-        mm_optionsButton.setPosition(Vector3f.lerp(mm_optionsButton.getPosition(), screen(0.0f, optionsY + optionsDisplace, 1).add(displacement), 0.2f * Window.getDeltaTime()));
-        mm_playButton.setPosition(Vector3f.lerp(mm_playButton.getPosition(), screen(0.0f, playY + playDisplace, 1).add(displacement), 0.2f * Window.getDeltaTime()));
-        mm_creditsButton.setPosition(Vector3f.lerp(mm_creditsButton.getPosition(), screen(0.0f, creditsY + creditsDisplace, 1).add(displacement), 0.2f * Window.getDeltaTime()));
+        mm_optionsButton.setPosition(Vector3f.lerpdt(mm_optionsButton.getPosition(), screen(0.0f, optionsY + optionsDisplace, 1).add(displacement), 0.2f));
+        mm_playButton.setPosition(Vector3f.lerpdt(mm_playButton.getPosition(), screen(0.0f, playY + playDisplace, 1).add(displacement), 0.2f));
+        mm_creditsButton.setPosition(Vector3f.lerpdt(mm_creditsButton.getPosition(), screen(0.0f, creditsY + creditsDisplace, 1).add(displacement), 0.2f));
 
         // OPTIONS MENU
-        mm_slider.setPosition(Vector3f.lerp(mm_slider.getPosition(), screen(1.0f, 2.0f, 1).add(displacement), 0.2f * Window.getDeltaTime()));
-        mm_sliderButton.setPosition(Vector3f.lerp(mm_sliderButton.getPosition(), screen(1.0f, 2.0f, 1).add(displacement), 0.2f * Window.getDeltaTime()));
+        mm_slider.setPosition(Vector3f.lerpdt(mm_slider.getPosition(), screen(1.0f, 2.0f, 1).add(displacement), 0.2f));
+        mm_sliderButton.setPosition(Vector3f.lerpdt(mm_sliderButton.getPosition(), screen(1.0f, 2.0f, 1).add(displacement), 0.2f));
     }
 
     @Override
     public void unload() {
         for (GameObject object : objects) {
-            if (object instanceof GameObjectGroup) {
-                ((GameObjectGroup) object).unload();
-            } else if (object instanceof GameObjectMesh) {
-                ((GameObjectMesh) object).unload();
-            }
+            object.unload();
         }
     }
 }

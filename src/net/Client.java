@@ -2,11 +2,8 @@ package net;
 
 import com.google.gson.Gson;
 
-import engine.graphics.Material;
-import engine.graphics.MeshBuilder;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
-import engine.objects.GameObjectMesh;
 import engine.objects.Player;
 import engine.util.JsonHandler;
 import game.PlayerMovement;
@@ -79,6 +76,9 @@ public class Client implements Runnable {
         Packet.PacketType type;
         try {
             jsonData = new Gson().fromJson(message, JSONObject.class);
+            if (jsonData == null) {
+                return;
+            }
             type = Packet.lookupPacket(((Double) jsonData.get("id")).intValue());
         } catch(Exception e) {
             e.printStackTrace();
@@ -118,8 +118,6 @@ public class Client implements Runnable {
         if (true) {
             Vector3f position = new Vector3f(JsonHandler.getAsFloat(data, "position.x"), JsonHandler.getAsFloat(data, "position.y"), JsonHandler.getAsFloat(data, "position.z"));
             Vector3f rotation = new Vector3f(JsonHandler.getAsFloat(data, "rotation.x"), JsonHandler.getAsFloat(data, "rotation.y"), JsonHandler.getAsFloat(data, "rotation.z"));
-            World.cube.setPosition(position);
-            World.cube.setRotation(rotation);
         }
     }
 

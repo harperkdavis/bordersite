@@ -2,11 +2,13 @@ package engine.io;
 
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
+import main.Main;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjglx.Sys;
 
 import static engine.math.Mathf.lerp;
 
@@ -19,10 +21,7 @@ public class Window {
     private String title;
     private long window;
 
-    private int fpsFrames;
     private long fpsTime;
-
-    private long pastFrame;
 
     private float frameRate = 60;
     private float averageFPS = 60;
@@ -35,8 +34,8 @@ public class Window {
     private GLFWWindowSizeCallback sizeCallback;
     private boolean isResized;
 
-    private Matrix4f projection;
-    private Matrix4f ortho;
+    private static Matrix4f projection;
+    private static Matrix4f ortho;
 
     private float fov = 80.0f;
 
@@ -50,8 +49,6 @@ public class Window {
 
         projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 10000.0f);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
-
-        pastFrame = System.currentTimeMillis();
     }
 
     public void create() {
@@ -79,9 +76,14 @@ public class Window {
         System.out.println("    [INFO] Setting video mode and hints...");
         GLFWVidMode videoMode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
 
-        GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, GLFW.GLFW_DONT_CARE);
+        GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, 10);
         GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 4);
+
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 2);
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GL11.GL_TRUE);
 
         windowPosX[0] = (videoMode.width() - width) / 2;
         windowPosY[0] = (videoMode.height() - height) / 2;
@@ -101,8 +103,6 @@ public class Window {
 
         System.out.println("    [INFO] Finalizing window...");
         GLFW.glfwShowWindow(window);
-
-        GLFW.glfwSwapInterval(1);
 
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -141,19 +141,15 @@ public class Window {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GLFW.glfwPollEvents();
 
-        pastFrame = System.currentTimeMillis();
+        if (System.currentTimeMillis() > fpsTime + 100) {
 
-        fpsFrames ++;
-        if (System.currentTimeMillis() > fpsTime + 1000) {
-            GLFW.glfwSetWindowTitle(window, title + " (FPS: " + fpsFrames + ")");
-            frameRate = fpsFrames;
-            fpsFrames = 0;
+            frameRate = Math.round(1.0f / Main.getDeltaTime());
+            GLFW.glfwSetWindowTitle(window, title + " (FPS: " + frameRate + ")");
+
             fpsTime = System.currentTimeMillis();
+
         }
 
-        averageFPS = lerp(averageFPS, Window.getGameWindow().frameRate, 0.02f);
-
-        deltaTime = 60 / averageFPS;
     }
 
     public void setFullscreen(boolean fullscreen) {
@@ -161,9 +157,9 @@ public class Window {
         isResized = true;
         if (fullscreen) {
             GLFW.glfwGetWindowPos(window, windowPosX, windowPosY);
-            GLFW.glfwSetWindowMonitor(window, GLFW.glfwGetPrimaryMonitor(), 0, 0, width, height, 144);
+            GLFW.glfwSetWindowMonitor(window, GLFW.glfwGetPrimaryMonitor(), 0, 0, width, height, -1);
         } else {
-            GLFW.glfwSetWindowMonitor(window, 0, windowPosX[0], windowPosY[0], width, height, 144);
+            GLFW.glfwSetWindowMonitor(window, 0, windowPosX[0], windowPosY[0], width, height, -1);
         }
     }
 
@@ -207,11 +203,11 @@ public class Window {
         return window;
     }
 
-    public Matrix4f getProjectionMatrix() {
+    public static Matrix4f getProjectionMatrix() {
         return projection;
     }
 
-    public Matrix4f getOrthoMatrix() {
+    public static Matrix4f getOrthographicMatrix() {
         return ortho;
     }
 
@@ -243,6 +239,7 @@ public class Window {
         return Window.getGameWindow().deltaTime;
     }
 
-
-
+    public float getFPS() {
+        return frameRate;
+    }
 }

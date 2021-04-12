@@ -1,12 +1,10 @@
 package engine.objects;
 
-import java.util.ArrayList;
 import java.util.List;
-import engine.graphics.Mesh;
-import engine.math.Vector3f;
-import org.lwjgl.system.CallbackI;
 
-public class GameObject {
+import engine.math.Vector3f;
+
+public abstract class GameObject {
 
     private Vector3f position, rotation, scale;
     private boolean visible = true;
@@ -17,6 +15,10 @@ public class GameObject {
         this.rotation = new Vector3f(rotation);
         this.scale = new Vector3f(scale);
     }
+
+    public abstract void load();
+
+    public abstract void unload();
 
     public Vector3f getPosition() {
         return new Vector3f(position);

@@ -6,9 +6,12 @@ import org.lwjgl.openal.AL10;
 public class AudioSource {
 
     private final int sourceId;
+    private Vector3f soundPosition;
+    private boolean relative;
 
     public AudioSource(boolean loop, boolean relative) {
         this.sourceId = AL10.alGenSources();
+        this.relative = relative;
 
         if (loop) {
             AL10.alSourcei(sourceId, AL10.AL_LOOPING, AL10.AL_TRUE);
@@ -21,6 +24,18 @@ public class AudioSource {
     public void setBuffer(int bufferId) {
         stop();
         AL10.alSourcei(sourceId, AL10.AL_BUFFER, bufferId);
+    }
+
+    public boolean isRelative() {
+        return relative;
+    }
+
+    public Vector3f getSoundPosition() {
+        return soundPosition;
+    }
+
+    public void setSoundPosition(Vector3f soundPosition) {
+        this.soundPosition = soundPosition;
     }
 
     public void setPosition(Vector3f position) {

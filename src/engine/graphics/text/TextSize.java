@@ -1,4 +1,4 @@
-package engine.graphics;
+package engine.graphics.text;
 
 public enum TextSize {
     EXTRA_SMALL,

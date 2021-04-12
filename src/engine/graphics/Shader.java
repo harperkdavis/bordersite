@@ -1,8 +1,12 @@
 package engine.graphics;
 
+import engine.graphics.light.DirectionalLight;
+import engine.graphics.light.Fog;
+import engine.graphics.light.PointLight;
 import engine.math.Matrix4f;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
+import engine.math.Vector4f;
 import engine.util.Utils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -18,7 +22,6 @@ public class Shader {
     public Shader(String vertexPath, String fragmentPath) {
         vertexFile = Utils.loadAsString(vertexPath);
         fragmentFile = Utils.loadAsString(fragmentPath);
-
     }
 
     public void create() {
@@ -61,6 +64,22 @@ public class Shader {
         }
     }
 
+    public void createUniform(String name) throws Exception {
+        int uniformLocation = GL20.glGetUniformLocation(programID, name);
+        if (uniformLocation < 0) {
+            throw new Exception("Could not find uniform: " + name);
+        }
+    }
+
+    public void createPointLightUniform(String uniformName) throws Exception {
+        createUniform(uniformName + ".colour");
+        createUniform(uniformName + ".position");
+        createUniform(uniformName + ".intensity");
+        createUniform(uniformName + ".att.constant");
+        createUniform(uniformName + ".att.linear");
+        createUniform(uniformName + ".att.exponent");
+    }
+
     public int getUniformLocation(String name) {
         return GL20.glGetUniformLocation(programID, name);
     }
@@ -85,10 +104,36 @@ public class Shader {
         GL20.glUniform3f(getUniformLocation(name), value.getX(), value.getY(), value.getZ());
     }
 
+    public void setUniform(String name, Vector4f value) {
+        GL20.glUniform4f(getUniformLocation(name), value.getX(), value.getY(), value.getZ(), value.getW());
+    }
+
     public void setUniform(String name, Matrix4f value) {
         FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4f.SIZE * Matrix4f.SIZE);
         matrix.put(value.getAll()).flip();
         GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
+    }
+
+    public void setUniform(String uniformName, PointLight pointLight) {
+        setUniform(uniformName + ".color", pointLight.getColor());
+        setUniform(uniformName + ".position", pointLight.getPosition());
+        setUniform(uniformName + ".intensity", pointLight.getIntensity());
+        PointLight.Attenuation att = pointLight.getAttenuation();
+        setUniform(uniformName + ".att.constant", att.getConstant());
+        setUniform(uniformName + ".att.linear", att.getLinear());
+        setUniform(uniformName + ".att.exponent", att.getExponent());
+    }
+
+    public void setUniform(String uniformName, DirectionalLight dirLight) {
+        setUniform(uniformName + ".color", dirLight.getColor() );
+        setUniform(uniformName + ".direction", dirLight.getDirection());
+        setUniform(uniformName + ".intensity", dirLight.getIntensity());
+    }
+
+    public void setUniform(String uniformName, Fog fog) {
+        setUniform(uniformName + ".activeFog", fog.isActive() ? 1 : 0);
+        setUniform(uniformName + ".color", fog.getColor() );
+        setUniform(uniformName + ".density", fog.getDensity());
     }
 
     public void bind() {

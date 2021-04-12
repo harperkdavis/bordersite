@@ -1,7 +1,7 @@
 package engine.objects;
 
 import java.util.List;
-import engine.graphics.Mesh;
+
 import engine.math.Vector3f;
 
 public class GameObjectGroup extends GameObject {
@@ -23,21 +23,13 @@ public class GameObjectGroup extends GameObject {
 
     public void load() {
         for (GameObject object : children) {
-            if (object instanceof GameObjectMesh) {
-                ((GameObjectMesh) object).load();
-            } else if (object instanceof  GameObjectGroup) {
-                ((GameObjectGroup) object).load();
-            }
+            object.load();
         }
     }
 
     public void unload() {
         for (GameObject object : children) {
-            if (object instanceof GameObjectMesh) {
-                ((GameObjectMesh) object).unload();
-            } else if (object instanceof  GameObjectGroup) {
-                ((GameObjectGroup) object).unload();
-            }
+            object.unload();
         }
     }
 

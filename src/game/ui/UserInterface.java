@@ -3,19 +3,18 @@ package game.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import engine.graphics.*;
+import engine.graphics.render.Renderer;
+import engine.graphics.text.TextMeshBuilder;
+import engine.graphics.text.TextMode;
 import engine.io.Input;
 import engine.io.Window;
+import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
-import engine.objects.GameObjectGroup;
-import engine.objects.GameObjectMesh;
-import game.PlayerMovement;
+import game.GamePlane;
 import game.world.World;
-import net.Client;
-import org.lwjgl.glfw.GLFW;
 
-public class UserInterface {
+public class UserInterface implements GamePlane {
 
     private static UserInterface ui;
 
@@ -23,13 +22,17 @@ public class UserInterface {
     private static int width;
     private static int height;
 
-    private static List<GameObject> uiObjects = new ArrayList<>();
+    private static List<GameObject> objects = new ArrayList<>();
 
     private boolean inMainMenu = false;
 
     private Menu mainMenu;
     private Menu loadingMenu;
+    private Menu inGameMenu;
 
+    private UiObject fpsLabel;
+
+    public static boolean mouseLock;
 
     public UserInterface(int width, int height) {
         this.width = width;
@@ -39,24 +42,25 @@ public class UserInterface {
 
         mainMenu = new MainMenu();
         loadingMenu = new LoadingMenu();
+        inGameMenu = new InGameMenu();
+
+        fpsLabel = new UiObject(screen(0, 0.05f, 1), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("fps: ", p(16), TextMode.LEFT, false));
+        addObject(fpsLabel, false);
     }
 
+    @Override
     public void load() {
-        for (GameObject o : uiObjects) {
-            if (o instanceof GameObjectGroup) {
-                ((GameObjectGroup) o).load();
-            } else if (o instanceof GameObjectMesh) {
-                ((GameObjectMesh) o).load();
-            }
+        for (GameObject o : objects) {
+            o.load();
         }
 
         mainMenu.load();
         loadingMenu.load();
+        inGameMenu.load();
     }
 
+    @Override
     public void update() {
-
-
 
         if (inMainMenu) {
             mainMenu.setVisible(true);
@@ -72,56 +76,57 @@ public class UserInterface {
             loadingMenu.setVisible(false);
         }
 
-        if (Client.isConnected()) {
-            float recoil = PlayerMovement.getPlayerMovement().getRecoil();
-            float recoilOffset = recoil > 1 ? recoil * recoil : recoil;
-        }
-    }
-
-    public void render(Renderer renderer) {
-        for (GameObject o : uiObjects) {
-            renderer.renderMesh(o, null);
+        if (!World.isLoading() && !inMainMenu) {
+            inGameMenu.setVisible(true);
+            inGameMenu.update();
+        } else {
+            inGameMenu.setVisible(false);
         }
 
-        mainMenu.render(renderer);
-        loadingMenu.render(renderer);
+        fpsLabel.setMesh(TextMeshBuilder.TextMesh("fps: " + Window.getGameWindow().getFPS(), p(16), TextMode.LEFT, false));
     }
 
+    @Override
+    public void fixedUpdate() {
+
+    }
+
+    @Override
+    public void render() {
+        for (GameObject o : objects) {
+            Renderer.getUi().render(o);
+        }
+
+        mainMenu.render();
+        loadingMenu.render();
+        inGameMenu.render();
+    }
+
+    @Override
     public void unload() {
-        for (GameObject o : uiObjects) {
-            if (o instanceof GameObjectGroup) {
-                ((GameObjectGroup) o).unload();
-            } else if (o instanceof GameObjectMesh) {
-                ((GameObjectMesh) o).unload();
-            }
+        for (GameObject o : objects) {
+            o.unload();
         }
 
         mainMenu.unload();
         loadingMenu.unload();
     }
 
-    public static GameObject addObject(GameObject object) {
-        uiObjects.add(object);
-        if (object instanceof GameObjectGroup) {
-            ((GameObjectGroup) object).load();
-        } else if (object instanceof GameObjectMesh) {
-            ((GameObjectMesh) object).load();
+    public GameObject addObject(GameObject object) {
+        return addObject(object, false);
+    }
+
+    public GameObject addObject(GameObject object, boolean load) {
+        objects.add(object);
+        if (load) {
+            object.load();
         }
         return object;
     }
 
-    public static GameObject addObjectWithoutLoading(GameObject object) {
-        uiObjects.add(object);
-        return object;
-    }
-
-    public static void removeObject(GameObject object) {
-        uiObjects.remove(object);
-        if (object instanceof GameObjectGroup) {
-            ((GameObjectGroup) object).unload();
-        } else if (object instanceof GameObjectMesh) {
-            ((GameObjectMesh) object).unload();
-        }
+    public void removeObject(GameObject object) {
+        objects.remove(object);
+        object.unload();
     }
 
     public static UserInterface getUi() {
@@ -132,9 +137,12 @@ public class UserInterface {
         UserInterface.ui = ui;
     }
 
-    public static Vector3f screen(float posX, float posY, int layer) {
-        return new Vector3f((posX * PIXEL * (width / 2.0f)) - (width / 2.0f) * PIXEL, (posY * PIXEL * (height / 2.0f)) + (height / 2.0f) * PIXEL, layer);
+    public static Vector2f screen(float posX, float posY) {
+        return new Vector2f((posX * PIXEL * (width / 2.0f)) - (width / 2.0f) * PIXEL, (-posY * PIXEL * (height / 2.0f)) + (height / 2.0f) * PIXEL);
+    }
 
+    public static Vector3f screen(float posX, float posY, int layer) {
+        return new Vector3f((posX * PIXEL * (width / 2.0f)) - (width / 2.0f) * PIXEL, (-posY * PIXEL * (height / 2.0f)) + (height / 2.0f) * PIXEL, layer);
     }
 
     public static float p(float n) {
@@ -146,10 +154,10 @@ public class UserInterface {
     }
 
     public static float getNormMouseX() {
-        return ((float) Input.getMouseX() - Window.getWidth() / 2.0f) / (Window.getWidth() / 2.0f);
+        return 1.0f + ((float) Input.getMouseX() - Window.getWidth() / 2.0f) / (Window.getWidth() / 2.0f);
     }
 
     public static float getNormMouseY() {
-        return (Window.getHeight() / 2.0f - (float) Input.getMouseY()) / (Window.getHeight() / 2.0f);
+        return 1.0f - (Window.getHeight() / 2.0f - (float) Input.getMouseY()) / (Window.getHeight() / 2.0f);
     }
 }

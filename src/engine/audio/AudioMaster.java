@@ -1,14 +1,15 @@
 package engine.audio;
 
+import engine.math.Vector3f;
+import engine.objects.Camera;
 import org.lwjgl.openal.*;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class AudioMaster {
 
@@ -19,12 +20,12 @@ public class AudioMaster {
 
     public static List<AudioBuffer> audioBufferList;
 
-    public static Map<String, AudioSource> soundSourceMap;
+    public static ConcurrentMap<String, AudioSource> audioSourceMap;
 
 
     public static void load() {
         audioBufferList = new ArrayList<>();
-        soundSourceMap = new HashMap<>();
+        audioSourceMap = new ConcurrentHashMap<>();
         device = ALC10.alcOpenDevice((ByteBuffer) null);
         if (device == MemoryUtil.NULL) {
             throw new IllegalStateException("Failed to open the default OpenAL device.");
@@ -36,25 +37,68 @@ public class AudioMaster {
         }
         ALC10.alcMakeContextCurrent(context);
         AL.createCapabilities(deviceCaps);
+
+        setAttenuationModel(AL10.AL_DISTANCE_MODEL);
     }
 
-    public static void addSoundSource(String name, AudioSource audioSource) {
-        soundSourceMap.put(name, audioSource);
-    }
-
-    public static AudioSource getSoundSource(String name) {
-        return soundSourceMap.get(name);
-    }
-
-    public static void playSoundSource(String name) {
-        AudioSource audioSource = soundSourceMap.get(name);
-        if (audioSource != null && !audioSource.isPlaying()) {
-            audioSource.play();
+    public static void update() {
+        for (String name : audioSourceMap.keySet()) {
+            AudioSource source = audioSourceMap.get(name);
+            if (source.isRelative()) {
+                source.setPosition(getSoundCoordinates(source.getSoundPosition()));
+            }
+            if (!source.isPlaying()) {
+                removeSoundSource(name);
+            }
         }
     }
 
+    public static void playSound(SoundEffect sound) {
+        AudioSource as = new AudioSource(false, false);
+        int buffer = AudioBuffer.getSoundEffectBufferId(sound);
+        System.out.println(buffer);
+        as.setBuffer(buffer);
+        playSoundFromSource(as);
+    }
+
+    public static Vector3f getSoundCoordinates(Vector3f position) {
+        return getSoundCoordinates(position, 1.2f);
+    }
+
+    public static Vector3f getSoundCoordinates(Vector3f position, float falloff) {
+        Vector3f cPos = Camera.getMainCameraPosition();
+        Vector3f cRot = Camera.getMainCameraRotation();
+        double originAngle = Math.atan2(cPos.getX() - position.getX(), cPos.getZ() - position.getZ());
+        double cameraAngle = Math.toRadians(cRot.getY());
+        double angleToCamera = cameraAngle - originAngle;
+        float distance = (float) Math.sqrt(Math.pow(cPos.getX() - position.getX(), 2) + Math.pow(cPos.getY() - position.getY(), 2) + Math.pow(cPos.getZ() - position.getZ(), 2));
+        return new Vector3f((float) (Math.sin(angleToCamera) * Math.pow(distance, falloff)), 0.0f, (float) (Math.cos(angleToCamera) * Math.pow(distance, falloff)));
+    }
+
+    public static void playSound(SoundEffect sound, Vector3f position) {
+        AudioSource as = new AudioSource(false, true);
+        as.setBuffer(AudioBuffer.getSoundEffectBufferId(sound));
+        as.setSoundPosition(position);
+        as.setPosition(getSoundCoordinates(position));
+        playSoundFromSource(as);
+    }
+
+    public static void playSoundFromSource(AudioSource audioSource) {
+        String uuid = UUID.randomUUID().toString();
+        addSoundSource(uuid, audioSource);
+    }
+
+    public static void addSoundSource(String name, AudioSource audioSource) {
+        audioSource.play();
+        audioSourceMap.put(name, audioSource);
+    }
+
+    public static AudioSource getSoundSource(String name) {
+        return audioSourceMap.get(name);
+    }
+
     public static void removeSoundSource(String name) {
-        soundSourceMap.remove(name);
+        audioSourceMap.remove(name);
     }
 
     public static void addSoundBuffer(AudioBuffer audioBuffer) {
@@ -74,10 +118,10 @@ public class AudioMaster {
     }
 
     public static void unload() {
-        for (AudioSource audioSource : soundSourceMap.values()) {
+        for (AudioSource audioSource : audioSourceMap.values()) {
             audioSource.unload();
         }
-        soundSourceMap.clear();
+        audioSourceMap.clear();
         for (AudioBuffer audioBuffer : audioBufferList) {
             audioBuffer.unload();
         }
