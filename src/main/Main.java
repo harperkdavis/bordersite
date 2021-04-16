@@ -115,7 +115,7 @@ public class Main implements Runnable {
         game.start();
     }
 
-    public void init() {
+    public void innit() {
         System.out.println("[INFO] Initializing game...");
         System.out.println("[INFO] Creating GLFW window..");
 
