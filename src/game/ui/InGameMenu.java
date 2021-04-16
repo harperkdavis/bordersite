@@ -2,6 +2,8 @@ package game.ui;
 
 import engine.graphics.Material;
 import engine.graphics.mesh.UiBuilder;
+import engine.graphics.text.TextMeshBuilder;
+import engine.graphics.text.TextMode;
 import engine.io.Input;
 import engine.math.Mathf;
 import engine.math.Vector3f;
@@ -11,6 +13,7 @@ import game.PlayerMovement;
 import net.Client;
 import org.lwjgl.glfw.GLFW;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +27,8 @@ public class InGameMenu extends Menu {
     private UiObject buy_backIcon;
     private UiPanel background, buy_moneyPanel, buy_moneyTimerPanel, buy_buyListPanel, buy_buyButton, buy_clearButton;
 
+    private UiObject healthStatus, healthRegenStatus, staminaStatus, speedDial;
+
     private UiButton[] buy_itemTabs;
     private UiButton[] buy_itemSlots;
 
@@ -34,7 +39,32 @@ public class InGameMenu extends Menu {
 
     @Override
     public void init() {
-        
+
+        addObjectWithoutLoading(new UiPanel(0 + p(5), 2 - p(76), 0 + p(125), 2 - p(5), 19, 0.3f));
+
+        addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(22), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(256), new Material("/textures/ui/statusbar-outline-200.png"))));
+        addObjectWithoutLoading(new UiObject(screen(0 + p(14), 2 - p(18), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/health-icon.png"))));
+
+        addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(42), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(256), new Material("/textures/ui/statusbar-outline-200.png"))));
+        addObjectWithoutLoading(new UiObject(screen(0 + p(14), 2 - p(38), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/stamina-icon.png"))));
+
+        addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(62), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(128), new Material("/textures/ui/statusbar-outline-80.png"))));
+        addObjectWithoutLoading(new UiObject(screen(0 + p(14), 2 - p(58), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/health-regen-icon.png"))));
+
+        addObjectWithoutLoading(new UiObject(screen(0 + p(68), 2 - p(58), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/speed-icon.png"))));
+
+        healthStatus = (UiObject) addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(22), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        healthStatus.setColor(new Vector4f(0.25f, 0.6f, 0.3f, 1.0f));
+
+        staminaStatus = (UiObject) addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(42), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        staminaStatus.setColor(new Vector4f(0.7f, 0.4f, 0.2f, 1.0f));
+
+        healthRegenStatus = (UiObject) addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(62), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        healthRegenStatus.setColor(new Vector4f(0.5f, 0.3f, 0.55f, 1.0f));
+
+        speedDial = (UiObject) addObjectWithoutLoading(new UiObject(screen(0 + p(72), 2 - p(51), 17), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("0.0 m/s", p(14.0f), TextMode.LEFT)));
+
+        // Buy Menu
         float boxesBorder = p(1);
 
         buy_itemTabs = new UiButton[10];
@@ -134,6 +164,20 @@ public class InGameMenu extends Menu {
     @Override
     public void update() {
         if (Client.isConnected()) {
+
+            healthStatus.setScale(new Vector3f(PlayerMovement.getHealth() / 10.0f, 1, 1));
+            float healthBarFactor = (1 - Math.min(PlayerMovement.getHealth() / 100.0f, 1));
+            healthStatus.setColor(new Vector4f(0.25f + healthBarFactor * 0.5f, 0.6f - healthBarFactor * 0.5f, 0.3f - healthBarFactor * 0.2f, 1.0f));
+
+            staminaStatus.setScale(new Vector3f(PlayerMovement.getStamina() / 10.0f, 1, 1));
+            float staminaBarFactor = (1 - (PlayerMovement.getStamina() / 200.0f));
+            staminaStatus.setColor(new Vector4f(Mathf.lerp(0.7f, 0.5f, staminaBarFactor), Mathf.lerp(0.4f, 0.5f, staminaBarFactor), Mathf.lerp(0.2f, 0.5f, staminaBarFactor), 1.0f));
+
+            healthRegenStatus.setScale(new Vector3f(PlayerMovement.getHealthChange() * 4 + 4,1, 1));
+            healthRegenStatus.setColor(new Vector4f(0.5f + PlayerMovement.getHealthChange() * 0.5f, 0.3f, 0.5f - PlayerMovement.getHealthChange() * 0.5f, 1.0f));
+
+            speedDial.setMesh(TextMeshBuilder.TextMesh(new DecimalFormat("#.##").format(PlayerMovement.getSpeed()) + " m/s", p(14.0f), TextMode.LEFT));
+
             float recoil = PlayerMovement.getPlayerMovement().getRecoil();
             float recoilOffset = recoil > 1 ? recoil * recoil : recoil;
 

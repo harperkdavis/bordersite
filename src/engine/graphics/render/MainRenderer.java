@@ -30,13 +30,13 @@ public class MainRenderer extends Renderer {
 
         ambientLight = new Vector3f(0.3f, 0.3f, 0.3f);
         Vector3f lightColor = new Vector3f(1, 1, 1);
-        float lightIntensity = 1.0f;
+        float lightIntensity = 1000.0f;
         pointLight = new PointLight(lightColor, new Vector3f(1, 1, 1), lightIntensity);
-        PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 2.0f, 1.0f);
+        PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
         pointLight.setAttenuation(att);
 
         directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), new Vector3f(0.5f, 0.7f, 0.2f), 1.0f);
-        fog = new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f),0.002f);
+        fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.01f);
     }
 
     @Override

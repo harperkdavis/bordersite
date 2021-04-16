@@ -195,7 +195,6 @@ public class Main implements Runnable {
     }
 
     private void update() {
-        Camera.getMainCamera().update();
         Window.getGameWindow().update();
         Input.update();
         UserInterface.getUi().update();

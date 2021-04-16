@@ -8,6 +8,7 @@ import engine.math.Vector3f;
 import engine.objects.GameObject;
 import engine.objects.GameObjectMesh;
 import game.GamePlane;
+import main.Main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ public class Viewmodel implements GamePlane {
     private static GameObject armObject;
 
     public Viewmodel() {
-        gunObject = addObject(new GameObjectMesh(new Vector3f(0.6f, -0.2f, -0.9f), new Vector3f(-40, 0, 10), Vector3f.one(), MeshLoader.loadModel("/models/weapon-knife.obj", new Material("/textures/weapons/knife-nebula.png"))));
+        // gunObject = addObject(new GameObjectMesh(new Vector3f(0, 0, -1.5f), new Vector3f(45, 0, 0), Vector3f.one(), MeshLoader.loadModel("/models/weapon-knife.obj", new Material("/textures/weapons/knife-nebula.png"))));
     }
 
     @Override
@@ -40,7 +41,7 @@ public class Viewmodel implements GamePlane {
 
     @Override
     public void update() {
-
+        // gunObject.setRotation(Vector3f.lerpdt(gunObject.getRotation(), new Vector3f(45, (float) Main.getElapsedTime() / 20.0f, 0), 0.1f));
     }
 
     @Override
