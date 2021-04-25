@@ -16,9 +16,9 @@ public abstract class Renderer {
 
     protected Shader shader;
 
-    private static Renderer main;
-    private static Renderer ui;
-    private static Renderer viewmodel;
+    private static MainRenderer main;
+    private static UiRenderer ui;
+    private static ViewmodelRenderer viewmodel;
 
     public Renderer(Shader shader) {
         this.shader = shader;
@@ -26,7 +26,7 @@ public abstract class Renderer {
 
     public abstract void render(GameObject gameObject);
 
-    public static Renderer getMain() {
+    public static MainRenderer getMain() {
         return main;
     }
 
@@ -34,7 +34,7 @@ public abstract class Renderer {
         Renderer.main = main;
     }
 
-    public static Renderer getUi() {
+    public static UiRenderer getUi() {
         return ui;
     }
 
@@ -42,7 +42,7 @@ public abstract class Renderer {
         Renderer.ui = ui;
     }
 
-    public static Renderer getViewmodel() {
+    public static ViewmodelRenderer getViewmodel() {
         return viewmodel;
     }
 

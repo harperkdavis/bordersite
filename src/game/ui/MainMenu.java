@@ -5,7 +5,6 @@ import engine.graphics.mesh.UiBuilder;
 import engine.graphics.text.TextMeshBuilder;
 import engine.graphics.text.TextMode;
 import engine.io.Input;
-import engine.io.Window;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
 import org.lwjgl.glfw.GLFW;
@@ -42,7 +41,7 @@ public class MainMenu extends Menu {
         mm_mapBackground = addObjectWithoutLoading(
                 new UiObject(screen(1.0f, 0.0f, 3),
                 Vector3f.zero(), Vector3f.one(),
-                UiBuilder.UICenter(p(4096.0f), new Material("/textures/bordersite-map.png"))));
+                UiBuilder.UICenter(p(4096.0f), new Material("/textures/map/map.png"))));
 
         mm_blackTransparent = addObjectWithoutLoading(
                 new UiObject(screen(0.0f, 0.0f, 2),

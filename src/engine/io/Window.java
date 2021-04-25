@@ -2,6 +2,7 @@ package engine.io;
 
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
+import game.PlayerMovement;
 import main.Main;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -26,6 +27,8 @@ public class Window {
     private float frameRate = 60;
     private float averageFPS = 60;
     private float deltaTime = 0;
+
+    private boolean mouseLocked = false;
 
     public Input input;
 
@@ -184,7 +187,12 @@ public class Window {
     }
 
     public void mouseState(boolean lock) {
+        mouseLocked = lock;
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, lock ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL);
+    }
+
+    public boolean isMouseLocked() {
+        return mouseLocked;
     }
 
     public static int getWidth() {

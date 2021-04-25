@@ -2,8 +2,6 @@ package game.ui;
 
 import engine.graphics.render.Renderer;
 import engine.objects.GameObject;
-import engine.objects.GameObjectGroup;
-import engine.objects.GameObjectMesh;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +34,20 @@ public abstract class Menu {
         }
     }
 
+    public UiObject addObject(UiObject object) {
+        objects.add(object);
+        object.load();
+        return object;
+    }
+
+    public UiObject addObjectWithoutLoading(UiObject object) {
+        objects.add(object);
+        return object;
+    }
+
     public GameObject addObject(GameObject object) {
         objects.add(object);
-        if (object instanceof GameObjectGroup) {
-            ((GameObjectGroup) object).load();
-        } else if (object instanceof GameObjectMesh) {
-            ((GameObjectMesh) object).load();
-        }
+        object.load();
         return object;
     }
 
@@ -53,11 +58,7 @@ public abstract class Menu {
 
     public void removeObject(GameObject object) {
         objects.remove(object);
-        if (object instanceof GameObjectGroup) {
-            ((GameObjectGroup) object).unload();
-        } else if (object instanceof GameObjectMesh) {
-            ((GameObjectMesh) object).unload();
-        }
+        object.unload();
     }
 
 }

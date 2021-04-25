@@ -5,7 +5,6 @@ import engine.io.Window;
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
 import engine.objects.*;
-import game.ui.UiGroup;
 import game.ui.UiObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -24,21 +23,20 @@ public class UiRenderer extends Renderer {
         if (!object.isVisible()) {
             return;
         }
+        if (object.hasChildren()) {
+            for (GameObject go : object.getChildren()) {
+                render(go);
+            }
+            render(object);
+        }
         if (object instanceof UiObject) {
             UiObject objectMesh = (UiObject) object;
             render(objectMesh);
         }
-        if (object instanceof UiGroup) {
-            for (UiObject o : ((UiGroup) object).getObjects()) {
-                Vector3f savedPosition = new Vector3f(o.getPosition());
-                o.getPosition().add(object.getPosition());
-                render(o);
-                o.setPosition(savedPosition);
-            }
-        }
     }
 
     private void render(UiObject objectMesh) {
+
         GL30.glBindVertexArray(objectMesh.getMesh().getVAO());
         GL30.glEnableVertexAttribArray(0);
         GL30.glEnableVertexAttribArray(1);

@@ -1,5 +1,8 @@
 #version 460 core
 
+const int MAX_POINT_LIGHTS = 16;
+const int MAX_SPOT_LIGHTS = 16;
+
 struct Attenuation {
     float constant;
     float linear;
@@ -13,22 +16,19 @@ struct PointLight {
     Attenuation att;
 };
 
-struct DirectionalLight
-{
+struct DirectionalLight {
     vec3 color;
     vec3 direction;
     float intensity;
 };
 
-struct SpotLight
-{
+struct SpotLight {
     PointLight pl;
     vec3 conedir;
     float cutoff;
 };
 
-struct Fog
-{
+struct Fog {
     int activeFog;
     vec3 color;
     float density;
@@ -41,14 +41,18 @@ in vec3 vertexPos;
 out vec4 fragColor;
 
 uniform sampler2D tex;
+uniform DirectionalLight directionalLight;
 uniform vec3 ambientLight;
 uniform vec3 cameraPos;
 uniform Fog fog;
+
 uniform float specularPower;
 uniform float reflectance;
+
 uniform vec4 meshColor;
-uniform DirectionalLight directionalLight;
-uniform PointLight pointLight;
+
+uniform PointLight pointLights[MAX_POINT_LIGHTS];
+uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 vec4 ambientC;
 vec4 diffuseC;
@@ -87,6 +91,22 @@ vec4 calcPointLight(PointLight light, vec3 position, vec3 normal) {
     return lightColor / attenuationInv;
 }
 
+vec4 calcSpotLight(SpotLight light, vec3 position, vec3 normal) {
+    vec3 lightDirection = light.pl.position - position;
+    vec3 toLightDir  = normalize(lightDirection);
+    vec3 fromLightDir  = -toLightDir;
+    float spotAlpha = dot(fromLightDir, normalize(light.conedir));
+
+    vec4 color = vec4(0, 0, 0, 0);
+
+    if ( spotAlpha > light.cutoff )
+    {
+        color = calcPointLight(light.pl, position, normal);
+        color *= (1.0 - (1.0 - spotAlpha)/(1.0 - light.cutoff));
+    }
+    return color;
+}
+
 vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
     vec4 diffuseColor = vec4(0, 0, 0, 0);
 
@@ -96,8 +116,7 @@ vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
     return diffuseColor;
 }
 
-vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirectionalLight dirLight)
-{
+vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirectionalLight dirLight) {
     vec3 fogColor = fog.color * (ambientLight + dirLight.color * dirLight.intensity);
     float distance = length(cameraPos - pos);
     float fogFactor = 1.0 / exp((distance * fog.density) * (distance * fog.density));
@@ -112,7 +131,18 @@ void main() {
     setupColors(vertexUV);
 
     vec4 specComp = calcDirectionalLight(directionalLight, vertexPos, vertexNormal);
-    specComp += calcPointLight(pointLight, vertexPos, vertexNormal);
+
+    for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+        if (pointLights[i].intensity > 0 ) {
+            specComp += calcPointLight(pointLights[i], vertexPos, vertexNormal);
+        }
+    }
+
+    for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
+        if (spotLights[i].pl.intensity > 0){
+            specComp += calcSpotLight(spotLights[i], vertexPos, vertexNormal);
+        }
+    }
 
     fragColor = ambientC * vec4(ambientLight, 1) * meshColor + specComp;
     fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);

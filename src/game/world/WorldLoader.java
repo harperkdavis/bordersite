@@ -8,12 +8,10 @@ import engine.graphics.Material;
 import engine.graphics.mesh.Mesh3f;
 import engine.graphics.mesh.MeshBuilder;
 import engine.graphics.vertex.Vertex3f;
-import engine.math.Region3f;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
 import engine.objects.GameObjectMesh;
-import game.PlayerMovement;
 import net.Client;
 import net.packets.PacketLoaded;
 
@@ -82,9 +80,8 @@ public class WorldLoader {
 
             for (int x = 0; x < 512; x++) {
                 for (int z = 0; z < 512; z++) {
-                    // int data = textureData[(z * 512 + x) * 4];
-                    // World.heightMap[x][z] = data >= 0 ? data : data + 256.0f;
-                    World.heightMap[x][z] = 0;
+                    int data = textureData[(z * 512 + x) * 4];
+                    World.heightMap[x][z] = data >= 0 ? data : data + 256.0f;
                 }
             }
 
@@ -159,8 +156,8 @@ public class WorldLoader {
 
                         if (b >= n) {
                             float v = 1.0f;
-                            v *= x % 100 == 0 ? 1.0f : 0.5f;
-                            v *= z % 100 == 0 ? 1.0f : 0.5f;
+                            v *= x % 4 == 0 ? 1.0f : 0.5f;
+                            v *= z % 4 == 0 ? 1.0f : 0.5f;
                             if (v > 0.5f) {
                                 float posX = x * World.SCALE_X + (r - 128.0f);
                                 float posZ = z * World.SCALE_Z + (g - 128.0f);
@@ -198,8 +195,6 @@ public class WorldLoader {
                     float zPos = treePositions.get(t).getZ();
 
                     Vector3f position = new Vector3f(xPos, yPos, zPos);
-
-                    PlayerMovement.addCollisionRegion(new Region3f(Vector3f.subtract(position, new Vector3f(-TREE_WIDTH, -2, -TREE_WIDTH)), Vector3f.add(position, new Vector3f(TREE_WIDTH, TREE_SIZE + 2, TREE_WIDTH))));
 
                     // TODO: Fix Normals
                     Vertex3f[] treeVertices = new Vertex3f[]{

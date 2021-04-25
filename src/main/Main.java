@@ -115,7 +115,7 @@ public class Main implements Runnable {
         game.start();
     }
 
-    public void innit() {
+    public void init() {
         System.out.println("[INFO] Initializing game...");
         System.out.println("[INFO] Creating GLFW window..");
 
@@ -188,7 +188,6 @@ public class Main implements Runnable {
             update();
             render();
             if (Input.isKey(GLFW.GLFW_KEY_ESCAPE) && Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT)) { break; }
-            Window.getGameWindow().mouseState(true);
             deltaTime = ((System.nanoTime() - cycleBegin) / 1000000.0f);
         }
         close();
@@ -232,7 +231,10 @@ public class Main implements Runnable {
     private void render() {
 
         if (Client.isConnected()) {
+            Renderer.getMain().renderPrep();
             World.getWorld().render();
+            Renderer.getMain().renderCleanup();
+
             Viewmodel.getViewmodel().render();
         }
         UserInterface.getUi().render();

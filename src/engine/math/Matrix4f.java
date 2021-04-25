@@ -31,6 +31,16 @@ public class Matrix4f {
         return result;
     }
 
+    public static Matrix4f rotation(Vector3f rotation) {
+
+        Matrix4f rotXMatrix = Matrix4f.rotate(rotation.getX(), new Vector3f(1, 0, 0));
+        Matrix4f rotYMatrix = Matrix4f.rotate(rotation.getY(), new Vector3f(0, 1, 0));
+        Matrix4f rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f(0, 0, 1));
+
+        return Matrix4f.multiply(rotXMatrix, Matrix4f.multiply(rotYMatrix, rotZMatrix));
+
+    }
+
     public static Matrix4f rotate(float angle, Vector3f axis) {
         Matrix4f result = Matrix4f.identity();
 
@@ -64,19 +74,12 @@ public class Matrix4f {
     }
 
     public static Matrix4f transform(Vector3f position, Vector3f rotation, Vector3f scale) {
-        Matrix4f result = Matrix4f.identity();
 
         Matrix4f translationMatrix = Matrix4f.translate(new Vector3f(position).divide(scale));
-        Matrix4f rotXMatrix = Matrix4f.rotate(rotation.getX(), new Vector3f(1, 0, 0));
-        Matrix4f rotYMatrix = Matrix4f.rotate(rotation.getY(), new Vector3f(0, 1, 0));
-        Matrix4f rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f(0, 0, 1));
+        Matrix4f rotationMatrix = Matrix4f.rotation(rotation);
         Matrix4f scaleMatrix = Matrix4f.scale(scale);
 
-        Matrix4f rotationMatrix = Matrix4f.multiply(rotXMatrix, Matrix4f.multiply(rotYMatrix, rotZMatrix));
-
-        result = Matrix4f.multiply(rotationMatrix, Matrix4f.multiply(translationMatrix, scaleMatrix));
-
-        return result;
+        return Matrix4f.multiply(rotationMatrix, Matrix4f.multiply(translationMatrix, scaleMatrix));
     }
 
     public static Matrix4f projection(float fov, float aspect, float near, float far) {

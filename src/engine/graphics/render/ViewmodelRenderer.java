@@ -2,13 +2,10 @@ package engine.graphics.render;
 
 import engine.graphics.Shader;
 import engine.graphics.light.DirectionalLight;
-import engine.graphics.light.PointLight;
 import engine.io.Window;
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
-import engine.objects.Camera;
 import engine.objects.GameObject;
-import engine.objects.GameObjectGroup;
 import engine.objects.GameObjectMesh;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -33,8 +30,8 @@ public class ViewmodelRenderer extends Renderer {
         if (!object.isVisible()) {
             return;
         }
-        if (object instanceof GameObjectGroup) {
-            for (GameObject go : ((GameObjectGroup) object).getChildren()) {
+        if (object.hasChildren()) {
+            for (GameObject go : object.getChildren()) {
                 render(go);
             }
         }

@@ -8,14 +8,18 @@ import engine.io.Input;
 import engine.math.Mathf;
 import engine.math.Vector3f;
 import engine.math.Vector4f;
+import engine.objects.Camera;
 import engine.objects.GameObject;
+import engine.objects.Player;
 import game.PlayerMovement;
 import net.Client;
 import org.lwjgl.glfw.GLFW;
+import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static game.ui.UserInterface.p;
 import static game.ui.UserInterface.screen;
@@ -29,16 +33,37 @@ public class InGameMenu extends Menu {
 
     private UiObject healthStatus, healthRegenStatus, staminaStatus, speedDial;
 
+    private List<UiObject> compassDegrees, compassMarks;
+    private UiObject headingDegrees;
+    private final int COMPASS_MARKS = 36;
+
     private UiButton[] buy_itemTabs;
     private UiButton[] buy_itemSlots;
 
-    private boolean buyMenuOpen = false;
-    private boolean pauseMenuOpen = false;
+    protected boolean buyMenuOpen = false;
+    protected boolean pauseMenuOpen = false;
     private final float BUY_MENU_SMOOTHING = 0.1f;
     private float backTransparency = 0.0f;
 
     @Override
     public void init() {
+        System.out.println("innit bruvving currently");
+
+        compassDegrees = new ArrayList<>();
+        compassMarks = new ArrayList<>();
+
+        // Compass
+        for (int i = 0; i < COMPASS_MARKS; i++) {
+            compassDegrees.add(addObjectWithoutLoading(new UiObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("" + (i * 10), p(16), TextMode.CENTER))));
+        }
+        String[] cardinalDirections = new String[]{"N", "NNE", "NE", "NEE", "E", "SEE", "SE", "SSE", "S", "SSW", "SW", "SWW", "W", "NWW", "NW", "NNW"};
+        for (int i = 0; i < 16; i++) {
+            compassMarks.add(addObjectWithoutLoading(new UiObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh(cardinalDirections[i], p(16), TextMode.CENTER))));
+        }
+        headingDegrees = addObjectWithoutLoading(new UiObject(screen(1, p(50),  16), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("0", p(20), TextMode.CENTER)));
+
+
+        // Status
 
         addObjectWithoutLoading(new UiPanel(0 + p(5), 2 - p(76), 0 + p(125), 2 - p(5), 19, 0.3f));
 
@@ -53,16 +78,16 @@ public class InGameMenu extends Menu {
 
         addObjectWithoutLoading(new UiObject(screen(0 + p(68), 2 - p(58), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/speed-icon.png"))));
 
-        healthStatus = (UiObject) addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(22), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        healthStatus = addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(22), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
         healthStatus.setColor(new Vector4f(0.25f, 0.6f, 0.3f, 1.0f));
 
-        staminaStatus = (UiObject) addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(42), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        staminaStatus = addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(42), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
         staminaStatus.setColor(new Vector4f(0.7f, 0.4f, 0.2f, 1.0f));
 
-        healthRegenStatus = (UiObject) addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(62), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        healthRegenStatus = addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(62), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
         healthRegenStatus.setColor(new Vector4f(0.5f, 0.3f, 0.55f, 1.0f));
 
-        speedDial = (UiObject) addObjectWithoutLoading(new UiObject(screen(0 + p(72), 2 - p(51), 17), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("0.0 m/s", p(14.0f), TextMode.LEFT)));
+        speedDial = addObjectWithoutLoading(new UiObject(screen(0 + p(72), 2 - p(51), 17), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("0.0 m/s", p(14.0f), TextMode.LEFT)));
 
         // Buy Menu
         float boxesBorder = p(1);
@@ -151,19 +176,40 @@ public class InGameMenu extends Menu {
         // Pause Menu
 
 
-
+        System.out.println("innit bruvving ceased");
     }
 
     @Override
     public void load() {
+        System.out.println("loading bruvving");
+        int i = 0;
         for (GameObject object : objects) {
             object.load();
+            i++;
         }
+        System.out.println("loading bruvving ceasded " + i);
     }
 
     @Override
     public void update() {
         if (Client.isConnected()) {
+
+            float rotRad = (float) Math.toRadians(Camera.getMainCameraRotation().getY());
+            for (int i = 0; i < COMPASS_MARKS; i++) {
+                float xVec = (float) (rotRad + (2.0f * i / COMPASS_MARKS) * Math.PI);
+                compassDegrees.get(i).setPosition(screen(1 + p((float) Math.sin(xVec) * 300), p(16), 16));
+                compassDegrees.get(i).setScale(Vector3f.one().multiply(Mathf.clamp((float) Math.cos(xVec * 2) * 1.2f, 1, 1.2f)));
+                compassDegrees.get(i).setColor(new Vector4f(1, 1, 1, Mathf.clamp((float) Math.pow(Math.cos(xVec), 3), 0, 1)));
+            }
+            for (int i = 0; i < 16; i++) {
+                float xVec = (float) (rotRad + (i / 8.0f) * Math.PI);
+                compassMarks.get(i).setPosition(screen(1 + p((float) Math.sin(xVec) * 300), p(32), 16));
+                compassMarks.get(i).setScale(Vector3f.one().multiply(Mathf.clamp((float) Math.cos(xVec * 2) * 1.2f, 1, 1.2f)));
+                compassMarks.get(i).setColor(new Vector4f(1, 1, 1, Mathf.clamp((float) Math.pow(Math.cos(xVec), 3), 0, 1)));
+            }
+            int degrees = (int) -Camera.getMainCameraRotation().getY();
+            headingDegrees.setMesh(TextMeshBuilder.TextMesh("" + (((degrees % 360) + 360) % 360), p(24), TextMode.CENTER));
+
 
             healthStatus.setScale(new Vector3f(PlayerMovement.getHealth() / 10.0f, 1, 1));
             float healthBarFactor = (1 - Math.min(PlayerMovement.getHealth() / 100.0f, 1));
@@ -176,14 +222,18 @@ public class InGameMenu extends Menu {
             healthRegenStatus.setScale(new Vector3f(PlayerMovement.getHealthChange() * 4 + 4,1, 1));
             healthRegenStatus.setColor(new Vector4f(0.5f + PlayerMovement.getHealthChange() * 0.5f, 0.3f, 0.5f - PlayerMovement.getHealthChange() * 0.5f, 1.0f));
 
-            speedDial.setMesh(TextMeshBuilder.TextMesh(new DecimalFormat("#.##").format(PlayerMovement.getSpeed()) + " m/s", p(14.0f), TextMode.LEFT));
+            Vector3f pos = PlayerMovement.getPosition();
+            int intX = ((int) pos.getX());
+            int intY = ((int) pos.getY());
+            int intZ = ((int) pos.getZ());
+            speedDial.setMesh(TextMeshBuilder.TextMesh(intX + ", " + intY + ", " + intZ, p(14.0f), TextMode.LEFT));
 
             float recoil = PlayerMovement.getPlayerMovement().getRecoil();
             float recoilOffset = recoil > 1 ? recoil * recoil : recoil;
 
             background.setColor(new Vector4f(0, 0, 0, backTransparency));
 
-            if (Input.isKeyDown(GLFW.GLFW_KEY_B)) {
+            if (Input.isKeyDown(GLFW.GLFW_KEY_B) && !pauseMenuOpen) {
                 buyMenuOpen = !buyMenuOpen;
             }
             if (Input.isKeyDown(GLFW.GLFW_KEY_ESCAPE)) {
@@ -203,7 +253,6 @@ public class InGameMenu extends Menu {
             }
 
             if (buyMenuOpen) {
-                System.out.println(buy_backButton.getPosition().toString());
                 buy_backButton.setPosition(Vector3f.lerpdt(buy_backButton.getPosition(), screen(1, 1, 8), BUY_MENU_SMOOTHING));
                 buy_backIcon.setPosition(Vector3f.lerpdt(buy_backIcon.getPosition(), screen(0.057291668f, 0.10185185f, 7), BUY_MENU_SMOOTHING));
                 buy_moneyPanel.setPosition(Vector3f.lerpdt(buy_moneyPanel.getPosition(), screen(1, 1, 8), BUY_MENU_SMOOTHING));

@@ -2,6 +2,7 @@ package engine.audio;
 
 import engine.math.Vector3f;
 import engine.objects.Camera;
+import main.Main;
 import org.lwjgl.openal.*;
 import org.lwjgl.system.MemoryUtil;
 
@@ -21,11 +22,13 @@ public class AudioMaster {
     public static List<AudioBuffer> audioBufferList;
 
     public static ConcurrentMap<String, AudioSource> audioSourceMap;
+    public static ConcurrentMap<String, Float> audioTimeMap;
 
 
     public static void load() {
         audioBufferList = new ArrayList<>();
         audioSourceMap = new ConcurrentHashMap<>();
+        audioTimeMap = new ConcurrentHashMap<>();
         device = ALC10.alcOpenDevice((ByteBuffer) null);
         if (device == MemoryUtil.NULL) {
             throw new IllegalStateException("Failed to open the default OpenAL device.");
@@ -47,7 +50,8 @@ public class AudioMaster {
             if (source.isRelative()) {
                 source.setPosition(getSoundCoordinates(source.getSoundPosition()));
             }
-            if (!source.isPlaying()) {
+            audioTimeMap.put(name, audioTimeMap.get(name) - Main.getDeltaTime());
+            if (!source.isPlaying() || audioTimeMap.get(name) <= 0) {
                 removeSoundSource(name);
             }
         }
@@ -56,7 +60,6 @@ public class AudioMaster {
     public static void playSound(SoundEffect sound) {
         AudioSource as = new AudioSource(false, false);
         int buffer = AudioBuffer.getSoundEffectBufferId(sound);
-        System.out.println(buffer);
         as.setBuffer(buffer);
         playSoundFromSource(as);
     }
@@ -91,6 +94,7 @@ public class AudioMaster {
     public static void addSoundSource(String name, AudioSource audioSource) {
         audioSource.play();
         audioSourceMap.put(name, audioSource);
+        audioTimeMap.put(name, 10.0f);
     }
 
     public static AudioSource getSoundSource(String name) {
@@ -98,6 +102,7 @@ public class AudioMaster {
     }
 
     public static void removeSoundSource(String name) {
+        audioSourceMap.get(name).unload();
         audioSourceMap.remove(name);
     }
 

@@ -1,15 +1,10 @@
 package game.world;
 
-import engine.graphics.Material;
 import engine.graphics.render.Renderer;
-import engine.io.Input;
-import engine.io.MeshLoader;
 import engine.math.Mathf;
 import engine.math.Vector3f;
 import engine.objects.Camera;
 import engine.objects.GameObject;
-import engine.objects.GameObjectGroup;
-import engine.objects.GameObjectMesh;
 import game.GamePlane;
 
 import java.util.ArrayList;
@@ -36,9 +31,9 @@ public class World implements GamePlane {
 
     private static WorldLoader loader;
 
-    protected static float SCALE_X = 4;
-    protected static float SCALE_Y = 1;
-    protected static float SCALE_Z = 4;
+    protected static float SCALE_X = 8;
+    protected static float SCALE_Y = 2;
+    protected static float SCALE_Z = 8;
 
     public World() {
 
@@ -61,11 +56,6 @@ public class World implements GamePlane {
             loader.run();
             return;
         }
-
-        Vector3f mcr = new Vector3f(Camera.getMainCameraRotation());
-
-        Vector3f hipPosition = Vector3f.add(Camera.getMainCameraPosition(), Camera.getMainCameraRotation().getRelative(new Vector3f(0.7f, -0.2f, -0.7f)));
-        Vector3f adsPosition = Vector3f.add(Camera.getMainCameraPosition(), Camera.getMainCameraRotation().getForward().multiply(0.5f));
 
         for (int i = 0; i < bufferedObjects.size(); i++) {
             GameObject object = bufferedObjects.remove(i);
@@ -189,5 +179,17 @@ public class World implements GamePlane {
             return distance;
         }
         return 0;
+    }
+
+    public static float getScaleX() {
+        return SCALE_X;
+    }
+
+    public static float getScaleY() {
+        return SCALE_Y;
+    }
+
+    public static float getScaleZ() {
+        return SCALE_Z;
     }
 }

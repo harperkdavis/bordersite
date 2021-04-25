@@ -15,7 +15,7 @@ public class Input {
     private static boolean[] buttonsUp = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
 
     private static double mouseX, mouseY;
-    private static double scrollX, scrollY;
+    private static double scrollState, pScrollState, scrollY;
 
     private final GLFWKeyCallback keyboard;
     private final GLFWCursorPosCallback mousePos;
@@ -48,8 +48,7 @@ public class Input {
         mouseScroll = new GLFWScrollCallback() {
             @Override
             public void invoke(long window, double xoffset, double yoffset) {
-                mouseX = xoffset;
-                mouseY = yoffset;
+                scrollState = yoffset;
             }
         };
     }
@@ -87,7 +86,10 @@ public class Input {
             buttonsDown[i] = buttons[i] && !prevButtons[i];
             buttonsUp[i] = !buttons[i] && prevButtons[i];
         }
+        scrollY = scrollState;
+
         prevKeys = keys.clone();
+        scrollState = 0;
 
     }
 
@@ -104,10 +106,6 @@ public class Input {
 
     public static double getMouseY() {
         return mouseY;
-    }
-
-    public static double getScrollX() {
-        return scrollX;
     }
 
     public static double getScrollY() {

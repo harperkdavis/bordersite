@@ -13,6 +13,7 @@ import engine.math.Vector3f;
 import engine.objects.GameObject;
 import game.GamePlane;
 import game.world.World;
+import org.lwjgl.glfw.GLFW;
 
 public class UserInterface implements GamePlane {
 
@@ -25,10 +26,13 @@ public class UserInterface implements GamePlane {
     private static List<GameObject> objects = new ArrayList<>();
 
     private boolean inMainMenu = false;
+    private boolean inMapMenu = false;
 
-    private Menu mainMenu;
-    private Menu loadingMenu;
-    private Menu inGameMenu;
+    private MainMenu mainMenu;
+    private LoadingMenu loadingMenu;
+    private InGameMenu inGameMenu;
+    private MapMenu mapMenu;
+    private Menu buildingMenu;
 
     private UiObject fpsLabel;
 
@@ -43,6 +47,7 @@ public class UserInterface implements GamePlane {
         mainMenu = new MainMenu();
         loadingMenu = new LoadingMenu();
         inGameMenu = new InGameMenu();
+        mapMenu = new MapMenu();
 
         fpsLabel = new UiObject(screen(0, 0.05f, 1), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("fps: ", p(16), TextMode.LEFT, false));
         addObject(fpsLabel, false);
@@ -57,14 +62,20 @@ public class UserInterface implements GamePlane {
         mainMenu.load();
         loadingMenu.load();
         inGameMenu.load();
+        mapMenu.load();
     }
 
     @Override
     public void update() {
 
+        if (Input.isKeyDown(GLFW.GLFW_KEY_TAB)) {
+            inMapMenu = !inMapMenu;
+        }
+
         if (inMainMenu) {
             mainMenu.setVisible(true);
             mainMenu.update();
+            Window.getGameWindow().mouseState(false);
         } else {
             mainMenu.setVisible(false);
         }
@@ -72,23 +83,31 @@ public class UserInterface implements GamePlane {
         if (World.isLoading()) {
             loadingMenu.setVisible(true);
             loadingMenu.update();
+            Window.getGameWindow().mouseState(false);
         } else {
             loadingMenu.setVisible(false);
         }
 
-        if (!World.isLoading() && !inMainMenu) {
+        if (!World.isLoading() && !inMainMenu && !inMapMenu) {
             inGameMenu.setVisible(true);
             inGameMenu.update();
+            Window.getGameWindow().mouseState(!(inGameMenu.buyMenuOpen || inGameMenu.pauseMenuOpen));
         } else {
             inGameMenu.setVisible(false);
         }
 
-        fpsLabel.setMesh(TextMeshBuilder.TextMesh("fps: " + Window.getGameWindow().getFPS(), p(16), TextMode.LEFT, false));
+        if (!inMainMenu && !World.isLoading() && inMapMenu) {
+            mapMenu.setVisible(true);
+            mapMenu.update();
+            Window.getGameWindow().mouseState(false);
+        } else {
+            mapMenu.setVisible(false);
+        }
     }
 
     @Override
     public void fixedUpdate() {
-
+        fpsLabel.setMesh(TextMeshBuilder.TextMesh("fps: " + Window.getGameWindow().getFPS(), p(16), TextMode.LEFT, false));
     }
 
     @Override
@@ -96,10 +115,10 @@ public class UserInterface implements GamePlane {
         for (GameObject o : objects) {
             Renderer.getUi().render(o);
         }
-
         mainMenu.render();
         loadingMenu.render();
         inGameMenu.render();
+        mapMenu.render();
     }
 
     @Override
@@ -110,6 +129,8 @@ public class UserInterface implements GamePlane {
 
         mainMenu.unload();
         loadingMenu.unload();
+        inGameMenu.unload();
+        mapMenu.unload();
     }
 
     public GameObject addObject(GameObject object) {

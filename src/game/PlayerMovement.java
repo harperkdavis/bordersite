@@ -7,6 +7,7 @@ import engine.io.Window;
 import engine.math.*;
 import engine.objects.Camera;
 import game.world.World;
+import main.Global;
 import main.Main;
 import net.Client;
 import org.lwjgl.glfw.GLFW;
@@ -30,12 +31,13 @@ public class PlayerMovement {
     private boolean isCrouching = false, isSprinting = false, isGrounded = true, isAiming = false, isMoving;
     private float sprintModifier = 0.0f;
 
-    private static boolean isPlayerActive = true, hasCameraControl = true, canFly = true;
+    private static boolean isPlayerActive = true, hasCameraControl = true;
 
     private static float health = 200, stamina = 200, healthChange = 0, fatigue = 0;
 
     private float preMouseX = 0, preMouseY = 0;
     private Vector3f cameraRotation;
+    private Vector3f lockedRotation;
     private float cameraTilt;
 
     private float velocityForward = 0;
@@ -53,9 +55,8 @@ public class PlayerMovement {
     private final int CROUCH_KEY = GLFW.GLFW_KEY_LEFT_CONTROL, SPRINT_KEY = GLFW.GLFW_KEY_LEFT_SHIFT;
 
     private float recoil = 1.0f;
-    private static List<Region3f> collision;
 
-    private float bobbingDelay = 0, bobbingMultiplier = 0, bobbingMovement = 0;
+    private float bobbingMultiplier = 0;
     // Hipfire 1.0
     // ADS 0.5
     // Moving +0.5
@@ -65,60 +66,54 @@ public class PlayerMovement {
     public PlayerMovement() {
         position = new Vector3f(0, 0, 0);
         cameraRotation = new Vector3f(0, 0, 0);
-        collision = new ArrayList<>();
+        lockedRotation = new Vector3f(0, 0, 0);
     }
 
     private void updateCamera() {
 
-        if (!hasCameraControl) {
-            return;
-        }
-
         float mouseX = (float) Input.getMouseX();
         float mouseY = (float) Input.getMouseY();
 
-        float accX = mouseX - preMouseX;
-        float accY = mouseY - preMouseY;
+        if (hasCameraControl && Window.getGameWindow().isMouseLocked()) {
 
-        cameraRotation = cameraRotation.add(-accY * MOUSE_SENSITIVITY, -accX * MOUSE_SENSITIVITY, 0);
+            float accX = mouseX - preMouseX;
+            float accY = mouseY - preMouseY;
 
-        if (cameraRotation.getX() > 89) {
-            cameraRotation.setX(89);
-        }
+            cameraRotation = cameraRotation.add(-accY * MOUSE_SENSITIVITY, -accX * MOUSE_SENSITIVITY, 0);
 
-        if (cameraRotation.getX() < -89) {
-            cameraRotation.setX(-89);
+            if (cameraRotation.getX() > 89) {
+                cameraRotation.setX(89);
+            }
+
+            if (cameraRotation.getX() < -89) {
+                cameraRotation.setX(-89);
+            }
+
+            cameraRotation.setZ(cameraTilt);
+
+            Camera.setMainCameraRotation(cameraRotation);
+
         }
 
         preMouseX = mouseX;
         preMouseY = mouseY;
-
-        cameraRotation.setZ(cameraTilt);
-
-        Camera.setMainCameraRotation(cameraRotation);
     }
 
-    public void update() {
-
-        if (!(Client.isConnected() && World.isLoaded())) {
-            return;
-        }
-
-        updateCamera();
-
+    public void updateMovement() {
         boolean hasLanded = isGrounded;
-        isGrounded = position.getY() < World.getTerrainHeight(position.getX(), position.getZ()) + 0.05f;
+        isGrounded = position.getY() < World.getTerrainHeight(position.getX(), position.getZ()) + (isGrounded ? 0.1f : 0);
 
         hasLanded = !hasLanded && isGrounded;
         if (hasLanded) {
-            velX /= 2;
-            velZ /= 2;
+            velX *= 1.01f;
+            velZ *= 1.01f;
             cameraHeight -= 0.2f;
             AudioMaster.playSound(SoundEffect.JUMP_LAND);
         }
 
         if (isGrounded) {
             velY = 0;
+            position.setY(World.getTerrainHeight(position.getX(), position.getZ()));
             if (Input.isKey(GLFW.GLFW_KEY_SPACE)) {
                 velY = 4 * Main.getDeltaTime() * 120;
                 position.add(0, 0.06f, 0);
@@ -201,6 +196,11 @@ public class PlayerMovement {
 
         position.add(velX * Main.getDeltaTime(), velY * Main.getDeltaTime(), velZ * Main.getDeltaTime());
 
+        position.setX(Mathf.clamp(position.getX(), 0, 510 * World.getScaleX()));
+        position.setY(Mathf.clamp(position.getY(), -1, 1000));
+        position.setZ(Mathf.clamp(position.getZ(), 0, 510 * World.getScaleX()));
+
+
         if (isGrounded) {
             velX /= 8.0f / (Main.getDeltaTime() * 120);
             velY /= 8.0f / (Main.getDeltaTime() * 120);
@@ -223,6 +223,48 @@ public class PlayerMovement {
         }
 
         cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1.5f : 2, 0.01f) + (float) Math.sin((System.currentTimeMillis() - movementStarted) / ((isSprinting ? 500.0f : (isCrouching ? 1000.0f : 600.0f) / 9.0f))) * bobbingMultiplier * 0.01f;
+
+    }
+
+    public void flyingMovement() {
+        Vector3f forward = new Vector3f((float) Math.sin(Math.toRadians(cameraRotation.getY()) + Math.PI), 0, (float) Math.cos(Math.toRadians(cameraRotation.getY()) + Math.PI));
+        Vector3f right = new Vector3f((float) Math.sin(Math.toRadians(cameraRotation.getY()) + Math.PI / 2), 0, (float) Math.cos(Math.toRadians(cameraRotation.getY()) + Math.PI / 2));
+        Vector3f up = new Vector3f(0, 1, 0);
+
+        float speed = (Input.isKey(GLFW.GLFW_KEY_LEFT_ALT) ? 400 : (Input.isKey(GLFW.GLFW_KEY_Q) ? 20 : 5));
+
+        if (Input.isKey(GLFW.GLFW_KEY_W)) {
+            position.add(Vector3f.multiply(forward, Vector3f.one().multiply(speed * Main.getDeltaTime())));
+        }
+        if (Input.isKey(GLFW.GLFW_KEY_A)) {
+            position.add(Vector3f.multiply(right, Vector3f.one().multiply(-speed * Main.getDeltaTime())));
+        }
+        if (Input.isKey(GLFW.GLFW_KEY_SPACE)) {
+            position.add(Vector3f.multiply(up, Vector3f.one().multiply(speed * Main.getDeltaTime())));
+        }
+        if (Input.isKey(GLFW.GLFW_KEY_S)) {
+            position.add(Vector3f.multiply(forward, Vector3f.one().multiply(-speed * Main.getDeltaTime())));
+        }
+        if (Input.isKey(GLFW.GLFW_KEY_D)) {
+            position.add(Vector3f.multiply(right, Vector3f.one().multiply(speed * Main.getDeltaTime())));
+        }
+        if (Input.isKey(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+            position.add(Vector3f.multiply(up, Vector3f.one().multiply(-speed * Main.getDeltaTime())));
+        }
+    }
+
+    public void update() {
+
+        if (!(Client.isConnected() && World.isLoaded())) {
+            return;
+        }
+
+        updateCamera();
+        if (Global.BUILD_MODE) {
+            updateMovement();
+        } else {
+            flyingMovement();
+        }
 
         Camera.setMainCameraPosition(Vector3f.add(position, new Vector3f(0, cameraHeight, 0)));
     }
@@ -249,10 +291,6 @@ public class PlayerMovement {
 
     public static void setPlayerMovement(PlayerMovement playerMovement) {
         PlayerMovement.playerMovement = playerMovement;
-    }
-
-    public static void addCollisionRegion(Region3f region) {
-        collision.add(region);
     }
 
     private void playFootstepSound() {

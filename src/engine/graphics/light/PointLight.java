@@ -4,6 +4,7 @@ import engine.math.Vector3f;
 
 public class PointLight {
 
+    public final static PointLight IDENTITY = new PointLight(Vector3f.zero(), Vector3f.zero(), 0);
     private Vector3f color;
     private Vector3f position;
     protected float intensity;
