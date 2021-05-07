@@ -1,15 +1,12 @@
 package engine.objects;
 
-import engine.io.Input;
-import engine.math.Matrix4f;
 import engine.math.Vector3f;
-import org.lwjgl.glfw.GLFW;
 
 public class Camera {
 
     private Vector3f position, rotation;
 
-    private static Camera mainCamera = new Camera(new Vector3f(0, 0, 0), Vector3f.zero());
+    private static final Camera mainCamera = new Camera(new Vector3f(0, 0, 0), Vector3f.zero());
 
     public Camera(Vector3f position, Vector3f rotation) {
         this.position = position;

@@ -1,11 +1,10 @@
 package net.packets;
 
-import net.Client;
 import org.json.simple.JSONObject;
 
 public class PacketInputs extends Packet {
 
-    public PacketInputs(int packetId) {
+    public PacketInputs() {
         super(3);
     }
 

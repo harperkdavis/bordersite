@@ -2,16 +2,12 @@ package engine.io;
 
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
-import game.PlayerMovement;
 import main.Main;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjglx.Sys;
-
-import static engine.math.Mathf.lerp;
 
 public class Window {
 
@@ -19,14 +15,14 @@ public class Window {
 
     private static int width, height;
     private boolean fullscreen;
-    private String title;
+    private final String title;
     private long window;
 
     private long fpsTime;
 
     private float frameRate = 60;
-    private float averageFPS = 60;
-    private float deltaTime = 0;
+    private final float averageFPS = 60;
+    private final float deltaTime = 0;
 
     private boolean mouseLocked = false;
 
@@ -42,7 +38,8 @@ public class Window {
 
     private float fov = 80.0f;
 
-    private int[] windowPosX = new int[1], windowPosY = new int[1];
+    private final int[] windowPosX = new int[1];
+    private final int[] windowPosY = new int[1];
 
     public Window(int width, int height, boolean fullscreen, String title) {
         Window.width = width;

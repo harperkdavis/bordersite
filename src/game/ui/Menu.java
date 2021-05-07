@@ -6,8 +6,6 @@ import engine.objects.GameObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static game.ui.UserInterface.p;
-
 public abstract class Menu {
 
     protected List<GameObject> objects;

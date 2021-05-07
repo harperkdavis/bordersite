@@ -1,16 +1,14 @@
 package game.world;
 
+import engine.graphics.Material;
+import engine.graphics.mesh.MeshBuilder;
 import engine.graphics.render.Renderer;
-import engine.math.Mathf;
-import engine.math.Vector3f;
-import engine.objects.Camera;
+import engine.math.*;
 import engine.objects.GameObject;
+import engine.objects.GameObjectMesh;
 import game.GamePlane;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class World implements GamePlane {
 
@@ -23,29 +21,36 @@ public class World implements GamePlane {
     public GameObject groundPlane;
 
     public static List<GameObject> objects = new ArrayList<>();
-    private static List<GameObject> bufferedObjects = new ArrayList<>();
+    private static final List<GameObject> bufferedObjects = new ArrayList<>();
 
     public static Map<String, GameObject> playerObjects = new HashMap<>();
 
-    private List<GameObject> playerObjectList = new ArrayList<>();
+    private GameObject coll;
 
     private static WorldLoader loader;
 
-    protected static float SCALE_X = 8;
-    protected static float SCALE_Y = 2;
-    protected static float SCALE_Z = 8;
+    protected static float SCALE_X = 4;
+    protected static float SCALE_Y = 1;
+    protected static float SCALE_Z = 4;
 
     public World() {
 
+        addObject(new GameObjectMesh(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), MeshBuilder.Rect(new Vector3f(4, 1.0f, 4), new Vector3f(8, -2, 8), new Material("/textures/stone.png"))), false);
+
         loader = new WorldLoader();
 
-        for (GameObject go : playerObjectList) {
-            objects.add(go);
-        }
+        List<GameObject> playerObjectList = new ArrayList<>();
+        objects.addAll(playerObjectList);
     }
 
     @Override
     public void load() {
+
+        for (int i = 0; i < 1000; i++) {
+            Random r = new Random();
+
+        }
+
         loading = true;
         loaded = false;
     }

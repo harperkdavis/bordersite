@@ -1,7 +1,6 @@
 package game.ui;
 
 import engine.graphics.mesh.Mesh2f;
-import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.math.Vector4f;
 import engine.objects.GameObject;

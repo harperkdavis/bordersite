@@ -22,7 +22,7 @@ public class WorldLoader {
 
     private int loadingStage = 0;
 
-    private long beginTime;
+    private final long beginTime;
     private long elapsedTime;
 
     private int nextOperation;
@@ -31,20 +31,15 @@ public class WorldLoader {
     private String loadingName;
     private float loadingProgress;
 
-    private final int TREE_SIZE = 20;
-    private final float TREE_WIDTH = 1.0f;
-
     // Loading-specific variables
 
-    private byte[] textureData;
     private byte[] treeMap;
     private byte[] treeNoiseMap;
 
-    private List<Vector3f> treePositions = new ArrayList<>();
-    private List<Integer> treeASeeds = new ArrayList<>();
-    private List<Integer> treeBSeeds = new ArrayList<>();
+    private final List<Vector3f> treePositions = new ArrayList<>();
+    private final List<Integer> treeASeeds = new ArrayList<>();
+    private final List<Integer> treeBSeeds = new ArrayList<>();
 
-    private int treeChunkX = 0;
     private int treeChunkZ = 0;
 
     private int smoothIterations = 0;
@@ -75,7 +70,7 @@ public class WorldLoader {
             Material map = new Material("/textures/heightmap.png");
             map.create();
 
-            textureData = map.getTexture().getTextureData();
+            byte[] textureData = map.getTexture().getTextureData();
             World.heightMap = new float[512][512];
 
             for (int x = 0; x < 512; x++) {
@@ -135,6 +130,7 @@ public class WorldLoader {
             wait(5);
         } else if (loadingStage == 3) {
             loadingName = "Loading trees...";
+            int treeChunkX = 0;
             loadingProgress = (treeChunkX + treeChunkZ * 32) / 1024.0f;
             for (int i = 0; i < 32; i++) {
                 if (i == 0 && treeChunkZ == 0) {
@@ -178,6 +174,7 @@ public class WorldLoader {
         } else if (loadingStage == 4) {
             loadingName = "Creating trees...";
             loadingProgress = (float) treeIndex / treePositions.size();
+            int TREE_SIZE = 20;
             int branches = (int) ((TREE_SIZE - 2.0f) * 4);
             if (!vertsInitialized) {
                 vertices = new Vertex3f[(20 + (branches * 4 * 2)) * treePositions.size()]; // 4 Verts per face, 2 Faces per branch, 5 branches per size
@@ -197,6 +194,7 @@ public class WorldLoader {
                     Vector3f position = new Vector3f(xPos, yPos, zPos);
 
                     // TODO: Fix Normals
+                    float TREE_WIDTH = 1.0f;
                     Vertex3f[] treeVertices = new Vertex3f[]{
                             //Back face
                             new Vertex3f(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.0f)),
@@ -230,7 +228,7 @@ public class WorldLoader {
                     };
                     int[] treeTriangles = new int[]{
                             //Back face
-                            vertIndex + 0, vertIndex + 1, vertIndex + 3,
+                            vertIndex, vertIndex + 1, vertIndex + 3,
                             vertIndex + 3, vertIndex + 1, vertIndex + 2,
 
                             //Front face

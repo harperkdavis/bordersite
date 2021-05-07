@@ -21,8 +21,6 @@ public class AudioBuffer {
 
     private ShortBuffer pcm = null;
 
-    private ByteBuffer vorbis = null;
-
     public AudioBuffer(String file){
         this.bufferId = AL10.alGenBuffers();
         try (STBVorbisInfo info = STBVorbisInfo.malloc()) {
@@ -62,7 +60,7 @@ public class AudioBuffer {
 
     private ShortBuffer readVorbis(String resource, int bufferSize, STBVorbisInfo info) throws Exception {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            vorbis = Utils.ioResourceToByteBuffer(resource, bufferSize);
+            ByteBuffer vorbis = Utils.ioResourceToByteBuffer(resource, bufferSize);
             IntBuffer error = stack.mallocInt(1);
             long decoder = STBVorbis.stb_vorbis_open_memory(vorbis, error, null);
             if (decoder == NULL) {

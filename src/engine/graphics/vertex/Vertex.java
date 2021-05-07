@@ -2,7 +2,6 @@ package engine.graphics.vertex;
 
 import engine.math.Vector2f;
 import engine.math.Vector3f;
-import engine.math.Vector4f;
 
 public abstract class Vertex {
 

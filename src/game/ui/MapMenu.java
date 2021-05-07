@@ -6,11 +6,9 @@ import engine.io.Input;
 import engine.math.*;
 import engine.objects.Camera;
 import engine.objects.GameObject;
-import engine.objects.GameObjectMesh;
 import game.PlayerMovement;
 import game.world.World;
 import main.Main;
-import org.lwjgl.system.CallbackI;
 
 import static game.ui.UserInterface.p;
 import static game.ui.UserInterface.screen;

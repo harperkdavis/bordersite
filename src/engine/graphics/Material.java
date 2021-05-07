@@ -2,20 +2,18 @@ package engine.graphics;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjglx.util.vector.Vector4f;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 // Stores Materials that create the appearance of an Object
 public class Material {
 
 
-    private float reflectance;
+    private final float reflectance;
 
-    private String texturePath;
+    private final String texturePath;
     private Texture texture;
     private float width, height;
     private int textureID;

@@ -2,9 +2,7 @@ package engine.graphics.mesh;
 
 import engine.graphics.Material;
 import engine.graphics.vertex.Vertex2f;
-import engine.graphics.vertex.Vertex3f;
 import engine.math.Vector2f;
-import engine.math.Vector3f;
 
 public class UiBuilder {
 

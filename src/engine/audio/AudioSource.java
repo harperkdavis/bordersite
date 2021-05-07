@@ -7,7 +7,7 @@ public class AudioSource {
 
     private final int sourceId;
     private Vector3f soundPosition;
-    private boolean relative;
+    private final boolean relative;
 
     public AudioSource(boolean loop, boolean relative) {
         this.sourceId = AL10.alGenSources();

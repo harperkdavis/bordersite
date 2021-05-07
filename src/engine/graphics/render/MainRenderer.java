@@ -20,16 +20,15 @@ import org.lwjgl.opengl.GL30;
 
 public class MainRenderer extends Renderer {
 
-    private Vector3f ambientLight;
-    private DirectionalLight directionalLight;
-    private Fog fog;
-    private float specularPower = 10f;
+    private final Vector3f ambientLight;
+    private final DirectionalLight directionalLight;
+    private final Fog fog;
 
     private static final int MAX_POINT_LIGHTS = 16;
     private static final int MAX_SPOT_LIGHTS = 16;
 
-    private PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
-    private SpotLight[] spotLights = new SpotLight[MAX_SPOT_LIGHTS];
+    private final PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
+    private final SpotLight[] spotLights = new SpotLight[MAX_SPOT_LIGHTS];
 
     public MainRenderer(Shader shader) {
         super(shader);
@@ -97,6 +96,7 @@ public class MainRenderer extends Renderer {
             shader.setUniform("model", Matrix4f.transform(objectMesh.getPosition(), objectMesh.getRotation(), objectMesh.getScale()));
             shader.setUniform("reflectance", ((GameObjectMesh) object).getMesh().getMaterial().getReflectance());
             shader.setUniform("meshColor", ((GameObjectMesh) object).getColor());
+            float specularPower = 10f;
             shader.setUniform("specularPower", specularPower);
 
             GL11.glDrawElements(GL11.GL_TRIANGLES, objectMesh.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);

@@ -1,6 +1,5 @@
 package engine.math;
 
-import engine.io.Window;
 import main.Main;
 
 public class Mathf {

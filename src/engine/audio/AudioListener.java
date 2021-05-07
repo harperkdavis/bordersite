@@ -5,9 +5,6 @@ import org.lwjgl.openal.AL10;
 
 public class AudioListener {
 
-    public AudioListener() {
-    }
-
     public AudioListener(Vector3f position) {
         AL10.alListener3f(AL10.AL_POSITION, position.getX(), position.getY(), position.getZ());
         AL10.alListener3f(AL10.AL_VELOCITY, 0, 0, 0);

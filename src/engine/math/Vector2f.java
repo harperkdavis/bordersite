@@ -78,7 +78,7 @@ public class Vector2f {
         return this;
     }
 
-    public Vector2f multiply(float x, float y, float z) {
+    public Vector2f multiply(float x, float y) {
         this.x *= x;
         this.y *= y;
         return this;
@@ -100,7 +100,7 @@ public class Vector2f {
         return this;
     }
 
-    public Vector2f divide(float x, float y, float z) {
+    public Vector2f divide(float x, float y) {
         this.x /= x;
         this.y /= y;
         return this;

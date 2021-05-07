@@ -21,12 +21,11 @@ public class Client implements Runnable {
     private static Client socketClient;
     private static boolean connected = false;
 
-    private Thread thread;
     private InetAddress ipAddress;
     private DatagramSocket socket;
-    private DataSender sender;
+    private final DataSender sender;
 
-    private List<Player> localPlayers = new ArrayList<>();
+    private final List<Player> localPlayers = new ArrayList<>();
 
     public boolean running = true;
 
@@ -46,7 +45,7 @@ public class Client implements Runnable {
     }
 
     public void start() {
-        thread = new Thread(this);
+        Thread thread = new Thread(this);
         thread.start();
     }
 
@@ -86,18 +85,10 @@ public class Client implements Runnable {
         }
 
         switch (type) {
-            case INVALID:
-                System.err.println("[ERROR] Invalid packet! " + message);
-                break;
-            case CONNECT:
-                playerConnect(jsonData);
-                break;
-            case PUBLICPLAYERDATA:
-                playerData(jsonData);
-                break;
-            case PLAYERSPAWN:
-                playerSpawn(jsonData);
-                break;
+            case INVALID -> System.err.println("[ERROR] Invalid packet! " + message);
+            case CONNECT -> playerConnect(jsonData);
+            case PUBLICPLAYERDATA -> playerData(jsonData);
+            case PLAYERSPAWN -> playerSpawn(jsonData);
         }
     }
 

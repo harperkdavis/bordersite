@@ -1,11 +1,10 @@
 package net.packets;
 
-import net.Client;
 import org.json.simple.JSONObject;
 
 public class PacketLogin extends Packet {
 
-    private String username;
+    private final String username;
 
     public PacketLogin(String username) {
         super(0);

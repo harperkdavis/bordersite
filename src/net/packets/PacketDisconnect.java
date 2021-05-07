@@ -1,6 +1,5 @@
 package net.packets;
 
-import net.Client;
 import org.json.simple.JSONObject;
 
 public class PacketDisconnect extends Packet {

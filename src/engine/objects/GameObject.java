@@ -8,7 +8,7 @@ import engine.math.Vector3f;
 
 public abstract class GameObject {
 
-    private Transform transform;
+    private final Transform transform;
     private boolean visible = true;
     private List<String> tags;
 
@@ -63,12 +63,12 @@ public abstract class GameObject {
         this.parent.children.add(this);
     }
 
-    private void addChild(GameObject child) {
+    public void addChild(GameObject child) {
         child.setParent(this);
         child.transform.setLocals(transform);
     }
 
-    private void removeChild(GameObject child) {
+    public void removeChild(GameObject child) {
         child.resetParent();
         child.transform.resetLocals();
     }
@@ -79,10 +79,6 @@ public abstract class GameObject {
 
     public Transform getTransform() {
         return transform;
-    }
-
-    public List<GameObject> addChild() {
-        return children;
     }
 
     public List<GameObject> getChildren() {
@@ -128,10 +124,6 @@ public abstract class GameObject {
         return new Vector3f(transform.getLocalRotation());
     }
 
-    public Vector3f getLocalScale() {
-        return new Vector3f(transform.getLocalScale());
-    }
-
     public void setLocalPosition(Vector3f position) {
         transform.setLocalPosition(position);
         fix();
@@ -139,11 +131,6 @@ public abstract class GameObject {
 
     public void setLocalRotation(Vector3f rotation) {
         transform.setLocalRotation(rotation);
-        fix();
-    }
-
-    public void setLocalScale(Vector3f scale) {
-        transform.setLocalScale(scale);
         fix();
     }
 

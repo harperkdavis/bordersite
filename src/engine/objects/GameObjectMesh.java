@@ -1,6 +1,5 @@
 package engine.objects;
 
-import engine.graphics.mesh.Mesh2f;
 import engine.graphics.mesh.Mesh3f;
 import engine.math.Vector3f;
 import engine.math.Vector4f;

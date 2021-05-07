@@ -17,7 +17,8 @@ import java.nio.FloatBuffer;
 
 public class Shader {
 
-    private String vertexFile, fragmentFile;
+    private final String vertexFile;
+    private final String fragmentFile;
     private int vertexID, fragmentID, programID;
 
     public Shader(String vertexPath, String fragmentPath) {
@@ -61,7 +62,6 @@ public class Shader {
 
         if (GL20.glGetProgrami(programID, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE) {
             System.err.println("[ERROR] Program Validation: " + GL20.glGetProgramInfoLog(programID));
-            return;
         }
     }
 

@@ -1,7 +1,5 @@
 package engine.math;
 
-import java.util.Objects;
-
 public class Vector4f {
 
     private float x, y, z, w;

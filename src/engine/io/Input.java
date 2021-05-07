@@ -1,18 +1,17 @@
 package engine.io;
 
 import org.lwjgl.glfw.*;
-import org.lwjgl.system.CallbackI;
 
 public class Input {
 
-    private static boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
-    private static boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static final boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
+    private static final boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
     private static boolean[] prevKeys = new boolean[GLFW.GLFW_KEY_LAST];
-    private static boolean[] prevButtons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
-    private static boolean[] keysDown = new boolean[GLFW.GLFW_KEY_LAST];
-    private static boolean[] buttonsDown = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
-    private static boolean[] keysUp = new boolean[GLFW.GLFW_KEY_LAST];
-    private static boolean[] buttonsUp = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static final boolean[] prevButtons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static final boolean[] keysDown = new boolean[GLFW.GLFW_KEY_LAST];
+    private static final boolean[] buttonsDown = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static final boolean[] keysUp = new boolean[GLFW.GLFW_KEY_LAST];
+    private static final boolean[] buttonsUp = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
 
     private static double mouseX, mouseY;
     private static double scrollState, pScrollState, scrollY;

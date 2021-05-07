@@ -2,6 +2,9 @@ package game;
 
 import engine.audio.AudioMaster;
 import engine.audio.SoundEffect;
+import engine.collision.BoxCollider3f;
+import engine.collision.Collider3f;
+import engine.collision.Collision;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.*;
@@ -28,16 +31,19 @@ public class PlayerMovement {
     private static float velY = 0;
     private static float velZ = 0;
 
-    private boolean isCrouching = false, isSprinting = false, isGrounded = true, isAiming = false, isMoving;
+    private boolean isCrouching = false;
+    private boolean isSprinting = false;
+    private boolean isGrounded = true;
+    private boolean isMoving;
     private float sprintModifier = 0.0f;
 
-    private static boolean isPlayerActive = true, hasCameraControl = true;
+    private static final boolean isPlayerActive = true;
+    private static final boolean hasCameraControl = true;
 
     private static float health = 200, stamina = 200, healthChange = 0, fatigue = 0;
 
     private float preMouseX = 0, preMouseY = 0;
     private Vector3f cameraRotation;
-    private Vector3f lockedRotation;
     private float cameraTilt;
 
     private float velocityForward = 0;
@@ -49,14 +55,13 @@ public class PlayerMovement {
 
     private float cameraHeight = 2;
 
-    private final float MOVE_SPEED = 5.0f, SMOOTHING = 0.6f, CROUCH_SPEED = 0.4f, SPRINT_SPEED = 0.5f, JUMP_HEIGHT = 0.1f, AIR_FRICTION = 3.0f, GROUND_FRICTION = 5.0f, MOUSE_SENSITIVITY = 0.04f;
+    private final float JUMP_HEIGHT = 0.1f;
+    private final float AIR_FRICTION = 3.0f;
+    private final float GROUND_FRICTION = 5.0f;
     private final float GRAVITY = 0.006f;
 
-    private final int CROUCH_KEY = GLFW.GLFW_KEY_LEFT_CONTROL, SPRINT_KEY = GLFW.GLFW_KEY_LEFT_SHIFT;
-
-    private float recoil = 1.0f;
-
     private float bobbingMultiplier = 0;
+    private final List<Collider3f> colliders;
     // Hipfire 1.0
     // ADS 0.5
     // Moving +0.5
@@ -66,7 +71,11 @@ public class PlayerMovement {
     public PlayerMovement() {
         position = new Vector3f(0, 0, 0);
         cameraRotation = new Vector3f(0, 0, 0);
-        lockedRotation = new Vector3f(0, 0, 0);
+        Vector3f lockedRotation = new Vector3f(0, 0, 0);
+
+        colliders = new ArrayList<>();
+        colliders.add(new BoxCollider3f(new Vector3f(4, 1.0f, 4), new Vector3f(8, -2, 8)));
+
     }
 
     private void updateCamera() {
@@ -79,6 +88,7 @@ public class PlayerMovement {
             float accX = mouseX - preMouseX;
             float accY = mouseY - preMouseY;
 
+            float MOUSE_SENSITIVITY = 0.04f;
             cameraRotation = cameraRotation.add(-accY * MOUSE_SENSITIVITY, -accX * MOUSE_SENSITIVITY, 0);
 
             if (cameraRotation.getX() > 89) {
@@ -100,34 +110,24 @@ public class PlayerMovement {
     }
 
     public void updateMovement() {
-        boolean hasLanded = isGrounded;
-        isGrounded = position.getY() < World.getTerrainHeight(position.getX(), position.getZ()) + (isGrounded ? 0.1f : 0);
-
-        hasLanded = !hasLanded && isGrounded;
-        if (hasLanded) {
-            velX *= 1.01f;
-            velZ *= 1.01f;
-            cameraHeight -= 0.2f;
-            AudioMaster.playSound(SoundEffect.JUMP_LAND);
-        }
 
         if (isGrounded) {
             velY = 0;
-            position.setY(World.getTerrainHeight(position.getX(), position.getZ()));
-            if (Input.isKey(GLFW.GLFW_KEY_SPACE)) {
-                velY = 4 * Main.getDeltaTime() * 120;
-                position.add(0, 0.06f, 0);
+            if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
+                velY = 10.0f * Main.getDeltaTime() * 120;
+                position.add(0, 0.02f, 0);
                 AudioMaster.playSound(SoundEffect.JUMP);
                 isGrounded = false;
             }
         } else {
-            velY -= 0.1f * Main.getDeltaTime() * 120;
+            velY -= 0.2f * Main.getDeltaTime() * 120;
         }
 
         if (position.getY() < World.getTerrainHeight(position.getX(), position.getZ())) {
             position.setY(World.getTerrainHeight(position.getX(), position.getZ()));
         }
 
+        int SPRINT_KEY = GLFW.GLFW_KEY_LEFT_SHIFT;
         if (Input.isKey(SPRINT_KEY)) {
             if (stamina > 40f) {
                 isSprinting = true;
@@ -135,11 +135,12 @@ public class PlayerMovement {
         }
         sprintModifier = Mathf.lerpdt(sprintModifier, (isSprinting ? 1 : 0), 0.1f);
 
+        int CROUCH_KEY = GLFW.GLFW_KEY_LEFT_CONTROL;
         if (Input.isKeyDown(CROUCH_KEY)) {
             isCrouching = !isCrouching;
         }
 
-        isAiming = Input.isMouseButton(1);
+        boolean isAiming = Input.isMouseButton(1);
 
         velocityLeft = Mathf.lerpdt(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, 0.5f);
         velocityRight = Mathf.lerpdt(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0, 0.5f);
@@ -187,19 +188,61 @@ public class PlayerMovement {
 
         Vector3f movement = Vector3f.add(forwards.multiply(inputVector.getZ()), right.multiply(inputVector.getX()));
 
+        float SPRINT_SPEED = 0.5f;
+        float CROUCH_SPEED = 0.4f;
+        float MOVE_SPEED = 5.0f;
         float movementSpeed = MOVE_SPEED * (isCrouching ? CROUCH_SPEED : 1.0f) * (1 + SPRINT_SPEED * sprintModifier * Mathf.lerp(1.0f, 1.2f, stamina / 200.0f)) * (isAiming ? 0.8f : 1.0f) * (isGrounded ? 1.0f : 0.01f) * (0.9f + stamina / 2000.0f) * (1.2f - fatigue * 0.4f);
         movement.multiply(movementSpeed);
+
+        Vector3f previous = new Vector3f(position);
 
         velX += movement.getX();
         velY += movement.getY();
         velZ += movement.getZ();
 
-        position.add(velX * Main.getDeltaTime(), velY * Main.getDeltaTime(), velZ * Main.getDeltaTime());
+        position.add(new Vector3f(velX * Main.getDeltaTime(), velY * Main.getDeltaTime(), velZ * Main.getDeltaTime()));
+
+        boolean hasLanded = isGrounded;
+        isGrounded = position.getY() < World.getTerrainHeight(position.getX(), position.getZ()) + (isGrounded ? 0.1f : 0);
+
+        for (Collider3f collider : colliders) {
+            Collision result = collider.getCollision(previous, position, new Vector3f(velX, velY, velZ), isCrouching ? 1.65f : 2.15f);
+            if (result != null) {
+                position = new Vector3f(result.getPositionResult());
+
+                velX = result.getVelocityResult().getX();
+                velY = result.getVelocityResult().getY();
+                velZ = result.getVelocityResult().getZ();
+
+                if (result.isResultGrounded()) {
+                    isGrounded = true;
+                }
+            }
+        }
+
+        float groundedHeight = World.getTerrainHeight(position.getX(), position.getZ());
+        for (Collider3f collider : colliders) {
+            if (collider.isGrounded(position)) {
+                isGrounded = true;
+                groundedHeight = Math.max(groundedHeight, collider.getGroundedHeight(position));
+            }
+        }
+
+        if (isGrounded) {
+            position.setY(groundedHeight);
+            velY = 0;
+        }
+
+        hasLanded = !hasLanded && isGrounded;
+        if (hasLanded) {
+            cameraHeight -= 0.2f;
+            cameraTilt += 10;
+            AudioMaster.playSound(SoundEffect.JUMP_LAND);
+        }
 
         position.setX(Mathf.clamp(position.getX(), 0, 510 * World.getScaleX()));
         position.setY(Mathf.clamp(position.getY(), -1, 1000));
         position.setZ(Mathf.clamp(position.getZ(), 0, 510 * World.getScaleX()));
-
 
         if (isGrounded) {
             velX /= 8.0f / (Main.getDeltaTime() * 120);
@@ -222,7 +265,11 @@ public class PlayerMovement {
             lastStep = System.currentTimeMillis();
         }
 
-        cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1.5f : 2, 0.01f) + (float) Math.sin((System.currentTimeMillis() - movementStarted) / ((isSprinting ? 500.0f : (isCrouching ? 1000.0f : 600.0f) / 9.0f))) * bobbingMultiplier * 0.01f;
+        float bobbingTime = (System.currentTimeMillis() - movementStarted) / ((isSprinting ? 600.0f : (isCrouching ? 1000.0f : 600.0f)) / 9.0f);
+        float bobbing = (float) Math.sin(bobbingTime);
+        cameraTilt = Mathf.lerpdt(cameraTilt,bobbingMultiplier * (float) Math.sin(bobbingTime / 2) * 0.2f, 0.05f);
+
+        cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1.5f : 2, 0.01f) + bobbing * bobbingMultiplier * (isSprinting ? 2.5f : (isCrouching ? 1.5f : 1.0f)) * 0.01f;
 
     }
 
@@ -270,6 +317,7 @@ public class PlayerMovement {
     }
 
     public float getRecoil() {
+        float recoil = 1.0f;
         return recoil;
     }
 
@@ -331,9 +379,11 @@ public class PlayerMovement {
         PlayerMovement.healthChange = healthChange;
     }
 
-
-
     public static void setPosition(Vector3f position) {
         PlayerMovement.position = position;
+    }
+
+    public void addCollisionRegion(Collider3f collider) {
+        colliders.add(collider);
     }
 }

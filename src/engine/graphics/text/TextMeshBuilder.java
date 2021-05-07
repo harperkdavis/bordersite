@@ -3,10 +3,8 @@ package engine.graphics.text;
 import engine.graphics.Material;
 import engine.graphics.mesh.Mesh2f;
 import engine.graphics.vertex.Vertex2f;
-import engine.graphics.vertex.Vertex3f;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
-import engine.graphics.mesh.Mesh3f;
 
 public class TextMeshBuilder {
 
@@ -33,17 +31,11 @@ public class TextMeshBuilder {
         float textWidth = textLength(text, kremlinFont) * metric;
         float modifier = 0;
         float length = 0;
-        switch (textMode) {
-            case LEFT:
-                modifier = 0;
-                break;
-            case CENTER:
-                modifier = -textWidth / 2;
-                break;
-            case RIGHT:
-                modifier = -textWidth;
-                break;
-        }
+        modifier = switch (textMode) {
+            case LEFT -> 0;
+            case CENTER -> -textWidth / 2;
+            case RIGHT -> -textWidth;
+        };
 
         for (int i = 0, j = 0, k = 0; i < text.length(); i++) {
 

@@ -1,7 +1,6 @@
 package engine.graphics.mesh;
 
 import engine.graphics.Material;
-import engine.graphics.vertex.Vertex;
 import engine.graphics.vertex.Vertex3f;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;

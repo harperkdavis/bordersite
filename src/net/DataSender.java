@@ -8,16 +8,13 @@ import engine.objects.Camera;
 import game.PlayerMovement;
 import org.json.simple.JSONObject;
 import org.lwjgl.glfw.GLFW;
-import org.lwjglx.Sys;
 
 public class DataSender {
 
-    private Client client;
-    private PlayerMovement player;
+    private final Client client;
 
     public DataSender(Client client, PlayerMovement player) {
         this.client = client;
-        this.player = player;
         System.out.println("[INFO] Data sender initialized");
     }
 
@@ -31,9 +28,9 @@ public class DataSender {
 
         data.put("id", 3);
 
-        data.put("position.x", player.getPosition().getX());
-        data.put("position.y", player.getPosition().getY());
-        data.put("position.z", player.getPosition().getZ());
+        data.put("position.x", PlayerMovement.getPosition().getX());
+        data.put("position.y", PlayerMovement.getPosition().getY());
+        data.put("position.z", PlayerMovement.getPosition().getZ());
 
         data.put("rotation.x", Camera.getMainCamera().getRotation().getX());
         data.put("rotation.y", Camera.getMainCamera().getRotation().getY());
@@ -82,6 +79,7 @@ public class DataSender {
 
         data.put("keys", keys);
         data.put("keys.down", keysDown);
+        //noinspection unchecked
         data.put("keys.up", keysUp);
 
         data.put("mouse", mouse);

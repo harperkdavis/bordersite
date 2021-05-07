@@ -9,7 +9,6 @@ import engine.graphics.render.ViewmodelRenderer;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector3f;
-import engine.objects.Camera;
 import game.PlayerMovement;
 import game.ui.UserInterface;
 import game.viewmodel.Viewmodel;
@@ -18,7 +17,6 @@ import net.Client;
 import net.packets.PacketDisconnect;
 import net.packets.PacketLogin;
 import org.lwjgl.glfw.GLFW;
-import org.lwjglx.Sys;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,10 +37,9 @@ public class Main implements Runnable {
     private static int elapsedTime;
     private long lastFixedUpdate;
 
-    private static long cycleBegin;
     private static float deltaTime = 1.0f;
 
-    private boolean hasSentLoadedPacket = false;
+    private final boolean hasSentLoadedPacket = false;
 
     public void start() {
         startTime = System.nanoTime();
@@ -74,30 +71,30 @@ public class Main implements Runnable {
         }
         if (res.getSelectedItem() != null) {
             switch ((String) res.getSelectedItem()) {
-                case "1024x576":
+                case "1024x576" -> {
                     WIDTH = 1024;
                     HEIGHT = 576;
-                    break;
-                case "1280x720":
+                }
+                case "1280x720" -> {
                     WIDTH = 1280;
                     HEIGHT = 720;
-                    break;
-                case "1336x768":
+                }
+                case "1336x768" -> {
                     WIDTH = 1336;
                     HEIGHT = 768;
-                    break;
-                case "1600x900":
+                }
+                case "1600x900" -> {
                     WIDTH = 1600;
                     HEIGHT = 900;
-                    break;
-                case "2560x1440":
+                }
+                case "2560x1440" -> {
                     WIDTH = 2560;
                     HEIGHT = 1440;
-                    break;
-                default:
+                }
+                default -> {
                     WIDTH = 1920;
                     HEIGHT = 1080;
-                    break;
+                }
             }
         } else {
             WIDTH = 1920;
@@ -184,7 +181,7 @@ public class Main implements Runnable {
         init();
         while (!Window.getGameWindow().shouldClose()) {
             elapsedTime = (int) (System.currentTimeMillis() - startTime);
-            cycleBegin = System.nanoTime();
+            long cycleBegin = System.nanoTime();
             update();
             render();
             if (Input.isKey(GLFW.GLFW_KEY_ESCAPE) && Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT)) { break; }

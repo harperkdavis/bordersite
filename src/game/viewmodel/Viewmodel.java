@@ -1,14 +1,9 @@
 package game.viewmodel;
 
-import engine.graphics.Material;
-import engine.graphics.mesh.MeshBuilder;
 import engine.graphics.render.Renderer;
-import engine.io.MeshLoader;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
-import engine.objects.GameObjectMesh;
 import game.GamePlane;
-import main.Main;
 
 import java.util.ArrayList;
 import java.util.List;

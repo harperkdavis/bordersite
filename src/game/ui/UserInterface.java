@@ -23,24 +23,23 @@ public class UserInterface implements GamePlane {
     private static int width;
     private static int height;
 
-    private static List<GameObject> objects = new ArrayList<>();
+    private static final List<GameObject> objects = new ArrayList<>();
 
-    private boolean inMainMenu = false;
     private boolean inMapMenu = false;
 
-    private MainMenu mainMenu;
-    private LoadingMenu loadingMenu;
-    private InGameMenu inGameMenu;
-    private MapMenu mapMenu;
+    private final MainMenu mainMenu;
+    private final LoadingMenu loadingMenu;
+    private final InGameMenu inGameMenu;
+    private final MapMenu mapMenu;
     private Menu buildingMenu;
 
-    private UiObject fpsLabel;
+    private final UiObject fpsLabel;
 
     public static boolean mouseLock;
 
     public UserInterface(int width, int height) {
-        this.width = width;
-        this.height = height;
+        UserInterface.width = width;
+        UserInterface.height = height;
 
         PIXEL = 1.0f / (height / 2.25f);
 
@@ -72,6 +71,7 @@ public class UserInterface implements GamePlane {
             inMapMenu = !inMapMenu;
         }
 
+        boolean inMainMenu = false;
         if (inMainMenu) {
             mainMenu.setVisible(true);
             mainMenu.update();

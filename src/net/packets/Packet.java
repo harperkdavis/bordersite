@@ -5,7 +5,7 @@ import org.json.simple.JSONObject;
 
 public abstract class Packet {
 
-    public static enum PacketType {
+    public enum PacketType {
         INVALID(-1),
         CONNECT(0),
         DISCONNECT(1),
@@ -16,9 +16,9 @@ public abstract class Packet {
         LOADED(6),
         ALERT(7);
 
-        private int packetId;
+        private final int packetId;
 
-        private PacketType(int packetId) {
+        PacketType(int packetId) {
             this.packetId = packetId;
         }
 

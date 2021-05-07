@@ -1,16 +1,7 @@
 package engine.graphics.render;
 
 import engine.graphics.Shader;
-import engine.graphics.light.DirectionalLight;
-import engine.graphics.light.PointLight;
-import engine.io.Window;
-import engine.math.Matrix4f;
-import engine.math.Vector3f;
 import engine.objects.*;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL30;
 
 public abstract class Renderer {
 

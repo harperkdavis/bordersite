@@ -18,7 +18,6 @@ public class MainMenu extends Menu {
     private GameObject mm_gameVersion;
 
     private GameObject mm_mapBackground;
-    private GameObject mm_blackTransparent;
 
     private GameObject mm_playButton;
     private GameObject mm_optionsButton;
@@ -43,9 +42,9 @@ public class MainMenu extends Menu {
                 Vector3f.zero(), Vector3f.one(),
                 UiBuilder.UICenter(p(4096.0f), new Material("/textures/map/map.png"))));
 
-        mm_blackTransparent = addObjectWithoutLoading(
+        GameObject mm_blackTransparent = addObjectWithoutLoading(
                 new UiObject(screen(0.0f, 0.0f, 2),
-                Vector3f.zero(), Vector3f.one(),
+                        Vector3f.zero(), Vector3f.one(),
                         UiBuilder.UIRect(4.0f, new Material("/textures/black-transparent.png"))));
 
         mm_gameLogo = addObjectWithoutLoading(
@@ -95,26 +94,26 @@ public class MainMenu extends Menu {
         float mouseYNormalized = UserInterface.getNormMouseY();
 
         // Menu Background and Logo
-        float screenX = 0.0f;
-        float screenY = 0.0f;
+        float screenX;
+        float screenY;
 
         switch (mms) {
-            case PLAY:
+            case PLAY -> {
                 screenX = 3.0f;
                 screenY = 0.0f;
-                break;
-            case CREDITS:
+            }
+            case CREDITS -> {
                 screenX = 0.0f;
                 screenY = -3.0f;
-                break;
-            case OPTIONS:
+            }
+            case OPTIONS -> {
                 screenX = 0.0f;
                 screenY = 3.0f;
-                break;
-            default:
+            }
+            default -> {
                 screenX = 0.0f;
                 screenY = 0.0f;
-                break;
+            }
         }
 
         if (Input.isKeyDown(GLFW.GLFW_KEY_ESCAPE)) {

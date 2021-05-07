@@ -10,23 +10,22 @@ import engine.math.Vector3f;
 import engine.math.Vector4f;
 import engine.objects.Camera;
 import engine.objects.GameObject;
-import engine.objects.Player;
 import game.PlayerMovement;
 import net.Client;
 import org.lwjgl.glfw.GLFW;
-import org.w3c.dom.Text;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static game.ui.UserInterface.p;
 import static game.ui.UserInterface.screen;
 
 public class InGameMenu extends Menu {
 
-    private GameObject centerCrosshair, leftCrosshair, rightCrosshair, topCrosshair, bottomCrosshair;
+    private GameObject leftCrosshair;
+    private GameObject rightCrosshair;
+    private GameObject topCrosshair;
+    private GameObject bottomCrosshair;
     private UiButton buy_backButton;
     private UiObject buy_backIcon;
     private UiPanel background, buy_moneyPanel, buy_moneyTimerPanel, buy_buyListPanel, buy_buyButton, buy_clearButton;
@@ -42,7 +41,6 @@ public class InGameMenu extends Menu {
 
     protected boolean buyMenuOpen = false;
     protected boolean pauseMenuOpen = false;
-    private final float BUY_MENU_SMOOTHING = 0.1f;
     private float backTransparency = 0.0f;
 
     @Override
@@ -95,7 +93,7 @@ public class InGameMenu extends Menu {
         buy_itemTabs = new UiButton[10];
         buy_itemSlots = new UiButton[24];
 
-        centerCrosshair = addObjectWithoutLoading(new UiObject(screen(1, 1, 11), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(8), new Material("/textures/crosshair-center.png"))));
+        GameObject centerCrosshair = addObjectWithoutLoading(new UiObject(screen(1, 1, 11), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(8), new Material("/textures/crosshair-center.png"))));
 
         background = new UiPanel(0, 0, 2, 2, 10, 0.4f);
         addObjectWithoutLoading(background);
@@ -103,7 +101,6 @@ public class InGameMenu extends Menu {
         buy_backButton = new UiButton(0.0f + boxesBorder, 0.0f + boxesBorder, 0.114583336f - boxesBorder, 0.2037037f - boxesBorder, 8, 0.4f) {
             @Override
             public void onClick() {
-
             }
         };
         addObjectWithoutLoading(buy_backButton);
@@ -239,13 +236,10 @@ public class InGameMenu extends Menu {
             if (Input.isKeyDown(GLFW.GLFW_KEY_ESCAPE)) {
                 if (buyMenuOpen) {
                     buyMenuOpen = false;
-                } else if (pauseMenuOpen) {
-                    pauseMenuOpen = false;
-                } else {
-                    pauseMenuOpen = true;
-                }
+                } else pauseMenuOpen = !pauseMenuOpen;
             }
 
+            float BUY_MENU_SMOOTHING = 0.1f;
             if (buyMenuOpen || pauseMenuOpen) {
                 backTransparency = Mathf.lerpdt(backTransparency, 0.4f, BUY_MENU_SMOOTHING);
             } else {

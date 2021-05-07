@@ -14,13 +14,12 @@ import static game.ui.UserInterface.screen;
 
 public class LoadingMenu extends Menu {
 
-    private GameObject ld_blackBackground;
     private GameObject ld_loadingTitle;
     private GameObject ld_loadingText;
 
     @Override
     public void init() {
-        ld_blackBackground = addObjectWithoutLoading(new UiObject(screen(1.0f, 1.0f, 3), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4.0f, new Material("/textures/black.png"))));
+        GameObject ld_blackBackground = addObjectWithoutLoading(new UiObject(screen(1.0f, 1.0f, 3), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4.0f, new Material("/textures/black.png"))));
         ld_loadingTitle = addObjectWithoutLoading(new UiObject(screen(1, 0.5f, 2), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(512.0f), new Material("/textures/loading-logo.png"))));
         ld_loadingText = addObjectWithoutLoading(new UiObject(screen(1.0f, 1.0f, 2), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("LOADING MAP", p(16.0f), TextMode.LEFT)));
     }
