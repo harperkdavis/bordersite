@@ -8,6 +8,8 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL14;
 
 public class Window {
 
@@ -47,7 +49,7 @@ public class Window {
         this.title = title;
         this.fullscreen = fullscreen;
 
-        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 10000.0f);
+        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.01f, 10000.0f);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
     }
 
@@ -97,6 +99,10 @@ public class Window {
 
         System.out.println("    [INFO] Creating callbacks");
         GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL13.GL_MULTISAMPLE);
+
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL14.GL_REPEAT);
 
         createCallbacks();
         System.out.println("    [INFO] Callbacks created!");
@@ -132,7 +138,10 @@ public class Window {
     }
 
     public void update() {
-        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.1f, 10000.0f);
+
+        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.01f, 10000.0f);
+        ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
+
         if (isResized) {
             GL11.glViewport(0, 0, width, height);
             isResized = false;

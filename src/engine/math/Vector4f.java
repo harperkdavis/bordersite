@@ -32,7 +32,7 @@ public class Vector4f {
      x*d + y*h + z*l + w*p)
      */
 
-    public void multiply(Matrix4f matrix) {
+    public Vector4f multiply(Matrix4f matrix) {
 
         float newX = x * matrix.get(0, 0) + y * matrix.get(0, 1) + z * matrix.get(0, 2) + w * matrix.get(0, 3);
         float newY = x * matrix.get(1, 0) + y * matrix.get(1, 1) + z * matrix.get(1, 2) + w * matrix.get(1, 3);
@@ -43,6 +43,12 @@ public class Vector4f {
         this.y = newY;
         this.z = newZ;
         this.w = newW;
+
+        return this;
+    }
+
+    public Vector3f getVector3f() {
+        return new Vector3f(x, y, z);
     }
 
     public float getX() {

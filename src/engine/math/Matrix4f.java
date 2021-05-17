@@ -156,6 +156,29 @@ public class Matrix4f {
         return result;
     }
 
+    public static Matrix4f lookAt(Vector3f eye, Vector3f center, Vector3f up) {
+
+        Vector3f f = Vector3f.subtract(center, eye).normalize();
+        Vector3f u = up.normalize();
+        Vector3f s = Vector3f.cross(f, u).normalize();
+        u = Vector3f.cross(s, f).normalize();
+
+        Matrix4f result = Matrix4f.identity();
+        result.set(0, 0, s.getX());
+        result.set(1, 0, s.getY());
+        result.set(2, 0, s.getZ());
+
+        result.set(0, 1, u.getX());
+        result.set(1, 1, u.getY());
+        result.set(2, 1, u.getZ());
+
+        result.set(0, 2, -f.getX());
+        result.set(1, 2, -f.getY());
+        result.set(2, 2, -f.getZ());
+
+        return multiply(Matrix4f.translate(new Vector3f(-eye.getX(), -eye.getY(), -eye.getZ())), result);
+    }
+
     public float get(int x, int y) {
         return elements[y * SIZE + x];
     }

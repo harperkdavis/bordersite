@@ -2,14 +2,13 @@ package game;
 
 import engine.audio.AudioMaster;
 import engine.audio.SoundEffect;
-import engine.collision.BoxCollider3f;
 import engine.collision.Collider3f;
 import engine.collision.Collision;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.*;
 import engine.objects.Camera;
-import game.world.World;
+import game.scene.Scene;
 import main.Global;
 import main.Main;
 import net.Client;
@@ -61,7 +60,7 @@ public class PlayerMovement {
     private final float GRAVITY = 0.006f;
 
     private float bobbingMultiplier = 0;
-    private final List<Collider3f> colliders;
+    private final static List<Collider3f> colliders = new ArrayList<>();;
     // Hipfire 1.0
     // ADS 0.5
     // Moving +0.5
@@ -72,9 +71,6 @@ public class PlayerMovement {
         position = new Vector3f(0, 0, 0);
         cameraRotation = new Vector3f(0, 0, 0);
         Vector3f lockedRotation = new Vector3f(0, 0, 0);
-
-        colliders = new ArrayList<>();
-        colliders.add(new BoxCollider3f(new Vector3f(4, 1.0f, 4), new Vector3f(8, -2, 8)));
 
     }
 
@@ -123,8 +119,8 @@ public class PlayerMovement {
             velY -= 0.2f * Main.getDeltaTime() * 120;
         }
 
-        if (position.getY() < World.getTerrainHeight(position.getX(), position.getZ())) {
-            position.setY(World.getTerrainHeight(position.getX(), position.getZ()));
+        if (position.getY() < Scene.getTerrainHeight(position.getX(), position.getZ())) {
+            position.setY(Scene.getTerrainHeight(position.getX(), position.getZ()));
         }
 
         int SPRINT_KEY = GLFW.GLFW_KEY_LEFT_SHIFT;
@@ -203,7 +199,7 @@ public class PlayerMovement {
         position.add(new Vector3f(velX * Main.getDeltaTime(), velY * Main.getDeltaTime(), velZ * Main.getDeltaTime()));
 
         boolean hasLanded = isGrounded;
-        isGrounded = position.getY() < World.getTerrainHeight(position.getX(), position.getZ()) + (isGrounded ? 0.1f : 0);
+        isGrounded = position.getY() < Scene.getTerrainHeight(position.getX(), position.getZ()) + (isGrounded ? 0.1f : 0);
 
         for (Collider3f collider : colliders) {
             Collision result = collider.getCollision(previous, position, new Vector3f(velX, velY, velZ), isCrouching ? 1.65f : 2.15f);
@@ -214,15 +210,15 @@ public class PlayerMovement {
                 velY = result.getVelocityResult().getY();
                 velZ = result.getVelocityResult().getZ();
 
-                if (result.isResultGrounded()) {
+                if (result.isResultGrounded() && velY <= 0) {
                     isGrounded = true;
                 }
             }
         }
 
-        float groundedHeight = World.getTerrainHeight(position.getX(), position.getZ());
+        float groundedHeight = Scene.getTerrainHeight(position.getX(), position.getZ());
         for (Collider3f collider : colliders) {
-            if (collider.isGrounded(position)) {
+            if (collider.isGrounded(position) && velY <= 0) {
                 isGrounded = true;
                 groundedHeight = Math.max(groundedHeight, collider.getGroundedHeight(position));
             }
@@ -240,9 +236,9 @@ public class PlayerMovement {
             AudioMaster.playSound(SoundEffect.JUMP_LAND);
         }
 
-        position.setX(Mathf.clamp(position.getX(), 0, 510 * World.getScaleX()));
+        position.setX(Mathf.clamp(position.getX(), 0, 510 * Scene.getScaleX()));
         position.setY(Mathf.clamp(position.getY(), -1, 1000));
-        position.setZ(Mathf.clamp(position.getZ(), 0, 510 * World.getScaleX()));
+        position.setZ(Mathf.clamp(position.getZ(), 0, 510 * Scene.getScaleX()));
 
         if (isGrounded) {
             velX /= 8.0f / (Main.getDeltaTime() * 120);
@@ -302,15 +298,15 @@ public class PlayerMovement {
 
     public void update() {
 
-        if (!(Client.isConnected() && World.isLoaded())) {
+        if (!(Client.isConnected() && Scene.isLoaded())) {
             return;
         }
 
         updateCamera();
         if (Global.BUILD_MODE) {
-            updateMovement();
-        } else {
             flyingMovement();
+        } else {
+            updateMovement();
         }
 
         Camera.setMainCameraPosition(Vector3f.add(position, new Vector3f(0, cameraHeight, 0)));
@@ -383,7 +379,7 @@ public class PlayerMovement {
         PlayerMovement.position = position;
     }
 
-    public void addCollisionRegion(Collider3f collider) {
+    public static void addCollisionRegion(Collider3f collider) {
         colliders.add(collider);
     }
 }

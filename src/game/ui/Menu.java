@@ -32,17 +32,6 @@ public abstract class Menu {
         }
     }
 
-    public UiObject addObject(UiObject object) {
-        objects.add(object);
-        object.load();
-        return object;
-    }
-
-    public UiObject addObjectWithoutLoading(UiObject object) {
-        objects.add(object);
-        return object;
-    }
-
     public GameObject addObject(GameObject object) {
         objects.add(object);
         object.load();

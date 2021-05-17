@@ -1,6 +1,5 @@
 package game.ui;
 
-import engine.graphics.mesh.Mesh2f;
 import engine.math.Mathf;
 import engine.math.Vector4f;
 
@@ -8,7 +7,6 @@ import static game.ui.UserInterface.p;
 
 public abstract class UiButton extends UiPanel {
 
-    private Mesh2f label;
     private final float x1;
     private final float y1;
     private final float x2;

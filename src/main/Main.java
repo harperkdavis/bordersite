@@ -10,9 +10,9 @@ import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector3f;
 import game.PlayerMovement;
+import game.scene.Scene;
 import game.ui.UserInterface;
 import game.viewmodel.Viewmodel;
-import game.world.World;
 import net.Client;
 import net.packets.PacketDisconnect;
 import net.packets.PacketLogin;
@@ -24,7 +24,7 @@ import java.awt.*;
 public class Main implements Runnable {
 
     public Thread game;
-    public Shader mainShader, uiShader, viewmodelShader;
+    public Shader gShader, mainShader, uiShader, viewmodelShader, shadowShader;
 
     public int WIDTH, HEIGHT;
     public boolean FULLSCREEN;
@@ -40,6 +40,8 @@ public class Main implements Runnable {
     private static float deltaTime = 1.0f;
 
     private final boolean hasSentLoadedPacket = false;
+
+    private static boolean materialsLoaded = false;
 
     public void start() {
         startTime = System.nanoTime();
@@ -105,7 +107,7 @@ public class Main implements Runnable {
 
         PlayerMovement.setPlayerMovement(new PlayerMovement());
 
-        World.setWorld(new World());
+        Scene.setScene(new Scene());
         Viewmodel.setViewmodel(new Viewmodel());
         UserInterface.setUi(new UserInterface(WIDTH, HEIGHT));
         game = new Thread(this,"game");
@@ -122,24 +124,29 @@ public class Main implements Runnable {
 
         System.out.println("[INFO] GLFW window created!");
 
-        System.out.println("[INFO] Loading world...");
+        System.out.println("[INFO] Loading scene...");
         UserInterface.getUi().load();
 
         System.out.println("[INFO] Loading shader...");
+        gShader = new Shader("/shaders/gVertex.glsl", "/shaders/gFragment.glsl");
+        gShader.create();
         mainShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
         mainShader.create();
+        shadowShader = new Shader("/shaders/shadowVertex.glsl", "/shaders/shadowFragment.glsl");
+        shadowShader.create();
         uiShader = new Shader("/shaders/uiVertex.glsl", "/shaders/uiFragment.glsl");
         uiShader.create();
         viewmodelShader = new Shader("/shaders/viewmodelVertex.glsl", "/shaders/viewmodelFragment.glsl");
         viewmodelShader.create();
+
         System.out.println("[INFO] Loading shader complete.");
 
         System.out.println("[INFO] Initializing renderer...");
-        Renderer.setMain(new MainRenderer(mainShader));
+        Renderer.setMain(new MainRenderer(gShader, mainShader, shadowShader));
         Renderer.setUi(new UiRenderer(uiShader));
         Renderer.setViewmodel(new ViewmodelRenderer(viewmodelShader));
         System.out.println("[INFO] Renderer initialized!");
-        Window.getGameWindow().setBackgroundColor(new Vector3f(0.8f, 0.8f, 0.8f));
+        Window.getGameWindow().setBackgroundColor(new Vector3f(0f, 0f, 0f));
 
         System.out.println("[INFO] Initializing audio...");
         AudioMaster.load();
@@ -150,16 +157,17 @@ public class Main implements Runnable {
         AudioMaster.setListener(listener);
         System.out.println("[INFO] Audio initialized!");
 
+        MaterialLoader.initLoading();
+
         System.out.println("[INFO] Initialization completed!");
 
-        connect();
     }
 
     private void connect() {
         Client.setSocketClient(new Client( "localhost"));
         Client.getSocketClient().start();
 
-        World.getWorld().load();
+        Scene.getScene().load();
         Viewmodel.getViewmodel().load();
 
         PacketLogin packet = new PacketLogin(username);
@@ -172,8 +180,8 @@ public class Main implements Runnable {
             PacketDisconnect packet = new PacketDisconnect();
             packet.writeData(Client.getSocketClient());
             System.out.println("[INFO] Ending client thread");
-            Client.getSocketClient().setRunning(false);
-            Client.getSocketClient().stop();
+            Client.setRunning(false);
+            Client.getClientThread().interrupt();
         }
     }
 
@@ -186,6 +194,10 @@ public class Main implements Runnable {
             render();
             if (Input.isKey(GLFW.GLFW_KEY_ESCAPE) && Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT)) { break; }
             deltaTime = ((System.nanoTime() - cycleBegin) / 1000000.0f);
+
+            if (Input.isKeyDown(GLFW.GLFW_KEY_G)) {
+                int i = 0;
+            }
         }
         close();
     }
@@ -197,28 +209,33 @@ public class Main implements Runnable {
 
         boolean fixedUpdate = System.currentTimeMillis() - lastFixedUpdate >= 10;
 
+        if (!materialsLoaded) {
+            MaterialLoader.loadNext();
+            if (MaterialLoader.isFinished()) {
+                materialsLoaded = true;
+                Renderer.getMain().createBuffers();
+                connect();
+            }
+            return;
+        }
+
         if (fixedUpdate) {
             UserInterface.getUi().fixedUpdate();
             lastFixedUpdate = System.currentTimeMillis();
         }
 
-
         if (Client.isConnected()) {
             PlayerMovement.getPlayerMovement().update();
             Viewmodel.getViewmodel().update();
-            World.getWorld().update();
+            Scene.getScene().update();
 
-            if (fixedUpdate && World.isLoaded()) {
+            if (fixedUpdate && Scene.isLoaded()) {
                 Client.getSocketClient().getSender().sendData();
                 lastFixedUpdate = System.currentTimeMillis();
             }
         }
 
-        if (Input.isKeyDown(GLFW.GLFW_KEY_L)) {
-            AudioMaster.playSound(SoundEffect.AIRHORN, new Vector3f(50, 0, 50));
-        }
-
-        AudioMaster.update();
+            AudioMaster.update();
     }
 
     private void fixedUpdate() {
@@ -227,15 +244,12 @@ public class Main implements Runnable {
 
     private void render() {
 
-        if (Client.isConnected()) {
-            Renderer.getMain().renderPrep();
-            World.getWorld().render();
-            Renderer.getMain().renderCleanup();
+        if (Client.isConnected() && materialsLoaded) {
+            Renderer.getMain().renderScene();
 
             Viewmodel.getViewmodel().render();
         }
         UserInterface.getUi().render();
-
 
         Window.getGameWindow().swapBuffers();
     }
@@ -246,9 +260,11 @@ public class Main implements Runnable {
         System.out.println("[INFO] Disconnected from server");
         Window.getGameWindow().destroy();
 
-        World.getWorld().unload();
+        Scene.getScene().unload();
         Viewmodel.getViewmodel().unload();
         UserInterface.getUi().unload();
+
+        MaterialLoader.unloadAll();
 
         mainShader.destroy();
         uiShader.destroy();
@@ -256,6 +272,10 @@ public class Main implements Runnable {
         AudioMaster.unload();
 
         System.out.println("[INFO] Game Closed");
+    }
+
+    public static boolean areMaterialsLoaded() {
+        return materialsLoaded;
     }
 
     public static void main(String[] args) {

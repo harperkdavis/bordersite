@@ -7,7 +7,7 @@ import engine.math.*;
 import engine.objects.Camera;
 import engine.objects.GameObject;
 import game.PlayerMovement;
-import game.world.World;
+import game.scene.Scene;
 import main.Main;
 
 import static game.ui.UserInterface.p;
@@ -15,20 +15,20 @@ import static game.ui.UserInterface.screen;
 
 public class MapMenu extends Menu {
 
-    private UiObject map, grid;
+    private GameObject map, grid;
     private Vector2f mapPosition, mapVelocity;
     private float zoom = 1;
     private double pMouseX, pMouseY;
-    private UiObject playerMarker;
+    private GameObject playerMarker;
 
     @Override
     public void init() {
-        addObjectWithoutLoading(new UiObject(screen(1, 1, 12), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4, new Material("/textures/map/map-background.png"))));
-        map = addObjectWithoutLoading(new UiObject(screen(1, 1, 11), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4, new Material("/textures/map/map.png"))));
-        grid = addObjectWithoutLoading(new UiObject(screen(1, 1, 10), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4, new Material("/textures/map/map-grid.png"))));
+        addObjectWithoutLoading(new GameObject(screen(1, 1, 12), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4, Material.MAP_BACKGROUND)));
+        map = addObjectWithoutLoading(new GameObject(screen(1, 1, 11), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4, Material.MAP_MAP)));
+        grid = addObjectWithoutLoading(new GameObject(screen(1, 1, 10), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4, Material.MAP_GRID)));
 
-        playerMarker = addObjectWithoutLoading(new UiObject(screen(1, 1, 10), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/map/marker-player.png"))));
-        addObjectWithoutLoading(new UiObject(screen(1, 1, 4), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4, new Material("/textures/map/map-overlay.png"))));
+        playerMarker = addObjectWithoutLoading(new GameObject(screen(1, 1, 10), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), Material.MAP_MARKER_PLAYER)));
+        addObjectWithoutLoading(new GameObject(screen(1, 1, 4), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4, Material.MAP_OVERLAY)));
 
         mapPosition = new Vector2f(0, 0);
         mapVelocity = new Vector2f(0, 0);
@@ -79,7 +79,7 @@ public class MapMenu extends Menu {
     }
 
     private Vector2f getNormMapCoords(Vector3f realPosition) {
-        return new Vector2f(realPosition.getX() / (511 * World.getScaleX()), realPosition.getZ() / (511 * World.getScaleZ()));
+        return new Vector2f(realPosition.getX() / (511 * Scene.getScaleX()), realPosition.getZ() / (511 * Scene.getScaleZ()));
     }
 
     private Vector2f getIconPosition(Vector3f realPosition) {

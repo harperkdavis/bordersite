@@ -1,5 +1,7 @@
 package game.viewmodel;
 
+import engine.graphics.Material;
+import engine.graphics.mesh.MeshBuilder;
 import engine.graphics.render.Renderer;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
@@ -19,7 +21,7 @@ public class Viewmodel implements GamePlane {
     private static GameObject armObject;
 
     public Viewmodel() {
-        // gunObject = addObject(new GameObjectMesh(new Vector3f(0, 0, -1.5f), new Vector3f(45, 0, 0), Vector3f.one(), MeshLoader.loadModel("/models/weapon-knife.obj", new Material("/textures/weapons/knife-nebula.png"))));
+        // gunObject = addObject(new GameObject(new Vector3f(0, 0, -1.5f), new Vector3f(45, 0, 0), Vector3f.one(), MeshBuilder.Cube(1.0f, Material.DEFAULT)));
     }
 
     @Override

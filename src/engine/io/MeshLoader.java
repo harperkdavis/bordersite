@@ -1,21 +1,21 @@
 package engine.io;
 
 import engine.graphics.Material;
-import engine.graphics.mesh.Mesh3f;
+import engine.graphics.mesh.Mesh;
 import engine.graphics.mesh.MeshBuilder;
-import engine.graphics.vertex.Vertex3f;
+import engine.graphics.vertex.Vertex;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import org.lwjgl.assimp.*;
 
 public class MeshLoader {
 
-    public static Mesh3f loadModel(String filePath, Material material) {
+    public static Mesh loadModel(String filePath, Material material) {
         AIScene scene = Assimp.aiImportFile("resources" + filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate);
 
         if (scene == null) {
             System.err.println("Couldn't load model at " + filePath);
-            return MeshBuilder.Cube(1.0f, new Material("/textures/test.png"));
+            return MeshBuilder.Cube(1.0f, Material.DEFAULT);
         }
 
         AIMesh mesh = AIMesh.create(scene.mMeshes().get(0));
@@ -24,7 +24,7 @@ public class MeshLoader {
         AIVector3D.Buffer vertices = mesh.mVertices();
         AIVector3D.Buffer normals = mesh.mNormals();
 
-        Vertex3f[] vertex3fList = new Vertex3f[vertexCount];
+        Vertex[] vertexList = new Vertex[vertexCount];
 
         for (int i = 0; i < vertexCount; i++) {
             AIVector3D vertex = vertices.get(i);
@@ -40,7 +40,7 @@ public class MeshLoader {
                 meshTextureCoord.setY(texture.y());
             }
 
-            vertex3fList[i] = new Vertex3f(meshVertex, meshNormal, meshTextureCoord);
+            vertexList[i] = new Vertex(meshVertex, meshNormal, meshTextureCoord);
         }
 
         int faceCount = mesh.mNumFaces();
@@ -54,7 +54,7 @@ public class MeshLoader {
             indicesList[i * 3 + 2] = face.mIndices().get(2);
         }
 
-        return new Mesh3f(vertex3fList, indicesList, material);
+        return new Mesh(vertexList, indicesList, material);
     }
 
 }

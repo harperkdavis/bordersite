@@ -3,10 +3,13 @@ package engine.objects;
 import java.util.ArrayList;
 import java.util.List;
 
+import engine.graphics.Material;
+import engine.graphics.mesh.Mesh;
 import engine.math.Transform;
 import engine.math.Vector3f;
+import engine.math.Vector4f;
 
-public abstract class GameObject {
+public class GameObject {
 
     private final Transform transform;
     private boolean visible = true;
@@ -15,22 +18,28 @@ public abstract class GameObject {
     protected List<GameObject> children;
     protected GameObject parent;
 
-    public GameObject(GameObject parent, Vector3f position, Vector3f rotation, Vector3f scale) {
-        this.transform = new Transform(position, rotation, scale);
-        this.parent = parent;
-        this.children = new ArrayList<>();
-        parent.children.add(this);
+    private Mesh mesh;
+    private Vector4f color;
+
+    public GameObject(Vector3f position, Vector3f rotation, Vector3f scale, Mesh mesh) {
+        this(position, rotation, scale, mesh, new Vector4f(1, 1, 1, 1));
     }
 
-    public GameObject(Vector3f position, Vector3f rotation, Vector3f scale) {
+    public GameObject(Vector3f position, Vector3f rotation, Vector3f scale, Mesh mesh, Vector4f color) {
         this.transform = new Transform(position, rotation, scale);
+        this.mesh = mesh;
+        this.color = color;
         this.parent = null;
         this.children = new ArrayList<>();
     }
 
-    public abstract void load();
+    public GameObject(Vector3f position, Mesh mesh) {
+        this(position, Vector3f.zero(), Vector3f.one(), mesh);
+    }
 
-    public abstract void unload();
+    public GameObject(Vector3f position, Mesh mesh, Vector4f color) {
+        this(position, Vector3f.zero(), Vector3f.one(), mesh, color);
+    }
 
     private void fix() {
         fixTransform();
@@ -61,11 +70,11 @@ public abstract class GameObject {
     public void setParent(GameObject parent) {
         this.parent = parent;
         this.parent.children.add(this);
+        transform.setLocals(parent.getTransform());
     }
 
     public void addChild(GameObject child) {
         child.setParent(this);
-        child.transform.setLocals(transform);
     }
 
     public void removeChild(GameObject child) {
@@ -103,17 +112,17 @@ public abstract class GameObject {
 
     public void setPosition(Vector3f position) {
         transform.setPosition(position);
-        fix();
+        // fix();
     }
 
     public void setRotation(Vector3f rotation) {
         transform.setRotation(rotation);
-        fix();
+        // fix();
     }
 
     public void setScale(Vector3f scale) {
         transform.setScale(scale);
-        fix();
+        // fix();
     }
 
     public Vector3f getLocalPosition() {
@@ -132,6 +141,34 @@ public abstract class GameObject {
     public void setLocalRotation(Vector3f rotation) {
         transform.setLocalRotation(rotation);
         fix();
+    }
+
+    public void load() {
+        mesh.create();
+    }
+
+    public void setMesh(Mesh mesh) {
+        this.mesh.updateMesh(mesh);
+    }
+
+    public void setMaterial(Material material) {
+        this.mesh.setMaterial(material);
+    }
+
+    public void unload() {
+        mesh.destroy();
+    }
+
+    public Mesh getMesh() {
+        return mesh;
+    }
+
+    public Vector4f getColor() {
+        return color;
+    }
+
+    public void setColor(Vector4f color) {
+        this.color = color;
     }
 
     public boolean isVisible() {

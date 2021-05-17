@@ -136,6 +136,10 @@ public class Vector3f {
         return this;
     }
 
+    public static Vector3f cross(Vector3f a, Vector3f b) {
+        return new Vector3f(a.getY() * b.getZ() - a.getZ() * b.getY(), a.getZ() * b.getX() - a.getX() * b.getZ(), a.getX() * b.getY() - a.getY() * b.getX());
+    }
+
     public float dot(Vector3f other) {
         return x * other.x + y * other.y + z * other.z;
     }

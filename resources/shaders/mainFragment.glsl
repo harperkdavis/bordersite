@@ -37,19 +37,17 @@ struct Fog {
 in vec2 vertexUV;
 in vec3 vertexNormal;
 in vec3 vertexPos;
+in vec4 mvLightVertexPos;
 
 out vec4 fragColor;
 
 uniform sampler2D tex;
+uniform sampler2D shadowMap;
+
 uniform DirectionalLight directionalLight;
 uniform vec3 ambientLight;
 uniform vec3 cameraPos;
 uniform Fog fog;
-
-uniform float specularPower;
-uniform float reflectance;
-
-uniform vec4 meshColor;
 
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
@@ -74,8 +72,8 @@ vec4 calcLightColor(vec3 lightColor, float lightIntensity, vec3 position, vec3 t
     vec3 cameraDirection = normalize(position);
     vec3 reflectedLight = normalize(reflect(-toLightDir, normal));
     float specularFactor = max(dot(cameraDirection, reflectedLight), 0.0);
-    specularFactor = pow(specularFactor, specularPower);
-    specColor = specularC * lightIntensity  * specularFactor * reflectance * vec4(lightColor, 1.0);
+    specularFactor = pow(specularFactor, 10.0f);
+    specColor = specularC * lightIntensity  * specularFactor * vec4(lightColor, 1.0);
 
     return (diffuseColor + specColor);
 }
@@ -110,7 +108,7 @@ vec4 calcSpotLight(SpotLight light, vec3 position, vec3 normal) {
 vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
     vec4 diffuseColor = vec4(0, 0, 0, 0);
 
-    float diffuseFactor = max(dot(normal, light.direction), 0.0);
+    float diffuseFactor = max(dot(normal, -light.direction), 0.0);
     diffuseColor = diffuseC * vec4(light.color, 1.0) * light.intensity * diffuseFactor;
 
     return diffuseColor;
@@ -124,6 +122,31 @@ vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirectionalLight 
 
     vec3 resultColour = mix(fogColor, color.xyz, fogFactor);
     return vec4(resultColour.xyz, color.w);
+}
+
+float calcShadow(vec4 position) {
+
+    vec3 projCoords = position.xyz / position.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+
+    for(int x = -2; x <= 2; ++x) {
+        for(int y = -2; y <= 2; ++y) {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - 0.0025 > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 25.0;
+
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
+    return shadow;
 }
 
 
@@ -144,6 +167,7 @@ void main() {
         }
     }
 
-    fragColor = ambientC * vec4(ambientLight, 1) * meshColor + specComp;
+    float shadow = calcShadow(mvLightVertexPos);
+    fragColor = clamp(ambientC * vec4(ambientLight, 1) + specComp * (1 - shadow), 0, 1);
     fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);
 }

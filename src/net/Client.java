@@ -7,7 +7,7 @@ import engine.objects.GameObject;
 import engine.objects.Player;
 import engine.util.JsonHandler;
 import game.PlayerMovement;
-import game.world.World;
+import game.scene.Scene;
 import net.packets.Packet;
 import org.json.simple.JSONObject;
 
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class Client implements Runnable {
 
     private static Client socketClient;
+    private static Thread clientThread;
     private static boolean connected = false;
 
     private InetAddress ipAddress;
@@ -27,7 +28,7 @@ public class Client implements Runnable {
 
     private final List<Player> localPlayers = new ArrayList<>();
 
-    public boolean running = true;
+    private static boolean running = true;
 
     private String playerId = "null";
 
@@ -45,12 +46,8 @@ public class Client implements Runnable {
     }
 
     public void start() {
-        Thread thread = new Thread(this);
-        thread.start();
-    }
-
-    public void stop() {
-        running = false;
+        clientThread = new Thread(this);
+        clientThread.start();
     }
 
     public void run() {
@@ -105,7 +102,7 @@ public class Client implements Runnable {
 
     private void playerData(JSONObject data) {
         String id = (String) data.get("playerId");
-        GameObject playerObject = World.getPlayerObjects().get(id);
+        GameObject playerObject = Scene.getPlayerObjects().get(id);
         if (true) {
             Vector3f position = new Vector3f(JsonHandler.getAsFloat(data, "position.x"), JsonHandler.getAsFloat(data, "position.y"), JsonHandler.getAsFloat(data, "position.z"));
             Vector3f rotation = new Vector3f(JsonHandler.getAsFloat(data, "rotation.x"), JsonHandler.getAsFloat(data, "rotation.y"), JsonHandler.getAsFloat(data, "rotation.z"));
@@ -129,12 +126,16 @@ public class Client implements Runnable {
         }
     }
 
-    public DataSender getSender() {
-        return sender;
+    public static Thread getClientThread() {
+        return clientThread;
     }
 
-    public void setRunning(boolean running) {
-        this.running = running;
+    public static void setRunning(boolean running) {
+        Client.running = running;
+    }
+
+    public DataSender getSender() {
+        return sender;
     }
 
     public static boolean isConnected() {

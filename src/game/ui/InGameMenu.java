@@ -27,13 +27,13 @@ public class InGameMenu extends Menu {
     private GameObject topCrosshair;
     private GameObject bottomCrosshair;
     private UiButton buy_backButton;
-    private UiObject buy_backIcon;
+    private GameObject buy_backIcon;
     private UiPanel background, buy_moneyPanel, buy_moneyTimerPanel, buy_buyListPanel, buy_buyButton, buy_clearButton;
 
-    private UiObject healthStatus, healthRegenStatus, staminaStatus, speedDial;
+    private GameObject healthStatus, healthRegenStatus, staminaStatus, speedDial;
 
-    private List<UiObject> compassDegrees, compassMarks;
-    private UiObject headingDegrees;
+    private List<GameObject> compassDegrees, compassMarks;
+    private GameObject headingDegrees;
     private final int COMPASS_MARKS = 36;
 
     private UiButton[] buy_itemTabs;
@@ -52,40 +52,40 @@ public class InGameMenu extends Menu {
 
         // Compass
         for (int i = 0; i < COMPASS_MARKS; i++) {
-            compassDegrees.add(addObjectWithoutLoading(new UiObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("" + (i * 10), p(16), TextMode.CENTER))));
+            compassDegrees.add(addObjectWithoutLoading(new GameObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("" + (i * 10), p(16), TextMode.CENTER))));
         }
         String[] cardinalDirections = new String[]{"N", "NNE", "NE", "NEE", "E", "SEE", "SE", "SSE", "S", "SSW", "SW", "SWW", "W", "NWW", "NW", "NNW"};
         for (int i = 0; i < 16; i++) {
-            compassMarks.add(addObjectWithoutLoading(new UiObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh(cardinalDirections[i], p(16), TextMode.CENTER))));
+            compassMarks.add(addObjectWithoutLoading(new GameObject(Vector3f.zero(), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh(cardinalDirections[i], p(16), TextMode.CENTER))));
         }
-        headingDegrees = addObjectWithoutLoading(new UiObject(screen(1, p(50),  16), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("0", p(20), TextMode.CENTER)));
+        headingDegrees = addObjectWithoutLoading(new GameObject(screen(1, p(50),  16), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("0", p(20), TextMode.CENTER)));
 
 
         // Status
 
         addObjectWithoutLoading(new UiPanel(0 + p(5), 2 - p(76), 0 + p(125), 2 - p(5), 19, 0.3f));
 
-        addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(22), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(256), new Material("/textures/ui/statusbar-outline-200.png"))));
-        addObjectWithoutLoading(new UiObject(screen(0 + p(14), 2 - p(18), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/health-icon.png"))));
+        addObjectWithoutLoading(new GameObject(screen(0 + p(20), 2 - p(22), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(256), Material.UI_STATUSBAR_OUTLINE_200)));
+        addObjectWithoutLoading(new GameObject(screen(0 + p(14), 2 - p(18), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), Material.UI_HEALTH_ICON)));
 
-        addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(42), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(256), new Material("/textures/ui/statusbar-outline-200.png"))));
-        addObjectWithoutLoading(new UiObject(screen(0 + p(14), 2 - p(38), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/stamina-icon.png"))));
+        addObjectWithoutLoading(new GameObject(screen(0 + p(20), 2 - p(42), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(256), Material.UI_STATUSBAR_OUTLINE_200)));
+        addObjectWithoutLoading(new GameObject(screen(0 + p(14), 2 - p(38), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), Material.UI_STAMINA_ICON)));
 
-        addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(62), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(128), new Material("/textures/ui/statusbar-outline-80.png"))));
-        addObjectWithoutLoading(new UiObject(screen(0 + p(14), 2 - p(58), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/health-regen-icon.png"))));
+        addObjectWithoutLoading(new GameObject(screen(0 + p(20), 2 - p(62), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(128), Material.UI_STATUSBAR_OUTLINE_80)));
+        addObjectWithoutLoading(new GameObject(screen(0 + p(14), 2 - p(58), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), Material.UI_HEALTH_REGEN_ICON)));
 
-        addObjectWithoutLoading(new UiObject(screen(0 + p(68), 2 - p(58), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), new Material("/textures/ui/speed-icon.png"))));
+        addObjectWithoutLoading(new GameObject(screen(0 + p(68), 2 - p(58), 17), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(16), Material.UI_SPEED_ICON)));
 
-        healthStatus = addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(22), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        healthStatus = addObjectWithoutLoading(new GameObject(screen(0 + p(20), 2 - p(22), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), Material.UI_STATUSBAR)));
         healthStatus.setColor(new Vector4f(0.25f, 0.6f, 0.3f, 1.0f));
 
-        staminaStatus = addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(42), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        staminaStatus = addObjectWithoutLoading(new GameObject(screen(0 + p(20), 2 - p(42), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), Material.UI_STATUSBAR)));
         staminaStatus.setColor(new Vector4f(0.7f, 0.4f, 0.2f, 1.0f));
 
-        healthRegenStatus = addObjectWithoutLoading(new UiObject(screen(0 + p(20), 2 - p(62), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), new Material("/textures/ui/statusbar.png"))));
+        healthRegenStatus = addObjectWithoutLoading(new GameObject(screen(0 + p(20), 2 - p(62), 18), Vector3f.zero(), Vector3f.one(), UiBuilder.UIRect(p(16), Material.UI_STATUSBAR)));
         healthRegenStatus.setColor(new Vector4f(0.5f, 0.3f, 0.55f, 1.0f));
 
-        speedDial = addObjectWithoutLoading(new UiObject(screen(0 + p(72), 2 - p(51), 17), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("0.0 m/s", p(14.0f), TextMode.LEFT)));
+        speedDial = addObjectWithoutLoading(new GameObject(screen(0 + p(72), 2 - p(51), 17), Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("0.0 m/s", p(14.0f), TextMode.LEFT)));
 
         // Buy Menu
         float boxesBorder = p(1);
@@ -93,7 +93,7 @@ public class InGameMenu extends Menu {
         buy_itemTabs = new UiButton[10];
         buy_itemSlots = new UiButton[24];
 
-        GameObject centerCrosshair = addObjectWithoutLoading(new UiObject(screen(1, 1, 11), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(8), new Material("/textures/crosshair-center.png"))));
+        GameObject centerCrosshair = addObjectWithoutLoading(new GameObject(screen(1, 1, 11), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(8), Material.UI_CROSSHAIR_CENTER)));
 
         background = new UiPanel(0, 0, 2, 2, 10, 0.4f);
         addObjectWithoutLoading(background);
@@ -104,7 +104,7 @@ public class InGameMenu extends Menu {
             }
         };
         addObjectWithoutLoading(buy_backButton);
-        buy_backIcon = new UiObject(screen(0.057291668f, 0.10185185f, 7), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(64), new Material("/textures/ui/back-icon.png")));
+        buy_backIcon = new GameObject(screen(0.057291668f, 0.10185185f, 7), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(64), Material.UI_BACK_ICON));
 
         // Top Bar
 

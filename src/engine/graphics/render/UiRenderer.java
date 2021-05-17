@@ -5,7 +5,6 @@ import engine.io.Window;
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
 import engine.objects.*;
-import game.ui.UiObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
@@ -20,6 +19,7 @@ public class UiRenderer extends Renderer {
 
     @Override
     public void render(GameObject object) {
+
         if (!object.isVisible()) {
             return;
         }
@@ -29,31 +29,24 @@ public class UiRenderer extends Renderer {
             }
             render(object);
         }
-        if (object instanceof UiObject) {
-            UiObject objectMesh = (UiObject) object;
-            render(objectMesh);
-        }
-    }
 
-    private void render(UiObject objectMesh) {
-
-        GL30.glBindVertexArray(objectMesh.getMesh().getVAO());
+        GL30.glBindVertexArray(object.getMesh().getVAO());
         GL30.glEnableVertexAttribArray(0);
         GL30.glEnableVertexAttribArray(1);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, objectMesh.getMesh().getIBO());
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, object.getMesh().getIBO());
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, objectMesh.getMesh().getMaterial().getTextureID());
+        GL13.glBindTexture(GL11.GL_TEXTURE_2D, object.getMesh().getMaterial().getTextureID());
 
         shader.bind(); // SHADER BOUND
 
-        shader.setUniform("model", Matrix4f.transform(objectMesh.getPosition(), objectMesh.getRotation(), objectMesh.getScale()));
+        shader.setUniform("model", Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale()));
         shader.setUniform("view", Matrix4f.view(Vector3f.zero(), new Vector3f(0, 180, 180)));
         shader.setUniform("projection", Window.getOrthographicMatrix());
 
-        shader.setUniform("meshColor", objectMesh.getColor());
+        shader.setUniform("meshColor", object.getColor());
 
-        GL11.glDrawElements(GL11.GL_TRIANGLES, objectMesh.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+        GL11.glDrawElements(GL11.GL_TRIANGLES, object.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
         shader.unbind(); // SHADER UNBOUND
 

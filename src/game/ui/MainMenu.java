@@ -38,46 +38,35 @@ public class MainMenu extends Menu {
     @Override
     public void init() {
         mm_mapBackground = addObjectWithoutLoading(
-                new UiObject(screen(1.0f, 0.0f, 3),
+                new GameObject(screen(1.0f, 0.0f, 3),
                 Vector3f.zero(), Vector3f.one(),
-                UiBuilder.UICenter(p(4096.0f), new Material("/textures/map/map.png"))));
-
-        GameObject mm_blackTransparent = addObjectWithoutLoading(
-                new UiObject(screen(0.0f, 0.0f, 2),
-                        Vector3f.zero(), Vector3f.one(),
-                        UiBuilder.UIRect(4.0f, new Material("/textures/black-transparent.png"))));
+                UiBuilder.UICenter(p(4096.0f), Material.MAP_MAP)));
 
         mm_gameLogo = addObjectWithoutLoading(
-                new UiObject(screen(p(268), -1.0f, 1),
+                new GameObject(screen(p(268), -1.0f, 1),
                 Vector3f.zero(), Vector3f.one(),
-                        UiBuilder.UICenter(p(1024.0f), new Material("/textures/bordersite-logo.png"))));
+                        UiBuilder.UICenter(p(1024.0f), Material.UI_BORDERSITE_LOGO)));
 
         mm_gameVersion = addObjectWithoutLoading(
-                new UiObject(screen(p(3), -1.0f, 1),
+                new GameObject(screen(p(3), -1.0f, 1),
                 Vector3f.zero(), Vector3f.one(), TextMeshBuilder.TextMesh("ALPHA V0.1",
-                p(32.0f), TextMode.LEFT)));
+                p(32.0f), TextMode.LEFT, true)));
 
         mm_optionsButton = addObjectWithoutLoading(
-                new UiObject(screen(0.0f + p(3), 1.0f + p(50), 1),
+                new GameObject(screen(0.0f + p(3), 1.0f + p(50), 1),
                 Vector3f.zero(), Vector3f.one(),
-                TextMeshBuilder.TextMesh("OPTIONS", p(40.0f), TextMode.LEFT)));
+                TextMeshBuilder.TextMesh("OPTIONS", p(40.0f), TextMode.LEFT, true)));
 
         mm_playButton = addObjectWithoutLoading(
-                new UiObject(screen(0.0f + p(3), 1.0f, 1),
+                new GameObject(screen(0.0f + p(3), 1.0f, 1),
                 Vector3f.zero(), Vector3f.one(),
-                TextMeshBuilder.TextMesh("PLAY", p(40.0f), TextMode.LEFT)));
+                TextMeshBuilder.TextMesh("PLAY", p(40.0f), TextMode.LEFT, true)));
 
         mm_creditsButton = addObjectWithoutLoading(
-                new UiObject(screen(0.0f + p(3), 1.0f - p(50), 1),
+                new GameObject(screen(0.0f + p(3), 1.0f - p(50), 1),
                 Vector3f.zero(), Vector3f.one(),
-                TextMeshBuilder.TextMesh("CREDITS", p(40.0f), TextMode.LEFT)));
+                TextMeshBuilder.TextMesh("CREDITS", p(40.0f), TextMode.LEFT, true)));
 
-        mm_sliderButton = addObjectWithoutLoading(new UiObject(screen(1.0f, -2.0f, 1),
-                Vector3f.zero(), Vector3f.one(),
-                UiBuilder.UICenter(p(1024.0f), new Material("/textures/slider.png"))));
-        mm_slider = addObjectWithoutLoading(new UiObject(screen(1.0f, -2.0f, 1),
-                Vector3f.zero(), Vector3f.one(),
-                UiBuilder.UICenter(p(64.0f), new Material("/textures/slider-button.png"))));
     }
 
     @Override
