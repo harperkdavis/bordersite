@@ -61,11 +61,16 @@ public class Scene implements GamePlane {
         // addBox(new Vector3f(20, 0, 12), new Vector3f(36, 4, 20), Material.ENV_GRID);
         // addBox(new Vector3f(36, 0, 12), new Vector3f(52, 12, 24), Material.ENV_GRID);
 
-        addBox(new Vector3f(0, 0, 0), new Vector3f(10, 0.1f, 10.0f), Material.TEST);
-        addBox(new Vector3f(1, 1, 1), new Vector3f(2, 2, 2), Material.TEST);
+        addBox(new Vector3f(0, 0, 0), new Vector3f(10, 0.1f, 10.0f), Material.ENV_STONE);
+        addBox(new Vector3f(1, 1, 1), new Vector3f(2, 2, 2), Material.ENV_STONE);
 
-        addBox(new Vector3f(6, 0, 4), new Vector3f(9, 4, 5), Material.TEST);
-        addBox(new Vector3f(8, 0, 2), new Vector3f(9, 4, 9), Material.TEST);
+        addBox(new Vector3f(6, 0, 4), new Vector3f(9, 8, 5), Material.ENV_STONE);
+        addBox(new Vector3f(8, 0, 2), new Vector3f(9, 4, 9), Material.ENV_STONE);
+
+        addBox(new Vector3f(1, 6, 4), new Vector3f(4, 7, 5), Material.ENV_STONE);
+        addBox(new Vector3f(1, 6, 6), new Vector3f(4, 7, 5), Material.ENV_STONE);
+        addBox(new Vector3f(1, 6, 4), new Vector3f(2, 7, 7), Material.ENV_STONE);
+        addBox(new Vector3f(3, 6, 4), new Vector3f(4, 7, 7), Material.ENV_STONE);
 
         loading = true;
         loaded = false;

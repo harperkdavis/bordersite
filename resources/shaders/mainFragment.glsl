@@ -1,7 +1,6 @@
 #version 460 core
 
 const int MAX_POINT_LIGHTS = 16;
-const int MAX_SPOT_LIGHTS = 16;
 
 struct Attenuation {
     float constant;
@@ -22,26 +21,23 @@ struct DirectionalLight {
     float intensity;
 };
 
-struct SpotLight {
-    PointLight pl;
-    vec3 conedir;
-    float cutoff;
-};
-
 struct Fog {
     int activeFog;
     vec3 color;
     float density;
 };
 
-in vec2 vertexUV;
-in vec3 vertexNormal;
-in vec3 vertexPos;
-in vec4 mvLightVertexPos;
-
 out vec4 fragColor;
 
-uniform sampler2D tex;
+in vec2 vertexUV;
+
+vec3 vertexPos;
+vec3 vertexNormal;
+vec4 diffuse;
+
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gAlbedoSpec;
 uniform sampler2D shadowMap;
 
 uniform DirectionalLight directionalLight;
@@ -49,31 +45,22 @@ uniform vec3 ambientLight;
 uniform vec3 cameraPos;
 uniform Fog fog;
 
+uniform mat4 lightSpaceMatrix;
+
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
-uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
-
-vec4 ambientC;
-vec4 diffuseC;
-vec4 specularC;
-
-void setupColors(vec2 uv) {
-    ambientC = texture(tex, uv);
-    diffuseC = ambientC;
-    specularC = ambientC;
-}
 
 vec4 calcLightColor(vec3 lightColor, float lightIntensity, vec3 position, vec3 toLightDir, vec3 normal) {
     vec4 diffuseColor = vec4(0, 0, 0, 0);
     vec4 specColor = vec4(0, 0, 0, 0);
 
     float diffuseFactor = max(dot(normal, toLightDir), 0.0);
-    diffuseColor = diffuseC * vec4(lightColor, 1.0) * lightIntensity * diffuseFactor;
+    diffuseColor = diffuse * vec4(lightColor, 1.0) * lightIntensity * diffuseFactor;
 
     vec3 cameraDirection = normalize(position);
     vec3 reflectedLight = normalize(reflect(-toLightDir, normal));
     float specularFactor = max(dot(cameraDirection, reflectedLight), 0.0);
     specularFactor = pow(specularFactor, 10.0f);
-    specColor = specularC * lightIntensity  * specularFactor * vec4(lightColor, 1.0);
+    specColor = lightIntensity  * specularFactor * vec4(lightColor, 1.0);
 
     return (diffuseColor + specColor);
 }
@@ -89,27 +76,11 @@ vec4 calcPointLight(PointLight light, vec3 position, vec3 normal) {
     return lightColor / attenuationInv;
 }
 
-vec4 calcSpotLight(SpotLight light, vec3 position, vec3 normal) {
-    vec3 lightDirection = light.pl.position - position;
-    vec3 toLightDir  = normalize(lightDirection);
-    vec3 fromLightDir  = -toLightDir;
-    float spotAlpha = dot(fromLightDir, normalize(light.conedir));
-
-    vec4 color = vec4(0, 0, 0, 0);
-
-    if ( spotAlpha > light.cutoff )
-    {
-        color = calcPointLight(light.pl, position, normal);
-        color *= (1.0 - (1.0 - spotAlpha)/(1.0 - light.cutoff));
-    }
-    return color;
-}
-
 vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
     vec4 diffuseColor = vec4(0, 0, 0, 0);
 
     float diffuseFactor = max(dot(normal, -light.direction), 0.0);
-    diffuseColor = diffuseC * vec4(light.color, 1.0) * light.intensity * diffuseFactor;
+    diffuseColor = diffuse * vec4(light.color, 1.0) * light.intensity * diffuseFactor;
 
     return diffuseColor;
 }
@@ -144,14 +115,16 @@ float calcShadow(vec4 position) {
     shadow /= 25.0;
 
     if(projCoords.z > 1.0)
-        shadow = 0.0;
+    shadow = 0.0;
 
     return shadow;
 }
 
-
 void main() {
-    setupColors(vertexUV);
+
+    vertexPos = texture(gPosition, vertexUV).xyz;
+    vertexNormal = normalize(texture(gNormal, vertexUV).xyz);
+    diffuse = texture(gAlbedoSpec, vertexUV);
 
     vec4 specComp = calcDirectionalLight(directionalLight, vertexPos, vertexNormal);
 
@@ -161,13 +134,7 @@ void main() {
         }
     }
 
-    for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
-        if (spotLights[i].pl.intensity > 0){
-            specComp += calcSpotLight(spotLights[i], vertexPos, vertexNormal);
-        }
-    }
-
-    float shadow = calcShadow(mvLightVertexPos);
-    fragColor = clamp(ambientC * vec4(ambientLight, 1) + specComp * (1 - shadow), 0, 1);
+    float shadow = calcShadow(lightSpaceMatrix * vec4(vertexPos, 1));
+    fragColor = clamp(diffuse * vec4(ambientLight, 1) + specComp * (1 - shadow), 0, 1);
     fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);
 }

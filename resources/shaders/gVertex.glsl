@@ -18,8 +18,8 @@ void main() {
     vertexPos = mvPos.xyz;
     vertexUV = uv;
 
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
-    vertexNormal = normalMatrix * normal;
+    mat4 normalMatrix = transpose(inverse(model));
+    vertexNormal = (normalMatrix * vec4(normal, 1)).xyz;
 
     gl_Position = projection * view * mvPos;
 }
