@@ -27,7 +27,8 @@ struct Fog {
     float density;
 };
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec4 brightColor;
 
 in vec2 vertexUV;
 
@@ -38,6 +39,7 @@ vec4 diffuse;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
+uniform sampler2D ssao;
 uniform sampler2D shadowMap;
 
 uniform DirectionalLight directionalLight;
@@ -125,6 +127,7 @@ void main() {
     vertexPos = texture(gPosition, vertexUV).xyz;
     vertexNormal = normalize(texture(gNormal, vertexUV).xyz);
     diffuse = texture(gAlbedoSpec, vertexUV);
+    float ao = texture(ssao, vertexUV).r;
 
     vec4 specComp = calcDirectionalLight(directionalLight, vertexPos, vertexNormal);
 
@@ -135,6 +138,12 @@ void main() {
     }
 
     float shadow = calcShadow(lightSpaceMatrix * vec4(vertexPos, 1));
-    fragColor = clamp(diffuse * vec4(ambientLight, 1) + specComp * (1 - shadow), 0, 1);
+    fragColor = clamp(diffuse * vec4(ambientLight, 1) * ao + specComp * (1 - shadow), 0, 1);
     fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);
+
+    float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    if(brightness > 1.0)
+        brightColor = vec4(fragColor.rgb, 1.0);
+    else
+        brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

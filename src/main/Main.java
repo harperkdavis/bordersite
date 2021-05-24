@@ -24,7 +24,7 @@ import java.awt.*;
 public class Main implements Runnable {
 
     public Thread game;
-    public Shader gShader, mainShader, uiShader, viewmodelShader, shadowShader;
+    public Shader gShader, ssaoShader, ssaoBlurShader, shadowShader, mainShader, postShader, uiShader, viewmodelShader;
 
     public int WIDTH, HEIGHT;
     public boolean FULLSCREEN;
@@ -128,21 +128,22 @@ public class Main implements Runnable {
         UserInterface.getUi().load();
 
         System.out.println("[INFO] Loading shader...");
-        gShader = new Shader("/shaders/gVertex.glsl", "/shaders/gFragment.glsl");
-        gShader.create();
-        mainShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-        mainShader.create();
-        shadowShader = new Shader("/shaders/shadowVertex.glsl", "/shaders/shadowFragment.glsl");
-        shadowShader.create();
-        uiShader = new Shader("/shaders/uiVertex.glsl", "/shaders/uiFragment.glsl");
-        uiShader.create();
-        viewmodelShader = new Shader("/shaders/viewmodelVertex.glsl", "/shaders/viewmodelFragment.glsl");
-        viewmodelShader.create();
+        gShader = loadShader("g");
+
+        ssaoShader = loadShader("ssao");
+        ssaoBlurShader = loadShader("ssaoBlur");
+
+        shadowShader = loadShader("shadow");
+        mainShader = loadShader("main");
+        postShader = loadShader("post");
+
+        uiShader = loadShader("ui");
+        viewmodelShader = loadShader("viewmodel");
 
         System.out.println("[INFO] Loading shader complete.");
 
         System.out.println("[INFO] Initializing renderer...");
-        Renderer.setMain(new MainRenderer(gShader, mainShader, shadowShader));
+        Renderer.setMain(new MainRenderer(gShader, ssaoShader, ssaoBlurShader, mainShader, shadowShader, postShader));
         Renderer.setUi(new UiRenderer(uiShader));
         Renderer.setViewmodel(new ViewmodelRenderer(viewmodelShader));
         System.out.println("[INFO] Renderer initialized!");
@@ -161,6 +162,12 @@ public class Main implements Runnable {
 
         System.out.println("[INFO] Initialization completed!");
 
+    }
+
+    private Shader loadShader(String name) {
+        Shader shader = new Shader("/shaders/" + name + "Vertex.glsl", "/shaders/" + name + "Fragment.glsl");
+        shader.create();
+        return shader;
     }
 
     private void connect() {
