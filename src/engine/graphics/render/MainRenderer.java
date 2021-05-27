@@ -44,7 +44,7 @@ public class MainRenderer extends Renderer {
     protected int depthMapFramebuffer, depthMapTexture;
 
     private int gBuffer, rboDepth;
-    private int gPosition, gNormal, gAlbedoSpec;
+    private int gPosition, gViewPosition, gNormal, gAlbedoSpec;
 
     private int ssaoColorBuffer, ssaoBlurBuffer, ssaoNoiseTexture;
     private int ssaoFBO, ssaoBlurFBO;
@@ -70,8 +70,8 @@ public class MainRenderer extends Renderer {
         this.ssaoBlurShader = ssaoBlurShader;
         this.postShader = postShader;
 
-        ambientLight = new Vector3f(0.5f, 0.5f, 0.5f);
-        directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), new Vector3f(0.8f, 1.0f, 0.4f).normalize(), 1.2f);
+        ambientLight = new Vector3f(0.2f, 0.2f, 0.205f);
+        directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), new Vector3f(0.8f, 1.0f, 0.4f).normalize(), 1.0f);
         fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.002f);
 
         for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
@@ -93,21 +93,28 @@ public class MainRenderer extends Renderer {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, gPosition, 0);
 
+        gViewPosition = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, gViewPosition);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT1, GL11.GL_TEXTURE_2D, gViewPosition, 0);
+
         gNormal = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, gNormal);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT1, GL11.GL_TEXTURE_2D, gNormal, 0);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT2, GL11.GL_TEXTURE_2D, gNormal, 0);
 
         gAlbedoSpec = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, gAlbedoSpec);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT2, GL11.GL_TEXTURE_2D, gAlbedoSpec, 0);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT3, GL11.GL_TEXTURE_2D, gAlbedoSpec, 0);
 
-        int[] gbuffers = new int[] {GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2};
+        int[] gbuffers = new int[] {GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3};
         IntBuffer drawBuffers = BufferUtils.createIntBuffer(gbuffers.length);
         for(int elem : gbuffers) {
             drawBuffers.put(elem);
@@ -312,7 +319,7 @@ public class MainRenderer extends Renderer {
         ssaoShader.setUniform("projection", projection);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, gPosition);
+        GL13.glBindTexture(GL11.GL_TEXTURE_2D, gViewPosition);
         GL13.glActiveTexture(GL13.GL_TEXTURE1);
         GL13.glBindTexture(GL11.GL_TEXTURE_2D, gNormal);
         GL13.glActiveTexture(GL13.GL_TEXTURE2);
@@ -321,6 +328,7 @@ public class MainRenderer extends Renderer {
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         ssaoShader.unbind();
+
 
         // 2.5: SSAO BLUR
 
@@ -334,9 +342,7 @@ public class MainRenderer extends Renderer {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         ssaoBlurShader.unbind();
 
-
         // 3: LIGHTING
-
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, hdrFBO);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -363,6 +369,7 @@ public class MainRenderer extends Renderer {
 
         shader.setUniform("cameraPos", Camera.getMainCameraPosition());
         shader.setUniform("fog", fog);
+        shader.setUniform("view", view);
 
         shader.setUniform("ambientLight", ambientLight);
         shader.setUniform("directionalLight", directionalLight);
@@ -381,12 +388,16 @@ public class MainRenderer extends Renderer {
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL13.glBindTexture(GL11.GL_TEXTURE_2D, hdrBuffer);
+        GL13.glActiveTexture(GL13.GL_TEXTURE1);
+        GL13.glBindTexture(GL11.GL_TEXTURE_2D, hdrBrightBuffer);
 
         postShader.setUniform("hdrBuffer", 0);
+        postShader.setUniform("hdrBrightBuffer", 1);
         postShader.setUniform("exposure", exposure);
 
         renderQuad();
         postShader.unbind();
+
     }
 
     private void renderQuad() {
@@ -410,9 +421,9 @@ public class MainRenderer extends Renderer {
     }
 
     private Matrix4f getLightSpaceMatrix() {
-        Matrix4f lightOrtho = Matrix4f.ortho(-200, 200, -200, 200, 1.0f, 40.0f);
+        Matrix4f lightOrtho = Matrix4f.ortho(-100, 100, -100, 100, 1.0f, 200.0f);
         Vector3f lightDir = new Vector3f(directionalLight.getDirection());
-        Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 4, lightDir.getY() * 4, -lightDir.getZ() * 4), Vector3f.zero(), Vector3f.oneY());
+        Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 20, lightDir.getY() * 20, -lightDir.getZ() * 20), Vector3f.zero(), Vector3f.oneY());
         return Matrix4f.multiply(lightView, lightOrtho);
     }
 

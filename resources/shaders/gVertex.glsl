@@ -7,6 +7,7 @@ layout(location = 2) in vec3 normal;
 out vec2 vertexUV;
 out vec3 vertexNormal;
 out vec3 vertexPos;
+out vec3 vertexViewPos;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -15,11 +16,13 @@ uniform mat4 projection;
 void main() {
 
     vec4 mvPos = model * vec4(position, 1.0);
+    vertexViewPos = (model * view * vec4(position, 1.0)).xyz;
     vertexPos = mvPos.xyz;
+
     vertexUV = uv;
 
-    mat4 normalMatrix = transpose(inverse(model));
-    vertexNormal = (normalMatrix * vec4(normal, 1)).xyz;
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vertexNormal = normalMatrix * normal;
 
     gl_Position = projection * view * mvPos;
 }

@@ -1,12 +1,14 @@
 #version 330 core
 
 layout (location = 0) out vec4 gPosition;
-layout (location = 1) out vec4 gNormal;
-layout (location = 2) out vec4 gAlbedoSpec;
+layout (location = 1) out vec4 gViewPosition;
+layout (location = 2) out vec4 gNormal;
+layout (location = 3) out vec4 gAlbedoSpec;
 
 in vec2 vertexUV;
 in vec3 vertexNormal;
 in vec3 vertexPos;
+in vec3 vertexViewPos;
 
 uniform sampler2D texture_diffuse;
 uniform sampler2D texture_specular;
@@ -14,7 +16,8 @@ uniform sampler2D texture_specular;
 void main() {
 
     gPosition = vec4(vertexPos, 1);
-    gNormal = vec4(vertexNormal, 1);
+    gViewPosition = vec4(vertexViewPos, 1);
+    gNormal = vec4(normalize(vertexNormal), 1);
 
     gAlbedoSpec = texture(texture_diffuse, vertexUV);
 

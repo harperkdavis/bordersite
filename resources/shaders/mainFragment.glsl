@@ -47,6 +47,7 @@ uniform vec3 ambientLight;
 uniform vec3 cameraPos;
 uniform Fog fog;
 
+uniform mat4 view;
 uniform mat4 lightSpaceMatrix;
 
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
@@ -89,7 +90,7 @@ vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
 
 vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirectionalLight dirLight) {
     vec3 fogColor = fog.color * (ambientLight + dirLight.color * dirLight.intensity);
-    float distance = length(cameraPos - pos);
+    float distance = length(-pos);
     float fogFactor = 1.0 / exp((distance * fog.density) * (distance * fog.density));
     fogFactor = clamp(fogFactor, 0.0, 1.0);
 
@@ -111,7 +112,7 @@ float calcShadow(vec4 position) {
     for(int x = -2; x <= 2; ++x) {
         for(int y = -2; y <= 2; ++y) {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - 0.0025 > pcfDepth ? 1.0 : 0.0;
+            shadow += currentDepth - 0.0005 > pcfDepth ? 1.0 : 0.0;
         }
     }
     shadow /= 25.0;
@@ -125,7 +126,7 @@ float calcShadow(vec4 position) {
 void main() {
 
     vertexPos = texture(gPosition, vertexUV).xyz;
-    vertexNormal = normalize(texture(gNormal, vertexUV).xyz);
+    vertexNormal = texture(gNormal, vertexUV).xyz;
     diffuse = texture(gAlbedoSpec, vertexUV);
     float ao = texture(ssao, vertexUV).r;
 
