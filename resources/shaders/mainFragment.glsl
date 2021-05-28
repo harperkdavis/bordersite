@@ -1,18 +1,13 @@
 #version 460 core
 
-const int MAX_POINT_LIGHTS = 16;
-
-struct Attenuation {
-    float constant;
-    float linear;
-    float exponent;
-};
+const int MAX_POINT_LIGHTS = 64;
 
 struct PointLight {
     vec3 color;
     vec3 position;
     float intensity;
-    Attenuation att;
+    float linear;
+    float quadratic;
 };
 
 struct DirectionalLight {
@@ -34,7 +29,7 @@ in vec2 vertexUV;
 
 vec3 vertexPos;
 vec3 vertexNormal;
-vec4 diffuse;
+vec3 diffuse;
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
@@ -52,38 +47,11 @@ uniform mat4 lightSpaceMatrix;
 
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
-vec4 calcLightColor(vec3 lightColor, float lightIntensity, vec3 position, vec3 toLightDir, vec3 normal) {
-    vec4 diffuseColor = vec4(0, 0, 0, 0);
-    vec4 specColor = vec4(0, 0, 0, 0);
-
-    float diffuseFactor = max(dot(normal, toLightDir), 0.0);
-    diffuseColor = diffuse * vec4(lightColor, 1.0) * lightIntensity * diffuseFactor;
-
-    vec3 cameraDirection = normalize(position);
-    vec3 reflectedLight = normalize(reflect(-toLightDir, normal));
-    float specularFactor = max(dot(cameraDirection, reflectedLight), 0.0);
-    specularFactor = pow(specularFactor, 10.0f);
-    specColor = lightIntensity  * specularFactor * vec4(lightColor, 1.0);
-
-    return (diffuseColor + specColor);
-}
-
-vec4 calcPointLight(PointLight light, vec3 position, vec3 normal) {
-    vec3 light_direction = light.position - position;
-    vec3 toLightDir  = normalize(light_direction);
-    vec4 lightColor = calcLightColor(light.color, light.intensity, position, toLightDir, normal);
-
-    float distance = length(light_direction);
-    float attenuationInv = light.att.constant + light.att.linear * distance +
-    light.att.exponent * distance * distance;
-    return lightColor / attenuationInv;
-}
-
 vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
     vec4 diffuseColor = vec4(0, 0, 0, 0);
 
     float diffuseFactor = max(dot(normal, -light.direction), 0.0);
-    diffuseColor = diffuse * vec4(light.color, 1.0) * light.intensity * diffuseFactor;
+    diffuseColor = vec4(diffuse, 1) * vec4(light.color, 1.0) * light.intensity * diffuseFactor;
 
     return diffuseColor;
 }
@@ -127,22 +95,42 @@ void main() {
 
     vertexPos = texture(gPosition, vertexUV).xyz;
     vertexNormal = texture(gNormal, vertexUV).xyz;
-    diffuse = texture(gAlbedoSpec, vertexUV);
+    diffuse = texture(gAlbedoSpec, vertexUV).rgb;
     float ao = texture(ssao, vertexUV).r;
 
+
     vec4 specComp = calcDirectionalLight(directionalLight, vertexPos, vertexNormal);
+    vec3 viewDir = normalize(cameraPos - vertexPos);
 
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
-        if (pointLights[i].intensity > 0 ) {
-            specComp += calcPointLight(pointLights[i], vertexPos, vertexNormal);
+        if (pointLights[i].intensity > 0) {
+            PointLight light = pointLights[i];
+
+            float distance = length(light.position - vertexPos);
+            if (distance < light.intensity) {
+
+                vec3 lightDir = normalize(light.position - vertexPos);
+                vec3 lightDiffuse = max(dot(vertexNormal, lightDir), 0.0) * diffuse * light.color;
+
+                vec3 halfwayDir = normalize(lightDir + viewDir);
+                float spec = pow(max(dot(vertexNormal, halfwayDir), 0.0), 16.0);
+                vec3 lightSpecular = light.color * spec;
+
+                float attentuation = 1.0 / (1.0 + light.linear * distance + light.quadratic * distance * distance);
+                lightDiffuse *= attentuation;
+                lightSpecular *= attentuation;
+
+                specComp += vec4(lightDiffuse + lightSpecular, 1);
+            }
         }
     }
 
     float shadow = calcShadow(lightSpaceMatrix * vec4(vertexPos, 1));
-    fragColor = clamp(diffuse * vec4(ambientLight, 1) * ao + specComp * (1 - shadow), 0, 1);
+    fragColor = clamp(vec4(ambientLight * diffuse * ao, 1) + specComp * (1 - shadow), 0, 1);
     fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);
 
-    float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    float brightness = (fragColor.x * 2 + fragColor.y * 1.6 + fragColor.z * 2.4) / 3.2;
+
     if(brightness > 1.0)
         brightColor = vec4(fragColor.rgb, 1.0);
     else

@@ -3,7 +3,6 @@ package engine.graphics;
 import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.Fog;
 import engine.graphics.light.PointLight;
-import engine.graphics.light.SpotLight;
 import engine.math.Matrix4f;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
@@ -105,7 +104,7 @@ public class Shader {
             if (pointLights[i] != null) {
                 setUniform(uniformName, pointLights[i], i);
             } else {
-                setUniform(uniformName, SpotLight.IDENTITY, i);
+                setUniform(uniformName, PointLight.IDENTITY, i);
             }
         }
     }
@@ -118,32 +117,11 @@ public class Shader {
         setUniform(uniformName + ".color", pointLight.getColor());
         setUniform(uniformName + ".position", pointLight.getPosition());
         setUniform(uniformName + ".intensity", pointLight.getIntensity());
-        PointLight.Attenuation att = pointLight.getAttenuation();
-        setUniform(uniformName + ".att.constant", att.getConstant());
-        setUniform(uniformName + ".att.linear", att.getLinear());
-        setUniform(uniformName + ".att.exponent", att.getExponent());
+        setUniform(uniformName + ".linear", pointLight.getLinear());
+        setUniform(uniformName + ".quadratic", pointLight.getQuadratic());
     }
 
-    public void setUniform(String uniformName, SpotLight[] spotLights) {
-        int numLights = spotLights != null ? spotLights.length : 0;
-        for (int i = 0; i < numLights; i++) {
-            if (spotLights[i] != null) {
-                setUniform(uniformName, spotLights[i], i);
-            } else {
-                setUniform(uniformName, SpotLight.IDENTITY, i);
-            }
-        }
-    }
 
-    public void setUniform(String uniformName, SpotLight spotLight, int index) {
-        setUniform(uniformName + "[" + index + "]", spotLight);
-    }
-
-    public void setUniform(String uniformName, SpotLight spotLight) {
-        setUniform(uniformName + ".pl", spotLight.getPointLight());
-        setUniform(uniformName + ".conedir", spotLight.getConeDirection());
-        setUniform(uniformName + ".cutoff", spotLight.getCutoff());
-    }
 
     public void setUniform(String uniformName, DirectionalLight dirLight) {
         setUniform(uniformName + ".color", dirLight.getColor() );

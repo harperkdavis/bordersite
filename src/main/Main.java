@@ -24,7 +24,7 @@ import java.awt.*;
 public class Main implements Runnable {
 
     public Thread game;
-    public Shader gShader, ssaoShader, ssaoBlurShader, shadowShader, mainShader, postShader, uiShader, viewmodelShader;
+    public Shader gShader, ssaoShader, ssaoBlurShader, shadowShader, mainShader, blurShader, postShader, uiShader, viewmodelShader;
 
     public int WIDTH, HEIGHT;
     public boolean FULLSCREEN;
@@ -137,13 +137,14 @@ public class Main implements Runnable {
         mainShader = loadShader("main");
         postShader = loadShader("post");
 
+        blurShader = loadShader("blur");
         uiShader = loadShader("ui");
         viewmodelShader = loadShader("viewmodel");
 
         System.out.println("[INFO] Loading shader complete.");
 
         System.out.println("[INFO] Initializing renderer...");
-        Renderer.setMain(new MainRenderer(gShader, ssaoShader, ssaoBlurShader, mainShader, shadowShader, postShader));
+        Renderer.setMain(new MainRenderer(gShader, ssaoShader, ssaoBlurShader, mainShader, shadowShader, blurShader, postShader));
         Renderer.setUi(new UiRenderer(uiShader));
         Renderer.setViewmodel(new ViewmodelRenderer(viewmodelShader));
         System.out.println("[INFO] Renderer initialized!");

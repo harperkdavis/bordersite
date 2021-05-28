@@ -5,7 +5,6 @@ import engine.graphics.Shader;
 import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.Fog;
 import engine.graphics.light.PointLight;
-import engine.graphics.light.SpotLight;
 import engine.graphics.mesh.Mesh;
 import engine.graphics.vertex.Vertex;
 import engine.io.Input;
@@ -20,14 +19,10 @@ import game.scene.Scene;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.*;
-import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.Random;
-
-import java.util.List;
 
 public class MainRenderer extends Renderer {
 
@@ -35,12 +30,12 @@ public class MainRenderer extends Renderer {
     private final DirectionalLight directionalLight;
     private final Fog fog;
 
-    private static final int MAX_POINT_LIGHTS = 16;
-    private static float exposure = 0.2f;
+    private static final int MAX_POINT_LIGHTS = 64;
+    private static float exposure = 1.2f;
 
     private final PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
 
-    private Shader gShader, depthShader, ssaoShader, ssaoBlurShader, postShader;
+    private Shader gShader, depthShader, ssaoShader, ssaoBlurShader, blurShader, postShader;
     protected int depthMapFramebuffer, depthMapTexture;
 
     private int gBuffer, rboDepth;
@@ -49,8 +44,8 @@ public class MainRenderer extends Renderer {
     private int ssaoColorBuffer, ssaoBlurBuffer, ssaoNoiseTexture;
     private int ssaoFBO, ssaoBlurFBO;
 
-    private int hdrFBO;
-    private int hdrBuffer, hdrBrightBuffer;
+    private int hdrFBO, brightBlurFBO;
+    private int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
 
     private Vector3f[] ssaoKernel = new Vector3f[64];
     private float[] ssaoNoise = new float[48];
@@ -60,7 +55,7 @@ public class MainRenderer extends Renderer {
     private static final int SHADOW_MAP_WIDTH = 32768, SHADOW_MAP_HEIGHT = 32768;
 
 
-    public MainRenderer(Shader gShader, Shader ssaoShader, Shader ssaoBlurShader, Shader shader, Shader depthShader, Shader postShader) {
+    public MainRenderer(Shader gShader, Shader ssaoShader, Shader ssaoBlurShader, Shader shader, Shader depthShader, Shader blurShader, Shader postShader) {
         super(shader);
         Renderer.setMain(this);
 
@@ -68,6 +63,7 @@ public class MainRenderer extends Renderer {
         this.depthShader = depthShader;
         this.ssaoShader = ssaoShader;
         this.ssaoBlurShader = ssaoBlurShader;
+        this.blurShader = blurShader;
         this.postShader = postShader;
 
         ambientLight = new Vector3f(0.2f, 0.2f, 0.205f);
@@ -78,6 +74,7 @@ public class MainRenderer extends Renderer {
             pointLights[i] = PointLight.IDENTITY;
         }
 
+        pointLights[0] = new PointLight(new Vector3f(5, 5, 5));
     }
 
     public void createBuffers() {
@@ -261,6 +258,23 @@ public class MainRenderer extends Renderer {
 
         GL20.glDrawBuffers(hdrDrawBuffers);
 
+        brightBlurFBO = GL30.glGenFramebuffers();
+        brightBlurBuffer = GL11.glGenTextures();
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, brightBlurFBO);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, brightBlurBuffer);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL13.GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL13.GL_CLAMP_TO_EDGE);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, brightBlurBuffer, 0);
+
+        if (GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE) {
+            System.err.println("[ERROR] Ping pong buffer not complete!");
+        }
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
     }
 
     public void renderScene() {
@@ -381,6 +395,20 @@ public class MainRenderer extends Renderer {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         shader.unbind();
 
+        // 3.5: BLOOM BLUR
+
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        blurShader.bind();
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, brightBlurFBO);
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrBrightBuffer);
+        blurShader.setUniform("image", 0);
+
+        renderQuad();
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+        blurShader.unbind();
+
         // 4: HDR
 
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
@@ -389,10 +417,10 @@ public class MainRenderer extends Renderer {
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL13.glBindTexture(GL11.GL_TEXTURE_2D, hdrBuffer);
         GL13.glActiveTexture(GL13.GL_TEXTURE1);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, hdrBrightBuffer);
+        GL13.glBindTexture(GL11.GL_TEXTURE_2D, brightBlurBuffer);
 
         postShader.setUniform("hdrBuffer", 0);
-        postShader.setUniform("hdrBrightBuffer", 1);
+        postShader.setUniform("brightBuffer", 1);
         postShader.setUniform("exposure", exposure);
 
         renderQuad();
