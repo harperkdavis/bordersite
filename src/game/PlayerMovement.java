@@ -68,7 +68,7 @@ public class PlayerMovement {
     // Crouching -0.2
 
     public PlayerMovement() {
-        position = new Vector3f(0, 0, 0);
+        position = new Vector3f(12, 6, 12);
         cameraRotation = new Vector3f(0, 0, 0);
         Vector3f lockedRotation = new Vector3f(0, 0, 0);
 

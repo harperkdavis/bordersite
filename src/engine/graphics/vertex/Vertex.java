@@ -7,7 +7,7 @@ public class Vertex {
 
     protected Vector3f position;
     protected Vector2f uv;
-    private final Vector3f normal;
+    private Vector3f normal, tangent = Vector3f.zero(), bitangent = Vector3f.zero();
 
     public Vertex(Vector3f position, Vector2f uv) {
         this.position = position;
@@ -31,6 +31,22 @@ public class Vertex {
 
     public Vector2f getUV() {
         return uv;
+    }
+
+    public Vector3f getTangent() {
+        return tangent;
+    }
+
+    public void setTangent(Vector3f tangent) {
+        this.tangent = tangent;
+    }
+
+    public Vector3f getBitangent() {
+        return bitangent;
+    }
+
+    public void setBitangent(Vector3f bitangent) {
+        this.bitangent = bitangent;
     }
 
 }

@@ -5,6 +5,7 @@ import engine.collision.RampCollider3f;
 import engine.graphics.Material;
 import engine.graphics.mesh.MeshBuilder;
 import engine.graphics.render.Renderer;
+import engine.io.MeshLoader;
 import engine.math.*;
 import engine.objects.GameObject;
 import game.GamePlane;
@@ -53,9 +54,11 @@ public class Scene implements GamePlane {
         // Outer Walls
 
         // Spawns
-        addBox(new Vector3f(4, 0, 4), new Vector3f(20, 4, 20), Material.ENV_GRID);
-        addBox(new Vector3f(20, 0, 12), new Vector3f(36, 4, 20), Material.ENV_GRID);
-        addBox(new Vector3f(36, 0, 12), new Vector3f(52, 12, 24), Material.ENV_GRID);
+        addBox(new Vector3f(4, 0, 4), new Vector3f(20, 4, 20), Material.ENV_FLOOR);
+        addBox(new Vector3f(20, 0, 12), new Vector3f(36, 4, 20), Material.ENV_FLOOR);
+        addBox(new Vector3f(36, 0, 12), new Vector3f(52, 12, 24), Material.ENV_BRICK);
+
+        addObject(new GameObject(Vector3f.zero(), MeshLoader.loadModel("sphere.obj", Material.ENV_FLOOR)), false);
 
         loading = true;
         loaded = false;

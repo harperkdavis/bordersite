@@ -1,5 +1,6 @@
 package engine.io;
 
+import main.Global;
 import org.lwjgl.glfw.*;
 
 public class Input {
@@ -90,6 +91,66 @@ public class Input {
         prevKeys = keys.clone();
         scrollState = 0;
 
+    }
+
+    public static boolean isBind(String bindName) {
+        if (Global.bindNames.get(bindName) == null) {
+            return false;
+        }
+
+        int bindId = Global.bindNames.get(bindName);
+
+        if (bindId < 1000) {
+            return isKey(bindId);
+        } else if (bindId <= 1005) {
+            return isMouseButton(bindId - 1000);
+        } else if (bindId == 1006) {
+            return scrollState == 1;
+        } else if (bindId == 1007) {
+            return scrollState == -1;
+        }
+
+        return false;
+    }
+
+    public static boolean isBindDown(String bindName) {
+        if (Global.bindNames.get(bindName) == null) {
+            return false;
+        }
+
+        int bindId = Global.bindNames.get(bindName);
+
+        if (bindId < 1000) {
+            return isKeyDown(bindId);
+        } else if (bindId <= 1005) {
+            return isMouseButtonDown(bindId - 1000);
+        } else if (bindId == 1006) {
+            return scrollState == 1;
+        } else if (bindId == 1007) {
+            return scrollState == -1;
+        }
+
+        return false;
+    }
+
+    public static boolean isBindUp(String bindName) {
+        if (Global.bindNames.get(bindName) == null) {
+            return false;
+        }
+
+        int bindId = Global.bindNames.get(bindName);
+
+        if (bindId < 1000) {
+            return isKeyUp(bindId);
+        } else if (bindId <= 1005) {
+            return isMouseButtonUp(bindId - 1000);
+        } else if (bindId == 1006) {
+            return scrollState == 1;
+        } else if (bindId == 1007) {
+            return scrollState == -1;
+        }
+
+        return false;
     }
 
     public void destroy() {

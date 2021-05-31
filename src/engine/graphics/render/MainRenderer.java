@@ -16,6 +16,7 @@ import engine.math.Vector3f;
 import engine.objects.Camera;
 import engine.objects.GameObject;
 import game.scene.Scene;
+import main.Global;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.*;
@@ -30,8 +31,8 @@ public class MainRenderer extends Renderer {
     private final DirectionalLight directionalLight;
     private final Fog fog;
 
-    private static final int MAX_POINT_LIGHTS = 64;
-    private static float exposure = 1.2f;
+    private static final int MAX_POINT_LIGHTS = 128;
+    private static float exposure = 0.6f;
 
     private final PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
 
@@ -47,7 +48,7 @@ public class MainRenderer extends Renderer {
     private int hdrFBO, brightBlurFBO;
     private int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
 
-    private Vector3f[] ssaoKernel = new Vector3f[64];
+    private Vector3f[] ssaoKernel = new Vector3f[32];
     private float[] ssaoNoise = new float[48];
 
     private Mesh renderQuad;
@@ -74,7 +75,8 @@ public class MainRenderer extends Renderer {
             pointLights[i] = PointLight.IDENTITY;
         }
 
-        pointLights[0] = new PointLight(new Vector3f(5, 5, 5));
+        pointLights[0] = new PointLight(Vector3f.zero(), Vector3f.one());
+
     }
 
     public void createBuffers() {
@@ -161,11 +163,11 @@ public class MainRenderer extends Renderer {
 
         Random randomSample = new Random();
 
-        for (int i = 0; i < 64; i++) {
+        for (int i = 0; i < 32; i++) {
             Vector3f sample = new Vector3f(randomSample.nextFloat() * 2.0f - 1.0f, randomSample.nextFloat() * 2.0f - 1.0f, randomSample.nextFloat()).normalize();
             sample.multiply(randomSample.nextFloat());
 
-            float scale = Mathf.lerp(0.1f, 1.0f, (i / 64.0f) * (i / 64.0f));
+            float scale = Mathf.lerp(0.1f, 1.0f, (i / 32.0f) * (i / 32.0f));
             sample.multiply(scale);
             ssaoKernel[i] = sample;
         }
@@ -279,6 +281,11 @@ public class MainRenderer extends Renderer {
 
     public void renderScene() {
 
+        pointLights[0].setPosition(Camera.getMainCameraPosition());
+
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+
         if (Input.isKey(GLFW.GLFW_KEY_P)) {
             exposure += 0.01f;
         } else if (Input.isKey(GLFW.GLFW_KEY_L)) {
@@ -298,10 +305,19 @@ public class MainRenderer extends Renderer {
         gShader.setUniform("view", view);
         gShader.setUniform("projection", projection);
 
-        gShader.setUniform("diffuse_texture", 0);
-        gShader.setUniform("specular_texture", 1);
-
         for (GameObject o : Scene.objects) {
+
+            gShader.setUniform("texture_diffuse", 0);
+            gShader.setUniform("texture_specular", 1);
+            gShader.setUniform("texture_normal", 2);
+
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            GL13.glBindTexture(GL11.GL_TEXTURE_2D, o.getMesh().getMaterial().getDiffuseID());
+            GL13.glActiveTexture(GL13.GL_TEXTURE1);
+            GL13.glBindTexture(GL11.GL_TEXTURE_2D, o.getMesh().getMaterial().getSpecularID());
+            GL13.glActiveTexture(GL13.GL_TEXTURE2);
+            GL13.glBindTexture(GL11.GL_TEXTURE_2D, o.getMesh().getMaterial().getNormalID());
+
             gRender(o);
         }
 
@@ -320,7 +336,7 @@ public class MainRenderer extends Renderer {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ssaoFBO);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
         ssaoShader.bind();
-        for (int i = 0; i < 64; i++) {
+        for (int i = 0; i < 32; i++) {
             ssaoShader.setUniform("samples[" + i + "]", ssaoKernel[i]);
         }
 
@@ -381,7 +397,7 @@ public class MainRenderer extends Renderer {
 
         shader.setUniform("lightSpaceMatrix", getLightSpaceMatrix());
 
-        shader.setUniform("cameraPos", Camera.getMainCameraPosition());
+        shader.setUniform("viewPos", Camera.getMainCameraPosition());
         shader.setUniform("fog", fog);
         shader.setUniform("view", view);
 
@@ -426,6 +442,9 @@ public class MainRenderer extends Renderer {
         renderQuad();
         postShader.unbind();
 
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+
     }
 
     private void renderQuad() {
@@ -449,7 +468,7 @@ public class MainRenderer extends Renderer {
     }
 
     private Matrix4f getLightSpaceMatrix() {
-        Matrix4f lightOrtho = Matrix4f.ortho(-100, 100, -100, 100, 1.0f, 200.0f);
+        Matrix4f lightOrtho = Matrix4f.ortho(-100, 100, -100, 100, 1.0f, 320.0f);
         Vector3f lightDir = new Vector3f(directionalLight.getDirection());
         Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 20, lightDir.getY() * 20, -lightDir.getZ() * 20), Vector3f.zero(), Vector3f.oneY());
         return Matrix4f.multiply(lightView, lightOrtho);
@@ -477,6 +496,18 @@ public class MainRenderer extends Renderer {
 
     }
 
+    private void enableVertexArrays(int n) {
+        for (int i = 0; i < n; i++) {
+            GL30.glEnableVertexAttribArray(i);
+        }
+    }
+
+    private void disableVertexArrays(int n) {
+        for (int i = 0; i < n; i++) {
+            GL30.glDisableVertexAttribArray(i);
+        }
+    }
+
     private void gRender(GameObject object) {
         if (!object.isVisible()) {
             return;
@@ -488,24 +519,15 @@ public class MainRenderer extends Renderer {
         }
 
         GL30.glBindVertexArray(object.getMesh().getVAO());
-        GL30.glEnableVertexAttribArray(0);
-        GL30.glEnableVertexAttribArray(1);
-        GL30.glEnableVertexAttribArray(2);
+        enableVertexArrays(5);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, object.getMesh().getIBO());
-
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, object.getMesh().getMaterial().getTextureID());
-        GL13.glActiveTexture(GL13.GL_TEXTURE1);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, Material.DEFAULT.getTextureID());
 
         gShader.setUniform("model", Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale()));
 
         GL11.glDrawElements(GL11.GL_TRIANGLES, object.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-        GL30.glDisableVertexAttribArray(0);
-        GL30.glDisableVertexAttribArray(1);
-        GL30.glDisableVertexAttribArray(2);
+        disableVertexArrays(5);
         GL30.glBindVertexArray(0);
     }
 
@@ -520,9 +542,7 @@ public class MainRenderer extends Renderer {
         }
 
         GL30.glBindVertexArray(object.getMesh().getVAO());
-        GL30.glEnableVertexAttribArray(0);
-        GL30.glEnableVertexAttribArray(1);
-        GL30.glEnableVertexAttribArray(2);
+        enableVertexArrays(5);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, object.getMesh().getIBO());
 
         depthShader.setUniform("model", Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale()));
@@ -530,9 +550,7 @@ public class MainRenderer extends Renderer {
         GL11.glDrawElements(GL11.GL_TRIANGLES, object.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-        GL30.glDisableVertexAttribArray(0);
-        GL30.glDisableVertexAttribArray(1);
-        GL30.glDisableVertexAttribArray(2);
+        disableVertexArrays(5);
         GL30.glBindVertexArray(0);
     }
 

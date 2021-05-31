@@ -78,66 +78,62 @@ public class MeshBuilder {
     public static Mesh Rect(Vector3f a, Vector3f b, Material m) {
         Vector3f uvLo = new Vector3f(Math.min(a.getX(), b.getX()) % 1, Math.min(a.getY(), b.getY()) % 1, Math.min(a.getZ(), b.getZ()) % 1);
         Vector3f uvHi = new Vector3f(Math.abs(a.getX() - b.getX()), Math.abs(a.getY() - b.getY()), Math.abs(a.getZ() - b.getZ()));
+
+        float minX = Math.min(a.getX(), b.getX()), maxX = Math.max(a.getX(), b.getX());
+        float minY = Math.min(a.getY(), b.getY()), maxY = Math.max(a.getY(), b.getY());
+        float minZ = Math.min(a.getZ(), b.getZ()), maxZ = Math.max(a.getZ(), b.getZ());
+
         Mesh mesh = new Mesh(new Vertex[] {
-                //Back face
-                new Vertex(new Vector3f(a.getX(), a.getY(), a.getZ()), new Vector3f(0, 0, -1), new Vector2f(uvLo.getX(), uvLo.getY())),
-                new Vertex(new Vector3f(a.getX(), b.getY(), a.getZ()), new Vector3f(0, 0, -1), new Vector2f(uvLo.getX(), uvHi.getY())),
-                new Vertex(new Vector3f(b.getX(), b.getY(), a.getZ()), new Vector3f(0, 0, -1), new Vector2f(uvHi.getX(), uvHi.getY())),
-                new Vertex(new Vector3f(b.getX(), a.getY(), a.getZ()), new Vector3f(0, 0, -1), new Vector2f(uvHi.getX(), uvLo.getY())),
 
-                //Front face
-                new Vertex(new Vector3f(a.getX(), a.getY(), b.getZ()), new Vector3f(0, 0, 1), new Vector2f(uvLo.getX(), uvLo.getY())),
-                new Vertex(new Vector3f(a.getX(), b.getY(), b.getZ()), new Vector3f(0, 0, 1), new Vector2f(uvLo.getX(), uvHi.getY())),
-                new Vertex(new Vector3f(b.getX(), b.getY(), b.getZ()), new Vector3f(0, 0, 1), new Vector2f(uvHi.getX(), uvHi.getY())),
-                new Vertex(new Vector3f(b.getX(), a.getY(), b.getZ()), new Vector3f(0, 0, 1), new Vector2f(uvHi.getX(), uvLo.getY())),
+                new Vertex(new Vector3f(minX, maxY, minZ), new Vector3f(0, 0, -1), new Vector2f(uvLo.getX(), uvHi.getY())),
+                new Vertex(new Vector3f(minX, minY, minZ), new Vector3f(0, 0, -1), new Vector2f(uvLo.getX(), uvLo.getY())),
+                new Vertex(new Vector3f(maxX, minY, minZ), new Vector3f(0, 0, -1), new Vector2f(uvHi.getX(), uvLo.getY())),
+                new Vertex(new Vector3f(maxX, maxY, minZ), new Vector3f(0, 0, -1), new Vector2f(uvHi.getX(), uvHi.getY())),
 
-                //Right face
-                new Vertex(new Vector3f(b.getX(), a.getY(), a.getZ()), new Vector3f(1, 0, 0), new Vector2f(uvLo.getZ(), uvLo.getY())),
-                new Vertex(new Vector3f(b.getX(), b.getY(), a.getZ()), new Vector3f(1, 0, 0), new Vector2f(uvLo.getZ(), uvHi.getY())),
-                new Vertex(new Vector3f(b.getX(), b.getY(), b.getZ()), new Vector3f(1, 0, 0), new Vector2f(uvHi.getZ(), uvHi.getY())),
-                new Vertex(new Vector3f(b.getX(), a.getY(), b.getZ()), new Vector3f(1, 0, 0), new Vector2f(uvHi.getZ(), uvLo.getY())),
+                new Vertex(new Vector3f(maxX, maxY, maxZ), new Vector3f(0, 0, 1), new Vector2f(uvLo.getX(), uvHi.getY())),
+                new Vertex(new Vector3f(maxX, minY, maxZ), new Vector3f(0, 0, 1), new Vector2f(uvLo.getX(), uvLo.getY())),
+                new Vertex(new Vector3f(minX, minY, maxZ), new Vector3f(0, 0, 1), new Vector2f(uvHi.getX(), uvLo.getY())),
+                new Vertex(new Vector3f(minX, maxY, maxZ), new Vector3f(0, 0, 1), new Vector2f(uvHi.getX(), uvHi.getY())),
 
-                //Left face
-                new Vertex(new Vector3f(a.getX(), a.getY(), a.getZ()), new Vector3f(-1, 0, 0), new Vector2f(uvLo.getZ(), uvLo.getY())),
-                new Vertex(new Vector3f(a.getX(), b.getY(), a.getZ()), new Vector3f(-1, 0, 0), new Vector2f(uvLo.getZ(), uvHi.getY())),
-                new Vertex(new Vector3f(a.getX(), b.getY(), b.getZ()), new Vector3f(-1, 0, 0), new Vector2f(uvHi.getZ(), uvHi.getY())),
-                new Vertex(new Vector3f(a.getX(), a.getY(), b.getZ()), new Vector3f(-1, 0, 0), new Vector2f(uvHi.getZ(), uvLo.getY())),
+                new Vertex(new Vector3f(minX, maxY, maxZ), new Vector3f(-1, 0, 0), new Vector2f(uvLo.getZ(), uvHi.getY())),
+                new Vertex(new Vector3f(minX, minY, maxZ), new Vector3f(-1, 0, 0), new Vector2f(uvLo.getZ(), uvLo.getY())),
+                new Vertex(new Vector3f(minX, minY, minZ), new Vector3f(-1, 0, 0), new Vector2f(uvHi.getZ(), uvLo.getY())),
+                new Vertex(new Vector3f(minX, maxY, minZ), new Vector3f(-1, 0, 0), new Vector2f(uvHi.getZ(), uvHi.getY())),
 
-                //Top face
-                new Vertex(new Vector3f(a.getX(),  a.getY(), b.getZ()), new Vector3f(0, 1, 0), new Vector2f(uvLo.getZ(), uvLo.getX())),
-                new Vertex(new Vector3f(a.getX(),  a.getY(), a.getZ()), new Vector3f(0, 1, 0), new Vector2f(uvLo.getZ(), uvHi.getX())),
-                new Vertex(new Vector3f(b.getX(),  a.getY(), a.getZ()), new Vector3f(0, 1, 0), new Vector2f(uvHi.getZ(), uvHi.getX())),
-                new Vertex(new Vector3f(b.getX(),  a.getY(), b.getZ()), new Vector3f(0, 1, 0), new Vector2f(uvHi.getZ(), uvLo.getX())),
+                new Vertex(new Vector3f(maxX, maxY, minZ), new Vector3f(1, 0, 0), new Vector2f(uvLo.getZ(), uvHi.getY())),
+                new Vertex(new Vector3f(maxX, minY, minZ), new Vector3f(1, 0, 0), new Vector2f(uvLo.getZ(), uvLo.getY())),
+                new Vertex(new Vector3f(maxX, minY, maxZ), new Vector3f(1, 0, 0), new Vector2f(uvHi.getZ(), uvLo.getY())),
+                new Vertex(new Vector3f(maxX, maxY, maxZ), new Vector3f(1, 0, 0), new Vector2f(uvHi.getZ(), uvHi.getY())),
 
-                //Bottom face
-                new Vertex(new Vector3f(a.getX(), b.getY(), b.getZ()), new Vector3f(0, -1, 0), new Vector2f(uvLo.getZ(), uvLo.getX())),
-                new Vertex(new Vector3f(a.getX(), b.getY(), a.getZ()), new Vector3f(0, -1, 0), new Vector2f(uvLo.getZ(), uvHi.getX())),
-                new Vertex(new Vector3f(b.getX(), b.getY(), a.getZ()), new Vector3f(0, -1, 0), new Vector2f(uvHi.getZ(), uvHi.getX())),
-                new Vertex(new Vector3f(b.getX(), b.getY(), b.getZ()), new Vector3f(0, -1, 0), new Vector2f(uvHi.getZ(), uvLo.getX())),
+                new Vertex(new Vector3f(minX, minY, minZ), new Vector3f(0, -1, 0), new Vector2f(uvLo.getX(), uvHi.getZ())),
+                new Vertex(new Vector3f(minX, minY, maxZ), new Vector3f(0, -1, 0), new Vector2f(uvLo.getX(), uvLo.getZ())),
+                new Vertex(new Vector3f(maxX, minY, maxZ), new Vector3f(0, -1, 0), new Vector2f(uvHi.getX(), uvLo.getZ())),
+                new Vertex(new Vector3f(maxX, minY, minZ), new Vector3f(0, -1, 0), new Vector2f(uvHi.getX(), uvHi.getZ())),
+
+                new Vertex(new Vector3f(minX, maxY, maxZ), new Vector3f(0, 1, 0), new Vector2f(uvLo.getX(), uvHi.getZ())),
+                new Vertex(new Vector3f(minX, maxY, minZ), new Vector3f(0, 1, 0), new Vector2f(uvLo.getX(), uvLo.getZ())),
+                new Vertex(new Vector3f(maxX, maxY, minZ), new Vector3f(0, 1, 0), new Vector2f(uvHi.getX(), uvLo.getZ())),
+                new Vertex(new Vector3f(maxX, maxY, maxZ), new Vector3f(0, 1, 0), new Vector2f(uvHi.getX(), uvHi.getZ()))
         }, new int[] {
-                //Back face
-                0, 1, 3,
-                3, 1, 2,
 
-                //Front face
-                4, 5, 7,
-                7, 5, 6,
+                0, 2, 1,
+                0, 3, 2,
 
-                //Right face
-                8, 9, 11,
-                11, 9, 10,
+                4, 6, 5,
+                4, 7, 6,
 
-                //Left face
-                12, 13, 15,
-                15, 13, 14,
+                8, 10, 9,
+                8, 11, 10,
 
-                //Top face
-                16, 17, 19,
-                19, 17, 18,
+                12, 14, 13,
+                12, 15, 14,
 
-                //Bottom face
-                20, 21, 23,
-                23, 21, 22
+                16, 18, 17,
+                16, 19, 18,
+
+                20, 22, 21,
+                20, 23, 22
+
         }, m);
         return mesh;
     }

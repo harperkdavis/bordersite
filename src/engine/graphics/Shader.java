@@ -116,7 +116,7 @@ public class Shader {
     public void setUniform(String uniformName, PointLight pointLight) {
         setUniform(uniformName + ".color", pointLight.getColor());
         setUniform(uniformName + ".position", pointLight.getPosition());
-        setUniform(uniformName + ".intensity", pointLight.getIntensity());
+        setUniform(uniformName + ".radius", pointLight.getRadius());
         setUniform(uniformName + ".linear", pointLight.getLinear());
         setUniform(uniformName + ".quadratic", pointLight.getQuadratic());
     }

@@ -5,7 +5,7 @@ const int MAX_POINT_LIGHTS = 64;
 struct PointLight {
     vec3 color;
     vec3 position;
-    float intensity;
+    float radius;
     float linear;
     float quadratic;
 };
@@ -30,6 +30,10 @@ in vec2 vertexUV;
 vec3 vertexPos;
 vec3 vertexNormal;
 vec3 diffuse;
+vec3 ambient;
+
+float specular;
+vec3 viewDir;
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
@@ -39,7 +43,7 @@ uniform sampler2D shadowMap;
 
 uniform DirectionalLight directionalLight;
 uniform vec3 ambientLight;
-uniform vec3 cameraPos;
+uniform vec3 viewPos;
 uniform Fog fog;
 
 uniform mat4 view;
@@ -47,13 +51,30 @@ uniform mat4 lightSpaceMatrix;
 
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
-vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
-    vec4 diffuseColor = vec4(0, 0, 0, 0);
+vec3 calculateDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
 
-    float diffuseFactor = max(dot(normal, -light.direction), 0.0);
-    diffuseColor = vec4(diffuse, 1) * vec4(light.color, 1.0) * light.intensity * diffuseFactor;
+    vec3 lightDir = -normalize(light.direction);
+    lightDir.y = -lightDir.y;
 
-    return diffuseColor;
+    float diffuseFactor = max(dot(normal, lightDir), 0.0);
+    vec3 diffuseColor = diffuse * light.color * light.intensity * diffuseFactor;
+
+    vec3 cameraDirection = normalize(viewPos - position);
+    vec3 fromLightDir = -lightDir;
+    vec3 reflectedLight = normalize(reflect(fromLightDir , normal));
+    float specularFactor = max(dot(cameraDirection, reflectedLight), 0.0);
+    specularFactor = pow(specularFactor, 32);
+    vec3 specColor = specular * light.intensity * specularFactor * light.color;
+
+    return (diffuseColor + specColor);
+}
+
+vec3 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
+    vec3 lightDir = -light.direction;
+    lightDir.y = -lightDir.y;
+
+    float diffuseFactor = max(dot(normal, lightDir), 0.0);
+    return diffuse * light.color * light.intensity * diffuseFactor;
 }
 
 vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirectionalLight dirLight) {
@@ -77,13 +98,13 @@ float calcShadow(vec4 position) {
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
 
-    for(int x = -2; x <= 2; ++x) {
-        for(int y = -2; y <= 2; ++y) {
+    for(int x = -4; x <= 4; ++x) {
+        for(int y = -4; y <= 4; ++y) {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
             shadow += currentDepth - 0.0005 > pcfDepth ? 1.0 : 0.0;
         }
     }
-    shadow /= 25.0;
+    shadow /= 81.0;
 
     if(projCoords.z > 1.0)
     shadow = 0.0;
@@ -96,43 +117,58 @@ void main() {
     vertexPos = texture(gPosition, vertexUV).xyz;
     vertexNormal = texture(gNormal, vertexUV).xyz;
     diffuse = texture(gAlbedoSpec, vertexUV).rgb;
+    specular = texture(gAlbedoSpec, vertexUV).a;
     float ao = texture(ssao, vertexUV).r;
 
+    viewDir = normalize(viewPos - vertexPos);
+    vec3 cameraDir = normalize((vec4(0, 0, 1, 1) * view).xyz);
 
-    vec4 specComp = calcDirectionalLight(directionalLight, vertexPos, vertexNormal);
-    vec3 viewDir = normalize(cameraPos - vertexPos);
+    if (vertexNormal != vec3(0)) { // Normal Pixel
 
-    for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
-        if (pointLights[i].intensity > 0) {
-            PointLight light = pointLights[i];
+        ambient = diffuse * ambientLight * ao;
+        float shadow = calcShadow(lightSpaceMatrix * vec4(vertexPos, 1));
 
-            float distance = length(light.position - vertexPos);
-            if (distance < light.intensity) {
+        vec3 lighting = calculateDirectionalLight(directionalLight, vertexPos, vertexNormal) * (1 - shadow);
 
-                vec3 lightDir = normalize(light.position - vertexPos);
-                vec3 lightDiffuse = max(dot(vertexNormal, lightDir), 0.0) * diffuse * light.color;
+        for (int i = 0; i < 128; ++i) {
+
+            if (pointLights[i].radius == 0) {
+                break;
+            }
+
+            float distance = length(pointLights[i].position - vertexPos);
+
+            if (distance < pointLights[i].radius) {
+
+                vec3 lightDir = normalize(pointLights[i].position - vertexPos);
+
+                vec3 lightDiffuse = max(dot(vertexNormal, lightDir), 0.0) * diffuse * pointLights[i].color;
 
                 vec3 halfwayDir = normalize(lightDir + viewDir);
                 float spec = pow(max(dot(vertexNormal, halfwayDir), 0.0), 16.0);
-                vec3 lightSpecular = light.color * spec;
+                vec3 lightSpecular = specular * pointLights[i].color * spec * 4;
 
-                float attentuation = 1.0 / (1.0 + light.linear * distance + light.quadratic * distance * distance);
-                lightDiffuse *= attentuation;
-                lightSpecular *= attentuation;
+                float attenuation = 1.0 / (1.0 + pointLights[i].linear * distance + pointLights[i].quadratic * distance * distance);
+                lightDiffuse *= attenuation;
+                lightSpecular *= attenuation;
+                lighting += lightDiffuse + lightSpecular;
 
-                specComp += vec4(lightDiffuse + lightSpecular, 1);
             }
         }
+
+        fragColor = vec4((ambient + lighting), 1.0);
+        fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);
+
+    } else { // Sky pixel
+
     }
 
-    float shadow = calcShadow(lightSpaceMatrix * vec4(vertexPos, 1));
-    fragColor = clamp(vec4(ambientLight * diffuse * ao, 1) + specComp * (1 - shadow), 0, 1);
-    fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);
+    float brightness = (fragColor.x * 2.2 + fragColor.y * 1.6 + fragColor.z * 2.4) / 8;
 
-    float brightness = (fragColor.x * 2 + fragColor.y * 1.6 + fragColor.z * 2.4) / 3.2;
-
-    if(brightness > 1.0)
+    brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+    if (brightness > 1.0) {
         brightColor = vec4(fragColor.rgb, 1.0);
-    else
+    } else {
         brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
 }

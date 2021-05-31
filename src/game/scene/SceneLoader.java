@@ -65,7 +65,7 @@ public class SceneLoader {
             loadingName = "Loading Heightmap...";
             // Load Heightmap
 
-            byte[] textureData = Material.ENV_HEIGHTMAP.getTexture().getTextureData();
+            byte[] textureData = Material.ENV_HEIGHTMAP.getDiffuseTexture().getTextureData();
             Scene.heightMap = new float[512][512];
 
             for (int x = 0; x < 512; x++) {
@@ -113,8 +113,8 @@ public class SceneLoader {
             Scene.objects.add(Scene.getScene().groundPlane);
 
             // Load Trees
-            treeMap = Material.ENV_TREEMAP.getTexture().getTextureData();
-            treeNoiseMap = Material.ENV_TREEMAP_NOISE.getTexture().getTextureData();
+            treeMap = Material.ENV_TREEMAP.getDiffuseTexture().getTextureData();
+            treeNoiseMap = Material.ENV_TREEMAP_NOISE.getDiffuseTexture().getTextureData();
 
             advanceLoading();
             wait(5);

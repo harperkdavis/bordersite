@@ -7,10 +7,10 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D ssaoNoise;
 
-uniform vec3 samples[64];
+uniform vec3 samples[32];
 
-int KERNEL_SIZE = 64;
-float RADIUS = 2.5;
+int KERNEL_SIZE = 32;
+float RADIUS = 0.5;
 float BIAS = 0.025;
 
 uniform vec2 noiseScale;
@@ -21,7 +21,6 @@ uniform mat4 view;
 void main() {
 
     vec3 vertexNormal = texture(gNormal, vertexUV).rgb;
-    vertexNormal.y = -vertexNormal.y;
 
     if (vertexNormal == vec3(0.0)) discard;
 

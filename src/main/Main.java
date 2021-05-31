@@ -28,7 +28,6 @@ public class Main implements Runnable {
 
     public int WIDTH, HEIGHT;
     public boolean FULLSCREEN;
-    public final float PIXEL = 4.0f / 900.0f;
     public final String TITLE = "Bordersite";
 
     private String username = "Player";
@@ -38,8 +37,6 @@ public class Main implements Runnable {
     private long lastFixedUpdate;
 
     private static float deltaTime = 1.0f;
-
-    private final boolean hasSentLoadedPacket = false;
 
     private static boolean materialsLoaded = false;
 
@@ -110,6 +107,7 @@ public class Main implements Runnable {
         Scene.setScene(new Scene());
         Viewmodel.setViewmodel(new Viewmodel());
         UserInterface.setUi(new UserInterface(WIDTH, HEIGHT));
+        Global.init();
         game = new Thread(this,"game");
         game.start();
     }
@@ -246,10 +244,6 @@ public class Main implements Runnable {
             AudioMaster.update();
     }
 
-    private void fixedUpdate() {
-
-    }
-
     private void render() {
 
         if (Client.isConnected() && materialsLoaded) {
@@ -280,6 +274,7 @@ public class Main implements Runnable {
         AudioMaster.unload();
 
         System.out.println("[INFO] Game Closed");
+        GLFW.glfwTerminate();
     }
 
     public static boolean areMaterialsLoaded() {

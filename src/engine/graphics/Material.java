@@ -14,12 +14,11 @@ import java.util.List;
 // Stores Materials that create the appearance of an Object
 public class Material {
 
-    private final float reflectance;
 
-    private final String texturePath;
-    private Texture texture;
+    private final String diffusePath, specularPath, normalPath;
+    private Texture diffuseTexture, specularTexture, normalTexture;
+    private int diffuseID, specularID, normalID;
     private float width, height;
-    private int textureID;
 
     protected static List<Material> materials = new ArrayList<>();
 
@@ -38,6 +37,8 @@ public class Material {
 
     public static final Material ENV_GRASS = new Material("environment/grass.png");
     public static final Material ENV_STONE = new Material("environment/stone.png");
+    public static final Material ENV_FLOOR = new Material("environment/floor.png", true);
+    public static final Material ENV_BRICK = new Material("environment/brick.png", true);
     public static final Material ENV_TREE = new Material("environment/tree.png");
     public static final Material ENV_GRID = new Material("environment/grid.png");
 
@@ -84,52 +85,58 @@ public class Material {
     public static final Material WPN_KNIFE_DEFAULT = new Material("weapons/knife_default.png");
     public static final Material WPN_KNIFE_NEBULA = new Material("weapons/knife_nebula.png");
 
-
-    private Material(String path) {
+    public Material(String diffuse, String normal, String specular) {
         materials.add(this);
 
-        texturePath = path;
-        reflectance = 1.0f;
+        diffusePath = diffuse;
+        normalPath = normal;
+        specularPath = specular;
     }
 
-    public Material(int textureID) {
-        texture = null;
-        this.textureID = textureID;
-        reflectance = 1.0f;
-        texturePath = "";
+
+    public Material(String diffuse, boolean nSpec) {
+        materials.add(this);
+
+        diffusePath = diffuse;
+        if (nSpec) {
+            normalPath = diffuse.split("[.]")[0] + "_normal." + diffuse.split("[.]")[1];
+            specularPath = diffuse.split("[.]")[0] + "_specular." + diffuse.split("[.]")[1];
+        } else {
+            normalPath = "default_normal.png";
+            specularPath = "default_specular.png";
+        }
+    }
+
+    public Material(String diffuse) {
+        this(diffuse, false);
     }
 
     // Creates the material and loads it
     public void create() {
         // Try to load the texture
         try {
-            texture = TextureLoader.getTexture("/textures/" + texturePath.split("[.]")[1], Material.class.getResourceAsStream("/textures/" + texturePath), GL11.GL_NEAREST);
-        } catch (IOException e) {
-            System.err.println("[ERROR] Invalid texture at " + texturePath);
+            diffuseTexture = TextureLoader.getTexture("/textures/" + diffusePath.split("[.]")[1], Material.class.getResourceAsStream("/textures/" + diffusePath), GL11.GL_NEAREST);
+            normalTexture = TextureLoader.getTexture("/textures/" + normalPath.split("[.]")[1], Material.class.getResourceAsStream("/textures/" + normalPath), GL11.GL_NEAREST);
+            specularTexture = TextureLoader.getTexture("/textures/" + specularPath.split("[.]")[1], Material.class.getResourceAsStream("/textures/" + specularPath), GL11.GL_NEAREST);
+        } catch (Exception e) {
+            System.err.println("[ERROR] Invalid texture at " + diffusePath);
+            e.printStackTrace();
         }
         // Gets the width and height
-        width = texture.getWidth();
-        height = texture.getHeight();
-        textureID = texture.getTextureID();
-    }
+        width = diffuseTexture.getWidth();
+        height = diffuseTexture.getHeight();
 
-    public void create(boolean linear) {
-        // Try to load the texture
-        try {
-            int mode = linear ? GL11.GL_LINEAR : GL11.GL_NEAREST;
-            texture = TextureLoader.getTexture(texturePath.split("[.]")[1], Material.class.getResourceAsStream(texturePath), mode);
-        } catch (IOException e) {
-            System.err.println("[ERROR] Invalid texture at " + texturePath);
-        }
-        // Gets the width and height
-        width = texture.getWidth();
-        height = texture.getHeight();
-        textureID = texture.getTextureID();
+        diffuseID = diffuseTexture.getTextureID();
+        normalID = normalTexture.getTextureID();
+        specularID = specularTexture.getTextureID();
+
     }
 
     // Unloads the texture
     public void destroy() {
-        GL13.glDeleteTextures(textureID);
+        GL13.glDeleteTextures(diffuseID);
+        GL13.glDeleteTextures(normalID);
+        GL13.glDeleteTextures(specularID);
     }
 
     public float getWidth() {
@@ -140,20 +147,42 @@ public class Material {
         return height;
     }
 
-    public int getTextureID() {
-        return textureID;
+    public int getDiffuseID() {
+        return diffuseID;
     }
 
-    public Texture getTexture() {
-        return texture;
+    public Texture getDiffuseTexture() {
+        return diffuseTexture;
     }
 
-    public float getReflectance() {
-        return reflectance;
+    public String getDiffusePath() {
+        return diffusePath;
     }
 
-    public String getTexturePath() {
-        return texturePath;
+
+    public int getNormalID() {
+        return normalID;
+    }
+
+    public Texture getNormalTexture() {
+        return normalTexture;
+    }
+
+    public String getNormalPath() {
+        return normalPath;
+    }
+
+
+    public int getSpecularID() {
+        return specularID;
+    }
+
+    public Texture getSpecularTexture() {
+        return specularTexture;
+    }
+
+    public String getSpecularPath() {
+        return specularPath;
     }
 
 }

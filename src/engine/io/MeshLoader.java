@@ -11,7 +11,7 @@ import org.lwjgl.assimp.*;
 public class MeshLoader {
 
     public static Mesh loadModel(String filePath, Material material) {
-        AIScene scene = Assimp.aiImportFile("resources" + filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate);
+        AIScene scene = Assimp.aiImportFile("resources/models/" + filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate);
 
         if (scene == null) {
             System.err.println("Couldn't load model at " + filePath);

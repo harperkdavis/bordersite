@@ -212,6 +212,6 @@ public class Vector3f {
     }
 
     public String toString() {
-        return "X: " + x + " Y: " + y + " Z: " + z + " M: " + magnitude();
+        return "{x: " + x + ", y: " + y + ", z: " + z + "}";
     }
 }

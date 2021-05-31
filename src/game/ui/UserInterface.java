@@ -36,7 +36,7 @@ public class UserInterface implements GamePlane {
     private final InGameMenu inGameMenu;
     private final MapMenu mapMenu;
 
-    public static boolean mouseLock;
+    public static boolean mouseLock = true;
 
     private GameObject loadingBackground, loadingText, loadingProgress, loadingMaterial;
 
@@ -100,30 +100,20 @@ public class UserInterface implements GamePlane {
                 mapLoadingMenu.setVisible(false);
             }
 
-            if (!Scene.isLoading() && !inMainMenu && !inMapMenu) {
-                inGameMenu.setVisible(true);
-                inGameMenu.update();
-                Window.getGameWindow().mouseState(!(inGameMenu.buyMenuOpen || inGameMenu.pauseMenuOpen));
-            } else {
-                inGameMenu.setVisible(false);
-            }
+            Window.getGameWindow().mouseState(mouseLock);
 
-            if (!inMainMenu && !Scene.isLoading() && inMapMenu) {
-                mapMenu.setVisible(true);
-                mapMenu.update();
-                Window.getGameWindow().mouseState(false);
-            } else {
-                mapMenu.setVisible(false);
+            if (Input.isBindDown("esc")) {
+                mouseLock = !mouseLock;
             }
         } else {
 
             if (MaterialLoader.getCurrentMaterial() != null) {
                 Material current = MaterialLoader.getCurrentMaterial();
 
-                int width = current.getTexture().getTextureWidth(), height = current.getTexture().getTextureHeight();
+                int width = current.getDiffuseTexture().getTextureWidth(), height = current.getDiffuseTexture().getTextureHeight();
                 String percent = (Math.round(MaterialLoader.getProgress() * 1000) / 10.0f) + "%";
 
-                loadingProgress.setMesh(TextMeshBuilder.TextMesh( percent + " // [" + current.getTexturePath() + "] (" + width + "x" + height + ")", p(16), TextMode.LEFT));
+                loadingProgress.setMesh(TextMeshBuilder.TextMesh( percent + " // [" + current.getDiffusePath() + "] (" + width + "x" + height + ")", p(16), TextMode.LEFT));
                 loadingMaterial.setMaterial(current);
                 loadingMaterial.setScale(new Vector3f(width, width, width));
             }

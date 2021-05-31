@@ -51,7 +51,6 @@ public class ViewmodelRenderer extends Renderer {
         shader.setUniform("ambientLight", ambientLight);
         shader.setUniform("directionalLight", directionalLight);
 
-        shader.setUniform("reflectance", object.getMesh().getMaterial().getReflectance());
         shader.setUniform("meshColor", object.getColor());
         float specularPower = 10f;
         shader.setUniform("specularPower", specularPower);
