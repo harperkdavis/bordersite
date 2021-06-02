@@ -7,9 +7,8 @@ import java.util.Map;
 
 public class Global {
 
-    public final static boolean BUILD_MODE = true;
-    public static boolean RENDER_WIREFRAME = true;
-
+    public final static boolean BUILD_MODE = false;
+    public static boolean RENDER_WIREFRAME = false;
 
     public final static Map<String, Integer> bindNames = new HashMap<>();
 

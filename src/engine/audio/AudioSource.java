@@ -1,12 +1,12 @@
 package engine.audio;
 
-import engine.math.Vector3f;
+import engine.math.Vector3;
 import org.lwjgl.openal.AL10;
 
 public class AudioSource {
 
     private final int sourceId;
-    private Vector3f soundPosition;
+    private Vector3 soundPosition;
     private final boolean relative;
 
     public AudioSource(boolean loop, boolean relative) {
@@ -30,19 +30,19 @@ public class AudioSource {
         return relative;
     }
 
-    public Vector3f getSoundPosition() {
+    public Vector3 getSoundPosition() {
         return soundPosition;
     }
 
-    public void setSoundPosition(Vector3f soundPosition) {
+    public void setSoundPosition(Vector3 soundPosition) {
         this.soundPosition = soundPosition;
     }
 
-    public void setPosition(Vector3f position) {
+    public void setPosition(Vector3 position) {
         AL10.alSource3f(sourceId, AL10.AL_POSITION, position.getX(), position.getY(), position.getZ());
     }
 
-    public void setVelocity(Vector3f velocity) {
+    public void setVelocity(Vector3 velocity) {
         AL10.alSource3f(sourceId, AL10.AL_VELOCITY, velocity.getX(), velocity.getY(), velocity.getZ());
     }
 

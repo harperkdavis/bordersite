@@ -1,6 +1,6 @@
 package engine.audio;
 
-import engine.math.Vector3f;
+import engine.math.Vector3;
 import engine.objects.Camera;
 import main.Main;
 import org.lwjgl.openal.*;
@@ -64,21 +64,21 @@ public class AudioMaster {
         playSoundFromSource(as);
     }
 
-    public static Vector3f getSoundCoordinates(Vector3f position) {
+    public static Vector3 getSoundCoordinates(Vector3 position) {
         return getSoundCoordinates(position, 1.2f);
     }
 
-    public static Vector3f getSoundCoordinates(Vector3f position, float falloff) {
-        Vector3f cPos = Camera.getMainCameraPosition();
-        Vector3f cRot = Camera.getMainCameraRotation();
+    public static Vector3 getSoundCoordinates(Vector3 position, float falloff) {
+        Vector3 cPos = Camera.getMainCameraPosition();
+        Vector3 cRot = Camera.getMainCameraRotation();
         double originAngle = Math.atan2(cPos.getX() - position.getX(), cPos.getZ() - position.getZ());
         double cameraAngle = Math.toRadians(cRot.getY());
         double angleToCamera = cameraAngle - originAngle;
         float distance = (float) Math.sqrt(Math.pow(cPos.getX() - position.getX(), 2) + Math.pow(cPos.getY() - position.getY(), 2) + Math.pow(cPos.getZ() - position.getZ(), 2));
-        return new Vector3f((float) (Math.sin(angleToCamera) * Math.pow(distance, falloff)), 0.0f, (float) (Math.cos(angleToCamera) * Math.pow(distance, falloff)));
+        return new Vector3((float) (Math.sin(angleToCamera) * Math.pow(distance, falloff)), 0.0f, (float) (Math.cos(angleToCamera) * Math.pow(distance, falloff)));
     }
 
-    public static void playSound(SoundEffect sound, Vector3f position) {
+    public static void playSound(SoundEffect sound, Vector3 position) {
         AudioSource as = new AudioSource(false, true);
         as.setBuffer(AudioBuffer.getSoundEffectBufferId(sound));
         as.setSoundPosition(position);

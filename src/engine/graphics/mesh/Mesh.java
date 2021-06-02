@@ -2,14 +2,13 @@ package engine.graphics.mesh;
 
 import engine.graphics.Material;
 import engine.graphics.vertex.Vertex;
-import engine.math.Vector2f;
-import engine.math.Vector3f;
+import engine.math.Vector2;
+import engine.math.Vector3;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjglx.Sys;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -82,7 +81,7 @@ public class Mesh {
         float[] tangentData = new float[vertices.length * 3];
         float[] bitangentData = new float[vertices.length * 3];
         for (int i = 0; i < vertices.length; i++) {
-            if (!vertices[i].getNormal().equals(Vector3f.zero()) && vertices[i].getTangent().equals(Vector3f.zero())) {
+            if (!vertices[i].getNormal().equals(Vector3.zero()) && vertices[i].getTangent().equals(Vector3.zero())) {
                 System.err.println("[ERROR] Tangent data not found in vertex!");
                 setTangents();
             }
@@ -113,36 +112,36 @@ public class Mesh {
     private void setTangents() {
         for (int i = 0; i < indices.length; i += 3) {
 
-            if (vertices[indices[i]].getNormal().equals(Vector3f.zero())) {
-                vertices[indices[i]].setTangent(Vector3f.zero());
-                vertices[indices[i + 1]].setTangent(Vector3f.zero());
-                vertices[indices[i + 2]].setTangent(Vector3f.zero());
+            if (vertices[indices[i]].getNormal().equals(Vector3.zero())) {
+                vertices[indices[i]].setTangent(Vector3.zero());
+                vertices[indices[i + 1]].setTangent(Vector3.zero());
+                vertices[indices[i + 2]].setTangent(Vector3.zero());
                 continue;
             }
 
-            Vector3f v0 = vertices[indices[i]].getPosition();
-            Vector3f v1 = vertices[indices[i + 1]].getPosition();
-            Vector3f v2 = vertices[indices[i + 2]].getPosition();
+            Vector3 v0 = vertices[indices[i]].getPosition();
+            Vector3 v1 = vertices[indices[i + 1]].getPosition();
+            Vector3 v2 = vertices[indices[i + 2]].getPosition();
 
-            Vector2f uv0 = vertices[indices[i]].getUV();
-            Vector2f uv1 = vertices[indices[i + 1]].getUV();
-            Vector2f uv2 = vertices[indices[i + 2]].getUV();
+            Vector2 uv0 = vertices[indices[i]].getUV();
+            Vector2 uv1 = vertices[indices[i + 1]].getUV();
+            Vector2 uv2 = vertices[indices[i + 2]].getUV();
 
-            Vector3f e1 = Vector3f.subtract(v1, v0);
-            Vector3f e2 = Vector3f.subtract(v2, v0);
+            Vector3 e1 = Vector3.subtract(v1, v0);
+            Vector3 e2 = Vector3.subtract(v2, v0);
 
-            Vector2f deltaUV1 = Vector2f.subtract(uv1, uv0);
-            Vector2f deltaUV2 = Vector2f.subtract(uv2, uv0);
+            Vector2 deltaUV1 = Vector2.subtract(uv1, uv0);
+            Vector2 deltaUV2 = Vector2.subtract(uv2, uv0);
 
             float r = 1.0f / (deltaUV1.getX() * deltaUV2.getY() - deltaUV2.getX() * deltaUV1.getY());
 
-            Vector3f tangent = new Vector3f(
+            Vector3 tangent = new Vector3(
                     r * (deltaUV2.getY() * e1.getX() - deltaUV1.getY() * e2.getX()),
                     r * (deltaUV2.getY() * e1.getY() - deltaUV1.getY() * e2.getY()),
                     r * (deltaUV2.getY() * e1.getZ() - deltaUV1.getY() * e2.getZ())
             );
 
-            Vector3f bitangent = new Vector3f(
+            Vector3 bitangent = new Vector3(
                     r * (-deltaUV2.getX() * e1.getX() + deltaUV1.getX() * e2.getX()),
                     r * (-deltaUV2.getX() * e1.getY() + deltaUV1.getX() * e2.getY()),
                     r * (-deltaUV2.getX() * e1.getZ() + deltaUV1.getX() * e2.getZ())

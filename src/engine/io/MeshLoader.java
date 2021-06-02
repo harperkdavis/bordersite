@@ -4,8 +4,8 @@ import engine.graphics.Material;
 import engine.graphics.mesh.Mesh;
 import engine.graphics.mesh.MeshBuilder;
 import engine.graphics.vertex.Vertex;
-import engine.math.Vector2f;
-import engine.math.Vector3f;
+import engine.math.Vector2;
+import engine.math.Vector3;
 import org.lwjgl.assimp.*;
 
 public class MeshLoader {
@@ -28,12 +28,12 @@ public class MeshLoader {
 
         for (int i = 0; i < vertexCount; i++) {
             AIVector3D vertex = vertices.get(i);
-            Vector3f meshVertex = new Vector3f(vertex.x(), vertex.y(), vertex.z());
+            Vector3 meshVertex = new Vector3(vertex.x(), vertex.y(), vertex.z());
 
             AIVector3D normal = normals.get(i);
-            Vector3f meshNormal = new Vector3f(normal.x(), normal.y(), normal.z()); // TODO: turn normals into lighting
+            Vector3 meshNormal = new Vector3(normal.x(), normal.y(), normal.z()); // TODO: turn normals into lighting
 
-            Vector2f meshTextureCoord = new Vector2f(0, 0);
+            Vector2 meshTextureCoord = new Vector2(0, 0);
             if (mesh.mNumUVComponents().get(0) != 0) {
                 AIVector3D texture = mesh.mTextureCoords(0).get(i);
                 meshTextureCoord.setX(texture.x());

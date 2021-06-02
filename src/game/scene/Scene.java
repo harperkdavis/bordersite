@@ -1,15 +1,11 @@
 package game.scene;
 
-import engine.collision.BoxCollider3f;
-import engine.collision.RampCollider3f;
 import engine.graphics.Material;
 import engine.graphics.mesh.MeshBuilder;
-import engine.graphics.render.Renderer;
 import engine.io.MeshLoader;
 import engine.math.*;
 import engine.objects.GameObject;
 import game.GamePlane;
-import game.PlayerMovement;
 
 import java.util.*;
 
@@ -54,11 +50,11 @@ public class Scene implements GamePlane {
         // Outer Walls
 
         // Spawns
-        addBox(new Vector3f(4, 0, 4), new Vector3f(20, 4, 20), Material.ENV_FLOOR);
-        addBox(new Vector3f(20, 0, 12), new Vector3f(36, 4, 20), Material.ENV_FLOOR);
-        addBox(new Vector3f(36, 0, 12), new Vector3f(52, 12, 24), Material.ENV_BRICK);
+        addBox(new Vector3(4, 0, 4), new Vector3(20, 4, 20), Material.ENV_FLOOR);
+        addBox(new Vector3(20, 0, 12), new Vector3(36, 4, 20), Material.ENV_FLOOR);
+        addBox(new Vector3(36, 0, 12), new Vector3(52, 12, 24), Material.ENV_BRICK);
 
-        addObject(new GameObject(Vector3f.zero(), MeshLoader.loadModel("sphere.obj", Material.ENV_FLOOR)), false);
+        addObject(new GameObject(Vector3.zero(), MeshLoader.loadModel("sphere.obj", Material.ENV_FLOOR)), false);
 
         loading = true;
         loaded = false;
@@ -96,14 +92,14 @@ public class Scene implements GamePlane {
         }
     }
 
-    private void addBox(Vector3f a, Vector3f b, Material material) {
-        addObject(new GameObject(Vector3f.zero(), MeshBuilder.Rect(a, b, material)), false);
-        PlayerMovement.addCollisionRegion(new BoxCollider3f(a, b));
+    private void addBox(Vector3 a, Vector3 b, Material material) {
+        addObject(new GameObject(Vector3.zero(), MeshBuilder.Rect(a, b, material)), false);
+        // PlayerMovement.addCollisionRegion(new BoxCollider3f(a, b));
     }
 
-    private void addRamp(Vector3f a, Vector3f b, int direction, Material material) {
-        addObject(new GameObject(Vector3f.zero(), MeshBuilder.Ramp(a, b, direction, material)), false);
-        PlayerMovement.addCollisionRegion(new RampCollider3f(a, b, direction));
+    private void addRamp(Vector3 a, Vector3 b, int direction, Material material) {
+        addObject(new GameObject(Vector3.zero(), MeshBuilder.Ramp(a, b, direction, material)), false);
+        // PlayerMovement.addCollisionRegion(new RampCollider3f(a, b, direction));
     }
 
     public GameObject addObject(GameObject object) {

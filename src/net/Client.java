@@ -2,7 +2,7 @@ package net;
 
 import com.google.gson.Gson;
 
-import engine.math.Vector3f;
+import engine.math.Vector3;
 import engine.objects.GameObject;
 import engine.objects.Player;
 import engine.util.JsonHandler;
@@ -104,8 +104,8 @@ public class Client implements Runnable {
         String id = (String) data.get("playerId");
         GameObject playerObject = Scene.getPlayerObjects().get(id);
         if (true) {
-            Vector3f position = new Vector3f(JsonHandler.getAsFloat(data, "position.x"), JsonHandler.getAsFloat(data, "position.y"), JsonHandler.getAsFloat(data, "position.z"));
-            Vector3f rotation = new Vector3f(JsonHandler.getAsFloat(data, "rotation.x"), JsonHandler.getAsFloat(data, "rotation.y"), JsonHandler.getAsFloat(data, "rotation.z"));
+            Vector3 position = new Vector3(JsonHandler.getAsFloat(data, "position.x"), JsonHandler.getAsFloat(data, "position.y"), JsonHandler.getAsFloat(data, "position.z"));
+            Vector3 rotation = new Vector3(JsonHandler.getAsFloat(data, "rotation.x"), JsonHandler.getAsFloat(data, "rotation.y"), JsonHandler.getAsFloat(data, "rotation.z"));
         }
     }
 

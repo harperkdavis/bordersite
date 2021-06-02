@@ -1,28 +1,28 @@
 package engine.graphics.light;
 
-import engine.math.Vector3f;
+import engine.math.Vector3;
 
 public class DirectionalLight {
 
-    private Vector3f color;
-    private Vector3f direction;
+    private Vector3 color;
+    private Vector3 direction;
     private float intensity;
 
-    public DirectionalLight(Vector3f color, Vector3f direction, float intensity) {
+    public DirectionalLight(Vector3 color, Vector3 direction, float intensity) {
         this.color = color;
         this.direction = direction;
         this.intensity = intensity;
     }
 
     public DirectionalLight(DirectionalLight light) {
-        this(new Vector3f(light.getColor()), new Vector3f(light.getDirection()), light.getIntensity());
+        this(new Vector3(light.getColor()), new Vector3(light.getDirection()), light.getIntensity());
     }
 
-    public Vector3f getColor() {
+    public Vector3 getColor() {
         return color;
     }
 
-    public Vector3f getDirection() {
+    public Vector3 getDirection() {
         return direction;
     }
 
@@ -30,11 +30,11 @@ public class DirectionalLight {
         return intensity;
     }
 
-    public void setColor(Vector3f color) {
+    public void setColor(Vector3 color) {
         this.color = color;
     }
 
-    public void setDirection(Vector3f direction) {
+    public void setDirection(Vector3 direction) {
         this.direction = direction;
     }
 

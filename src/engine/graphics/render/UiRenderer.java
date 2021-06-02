@@ -2,8 +2,8 @@ package engine.graphics.render;
 
 import engine.graphics.Shader;
 import engine.io.Window;
-import engine.math.Matrix4f;
-import engine.math.Vector3f;
+import engine.math.Matrix4;
+import engine.math.Vector3;
 import engine.objects.*;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -40,8 +40,8 @@ public class UiRenderer extends Renderer {
 
         shader.bind(); // SHADER BOUND
 
-        shader.setUniform("model", Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale()));
-        shader.setUniform("view", Matrix4f.view(Vector3f.zero(), new Vector3f(0, 180, 180)));
+        shader.setUniform("model", Matrix4.transform(object.getPosition(), object.getRotation(), object.getScale()));
+        shader.setUniform("view", Matrix4.view(Vector3.zero(), new Vector3(0, 180, 180)));
         shader.setUniform("projection", Window.getOrthographicMatrix());
 
         shader.setUniform("meshColor", object.getColor());

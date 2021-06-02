@@ -3,8 +3,8 @@ package engine.graphics.text;
 import engine.graphics.Material;
 import engine.graphics.mesh.Mesh;
 import engine.graphics.vertex.Vertex;
-import engine.math.Vector2f;
-import engine.math.Vector3f;
+import engine.math.Vector2;
+import engine.math.Vector3;
 
 public class TextMeshBuilder {
 
@@ -43,10 +43,10 @@ public class TextMeshBuilder {
             int xTex = (character % 16);
             int yTex = (character / 16);
 
-            vertices[j] = new Vertex(new Vector3f(modifier + length * metric, characterHeight, -length / 1000), new Vector2f(xTex * xUnit, yTex * yUnit ));
-            vertices[j + 1] = new Vertex(new Vector3f(modifier + length * metric, 0, -length / 1000), new Vector2f(xTex * xUnit, yTex * yUnit + yUnit / 2));
-            vertices[j + 2] = new Vertex(new Vector3f(modifier + length * metric + characterHeight, 0, -length / 1000), new Vector2f(xTex * xUnit + xUnit, yTex * yUnit + yUnit / 2));
-            vertices[j + 3] = new Vertex(new Vector3f(modifier + length * metric + characterHeight, characterHeight, -length / 1000), new Vector2f(xTex * xUnit + xUnit, yTex * yUnit));
+            vertices[j] = new Vertex(new Vector3(modifier + length * metric, characterHeight, -length / 1000), new Vector2(xTex * xUnit, yTex * yUnit ));
+            vertices[j + 1] = new Vertex(new Vector3(modifier + length * metric, 0, -length / 1000), new Vector2(xTex * xUnit, yTex * yUnit + yUnit / 2));
+            vertices[j + 2] = new Vertex(new Vector3(modifier + length * metric + characterHeight, 0, -length / 1000), new Vector2(xTex * xUnit + xUnit, yTex * yUnit + yUnit / 2));
+            vertices[j + 3] = new Vertex(new Vector3(modifier + length * metric + characterHeight, characterHeight, -length / 1000), new Vector2(xTex * xUnit + xUnit, yTex * yUnit));
 
             tris[k] = j;
             tris[k + 1] = j + 1;

@@ -8,7 +8,7 @@ import engine.graphics.render.UiRenderer;
 import engine.graphics.render.ViewmodelRenderer;
 import engine.io.Input;
 import engine.io.Window;
-import engine.math.Vector3f;
+import engine.math.Vector3;
 import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.UserInterface;
@@ -146,14 +146,14 @@ public class Main implements Runnable {
         Renderer.setUi(new UiRenderer(uiShader));
         Renderer.setViewmodel(new ViewmodelRenderer(viewmodelShader));
         System.out.println("[INFO] Renderer initialized!");
-        Window.getGameWindow().setBackgroundColor(new Vector3f(0f, 0f, 0f));
+        Window.getGameWindow().setBackgroundColor(new Vector3(0f, 0f, 0f));
 
         System.out.println("[INFO] Initializing audio...");
         AudioMaster.load();
-        AudioListener listener = new AudioListener(new Vector3f(0, 0, 0));
-        listener.setPosition(new Vector3f(0, 0, 0));
-        listener.setOrientation(new Vector3f(0, 0, -1), new Vector3f(0, 1, 0));
-        listener.setVelocity(new Vector3f(0, 0, 0));
+        AudioListener listener = new AudioListener(new Vector3(0, 0, 0));
+        listener.setPosition(new Vector3(0, 0, 0));
+        listener.setOrientation(new Vector3(0, 0, -1), new Vector3(0, 1, 0));
+        listener.setVelocity(new Vector3(0, 0, 0));
         AudioMaster.setListener(listener);
         System.out.println("[INFO] Audio initialized!");
 

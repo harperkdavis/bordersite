@@ -11,8 +11,8 @@ import engine.graphics.text.TextMeshBuilder;
 import engine.graphics.text.TextMode;
 import engine.io.Input;
 import engine.io.Window;
-import engine.math.Vector2f;
-import engine.math.Vector3f;
+import engine.math.Vector2;
+import engine.math.Vector3;
 import engine.objects.GameObject;
 import game.GamePlane;
 import game.scene.Scene;
@@ -115,7 +115,7 @@ public class UserInterface implements GamePlane {
 
                 loadingProgress.setMesh(TextMeshBuilder.TextMesh( percent + " // [" + current.getDiffusePath() + "] (" + width + "x" + height + ")", p(16), TextMode.LEFT));
                 loadingMaterial.setMaterial(current);
-                loadingMaterial.setScale(new Vector3f(width, width, width));
+                loadingMaterial.setScale(new Vector3(width, width, width));
             }
 
             loadingBackground.setVisible(true);
@@ -183,12 +183,12 @@ public class UserInterface implements GamePlane {
         UserInterface.ui = ui;
     }
 
-    public static Vector2f screen(float posX, float posY) {
-        return new Vector2f((posX * PIXEL * (width / 2.0f)) - (width / 2.0f) * PIXEL, (-posY * PIXEL * (height / 2.0f)) + (height / 2.0f) * PIXEL);
+    public static Vector2 screen(float posX, float posY) {
+        return new Vector2((posX * PIXEL * (width / 2.0f)) - (width / 2.0f) * PIXEL, (-posY * PIXEL * (height / 2.0f)) + (height / 2.0f) * PIXEL);
     }
 
-    public static Vector3f screen(float posX, float posY, int layer) {
-        return new Vector3f((posX * PIXEL * (width / 2.0f)) - (width / 2.0f) * PIXEL, (-posY * PIXEL * (height / 2.0f)) + (height / 2.0f) * PIXEL, layer);
+    public static Vector3 screen(float posX, float posY, int layer) {
+        return new Vector3((posX * PIXEL * (width / 2.0f)) - (width / 2.0f) * PIXEL, (-posY * PIXEL * (height / 2.0f)) + (height / 2.0f) * PIXEL, layer);
     }
 
     public static float p(float n) {

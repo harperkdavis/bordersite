@@ -2,8 +2,8 @@ package engine.graphics.mesh;
 
 import engine.graphics.Material;
 import engine.graphics.vertex.Vertex;
-import engine.math.Vector2f;
-import engine.math.Vector3f;
+import engine.math.Vector2;
+import engine.math.Vector3;
 import game.scene.Scene;
 
 public class MeshBuilder {
@@ -12,40 +12,40 @@ public class MeshBuilder {
     public static Mesh Cube(float size, Material m) {
         Mesh mesh = new Mesh(new Vertex[] {
                 //Back face
-                new Vertex(new Vector3f(-0.5f * size,  0.5f * size, -0.5f * size), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.0f)),
-                new Vertex(new Vector3f(-0.5f * size, -0.5f * size, -0.5f * size), new Vector3f(0, 0, -1), new Vector2f(0.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size, -0.5f * size, -0.5f * size), new Vector3f(0, 0, -1), new Vector2f(1.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size,  0.5f * size, -0.5f * size), new Vector3f(0, 0, -1), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size,  0.5f * size, -0.5f * size), new Vector3(0, 0, -1), new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size, -0.5f * size, -0.5f * size), new Vector3(0, 0, -1), new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size, -0.5f * size, -0.5f * size), new Vector3(0, 0, -1), new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size,  0.5f * size, -0.5f * size), new Vector3(0, 0, -1), new Vector2(1.0f, 0.0f)),
 
                 //Front face
-                new Vertex(new Vector3f(-0.5f * size,  0.5f * size,  0.5f * size), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.0f)),
-                new Vertex(new Vector3f(-0.5f * size, -0.5f * size,  0.5f * size), new Vector3f(0, 0, 1), new Vector2f(0.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size, -0.5f * size,  0.5f * size), new Vector3f(0, 0, 1), new Vector2f(1.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size,  0.5f * size,  0.5f * size), new Vector3f(0, 0, 1), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size,  0.5f * size,  0.5f * size), new Vector3(0, 0, 1), new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size, -0.5f * size,  0.5f * size), new Vector3(0, 0, 1), new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size, -0.5f * size,  0.5f * size), new Vector3(0, 0, 1), new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size,  0.5f * size,  0.5f * size), new Vector3(0, 0, 1), new Vector2(1.0f, 0.0f)),
 
                 //Right face
-                new Vertex(new Vector3f( 0.5f * size,  0.5f * size, -0.5f * size), new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(new Vector3f( 0.5f * size, -0.5f * size, -0.5f * size), new Vector3f(1, 0, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size, -0.5f * size,  0.5f * size), new Vector3f(1, 0, 0), new Vector2f(1.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size,  0.5f * size,  0.5f * size), new Vector3f(1, 0, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3( 0.5f * size,  0.5f * size, -0.5f * size), new Vector3(1, 0, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3( 0.5f * size, -0.5f * size, -0.5f * size), new Vector3(1, 0, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size, -0.5f * size,  0.5f * size), new Vector3(1, 0, 0), new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size,  0.5f * size,  0.5f * size), new Vector3(1, 0, 0), new Vector2(1.0f, 0.0f)),
 
                 //Left face
-                new Vertex(new Vector3f(-0.5f * size,  0.5f * size, -0.5f * size), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(new Vector3f(-0.5f * size, -0.5f * size, -0.5f * size), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(new Vector3f(-0.5f * size, -0.5f * size,  0.5f * size), new Vector3f(-1, 0, 0), new Vector2f(1.0f, 1.0f)),
-                new Vertex(new Vector3f(-0.5f * size,  0.5f * size,  0.5f * size), new Vector3f(-1, 0, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size,  0.5f * size, -0.5f * size), new Vector3(-1, 0, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size, -0.5f * size, -0.5f * size), new Vector3(-1, 0, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f * size, -0.5f * size,  0.5f * size), new Vector3(-1, 0, 0), new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f * size,  0.5f * size,  0.5f * size), new Vector3(-1, 0, 0), new Vector2(1.0f, 0.0f)),
 
                 //Top face
-                new Vertex(new Vector3f(-0.5f * size,  0.5f * size,  0.5f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(new Vector3f(-0.5f * size,  0.5f * size, -0.5f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size,  0.5f * size, -0.5f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size,  0.5f * size,  0.5f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size,  0.5f * size,  0.5f * size), new Vector3(0, 1, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size,  0.5f * size, -0.5f * size), new Vector3(0, 1, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size,  0.5f * size, -0.5f * size), new Vector3(0, 1, 0), new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size,  0.5f * size,  0.5f * size), new Vector3(0, 1, 0), new Vector2(1.0f, 0.0f)),
 
                 //Bottom face
-                new Vertex(new Vector3f(-0.5f * size, -0.5f * size,  0.5f * size), new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(new Vector3f(-0.5f * size, -0.5f * size, -0.5f * size), new Vector3f(0, -1, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size, -0.5f * size, -0.5f * size), new Vector3f(0, -1, 0), new Vector2f(1.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size, -0.5f * size,  0.5f * size), new Vector3f(0, -1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size, -0.5f * size,  0.5f * size), new Vector3(0, -1, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size, -0.5f * size, -0.5f * size), new Vector3(0, -1, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size, -0.5f * size, -0.5f * size), new Vector3(0, -1, 0), new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size, -0.5f * size,  0.5f * size), new Vector3(0, -1, 0), new Vector2(1.0f, 0.0f)),
         }, new int[] {
                 //Back face
                 0, 1, 3,
@@ -75,9 +75,9 @@ public class MeshBuilder {
     }
 
     // Creates a rectangular prism
-    public static Mesh Rect(Vector3f a, Vector3f b, Material m) {
-        Vector3f uvLo = new Vector3f(Math.min(a.getX(), b.getX()) % 1, Math.min(a.getY(), b.getY()) % 1, Math.min(a.getZ(), b.getZ()) % 1);
-        Vector3f uvHi = new Vector3f(Math.abs(a.getX() - b.getX()), Math.abs(a.getY() - b.getY()), Math.abs(a.getZ() - b.getZ()));
+    public static Mesh Rect(Vector3 a, Vector3 b, Material m) {
+        Vector3 uvLo = new Vector3(Math.min(a.getX(), b.getX()) % 1, Math.min(a.getY(), b.getY()) % 1, Math.min(a.getZ(), b.getZ()) % 1);
+        Vector3 uvHi = new Vector3(Math.abs(a.getX() - b.getX()), Math.abs(a.getY() - b.getY()), Math.abs(a.getZ() - b.getZ()));
 
         float minX = Math.min(a.getX(), b.getX()), maxX = Math.max(a.getX(), b.getX());
         float minY = Math.min(a.getY(), b.getY()), maxY = Math.max(a.getY(), b.getY());
@@ -85,35 +85,35 @@ public class MeshBuilder {
 
         Mesh mesh = new Mesh(new Vertex[] {
 
-                new Vertex(new Vector3f(minX, maxY, minZ), new Vector3f(0, 0, -1), new Vector2f(uvLo.getX(), uvHi.getY())),
-                new Vertex(new Vector3f(minX, minY, minZ), new Vector3f(0, 0, -1), new Vector2f(uvLo.getX(), uvLo.getY())),
-                new Vertex(new Vector3f(maxX, minY, minZ), new Vector3f(0, 0, -1), new Vector2f(uvHi.getX(), uvLo.getY())),
-                new Vertex(new Vector3f(maxX, maxY, minZ), new Vector3f(0, 0, -1), new Vector2f(uvHi.getX(), uvHi.getY())),
+                new Vertex(new Vector3(minX, maxY, minZ), new Vector3(0, 0, -1), new Vector2(uvLo.getX(), uvHi.getY())),
+                new Vertex(new Vector3(minX, minY, minZ), new Vector3(0, 0, -1), new Vector2(uvLo.getX(), uvLo.getY())),
+                new Vertex(new Vector3(maxX, minY, minZ), new Vector3(0, 0, -1), new Vector2(uvHi.getX(), uvLo.getY())),
+                new Vertex(new Vector3(maxX, maxY, minZ), new Vector3(0, 0, -1), new Vector2(uvHi.getX(), uvHi.getY())),
 
-                new Vertex(new Vector3f(maxX, maxY, maxZ), new Vector3f(0, 0, 1), new Vector2f(uvLo.getX(), uvHi.getY())),
-                new Vertex(new Vector3f(maxX, minY, maxZ), new Vector3f(0, 0, 1), new Vector2f(uvLo.getX(), uvLo.getY())),
-                new Vertex(new Vector3f(minX, minY, maxZ), new Vector3f(0, 0, 1), new Vector2f(uvHi.getX(), uvLo.getY())),
-                new Vertex(new Vector3f(minX, maxY, maxZ), new Vector3f(0, 0, 1), new Vector2f(uvHi.getX(), uvHi.getY())),
+                new Vertex(new Vector3(maxX, maxY, maxZ), new Vector3(0, 0, 1), new Vector2(uvLo.getX(), uvHi.getY())),
+                new Vertex(new Vector3(maxX, minY, maxZ), new Vector3(0, 0, 1), new Vector2(uvLo.getX(), uvLo.getY())),
+                new Vertex(new Vector3(minX, minY, maxZ), new Vector3(0, 0, 1), new Vector2(uvHi.getX(), uvLo.getY())),
+                new Vertex(new Vector3(minX, maxY, maxZ), new Vector3(0, 0, 1), new Vector2(uvHi.getX(), uvHi.getY())),
 
-                new Vertex(new Vector3f(minX, maxY, maxZ), new Vector3f(-1, 0, 0), new Vector2f(uvLo.getZ(), uvHi.getY())),
-                new Vertex(new Vector3f(minX, minY, maxZ), new Vector3f(-1, 0, 0), new Vector2f(uvLo.getZ(), uvLo.getY())),
-                new Vertex(new Vector3f(minX, minY, minZ), new Vector3f(-1, 0, 0), new Vector2f(uvHi.getZ(), uvLo.getY())),
-                new Vertex(new Vector3f(minX, maxY, minZ), new Vector3f(-1, 0, 0), new Vector2f(uvHi.getZ(), uvHi.getY())),
+                new Vertex(new Vector3(minX, maxY, maxZ), new Vector3(-1, 0, 0), new Vector2(uvLo.getZ(), uvHi.getY())),
+                new Vertex(new Vector3(minX, minY, maxZ), new Vector3(-1, 0, 0), new Vector2(uvLo.getZ(), uvLo.getY())),
+                new Vertex(new Vector3(minX, minY, minZ), new Vector3(-1, 0, 0), new Vector2(uvHi.getZ(), uvLo.getY())),
+                new Vertex(new Vector3(minX, maxY, minZ), new Vector3(-1, 0, 0), new Vector2(uvHi.getZ(), uvHi.getY())),
 
-                new Vertex(new Vector3f(maxX, maxY, minZ), new Vector3f(1, 0, 0), new Vector2f(uvLo.getZ(), uvHi.getY())),
-                new Vertex(new Vector3f(maxX, minY, minZ), new Vector3f(1, 0, 0), new Vector2f(uvLo.getZ(), uvLo.getY())),
-                new Vertex(new Vector3f(maxX, minY, maxZ), new Vector3f(1, 0, 0), new Vector2f(uvHi.getZ(), uvLo.getY())),
-                new Vertex(new Vector3f(maxX, maxY, maxZ), new Vector3f(1, 0, 0), new Vector2f(uvHi.getZ(), uvHi.getY())),
+                new Vertex(new Vector3(maxX, maxY, minZ), new Vector3(1, 0, 0), new Vector2(uvLo.getZ(), uvHi.getY())),
+                new Vertex(new Vector3(maxX, minY, minZ), new Vector3(1, 0, 0), new Vector2(uvLo.getZ(), uvLo.getY())),
+                new Vertex(new Vector3(maxX, minY, maxZ), new Vector3(1, 0, 0), new Vector2(uvHi.getZ(), uvLo.getY())),
+                new Vertex(new Vector3(maxX, maxY, maxZ), new Vector3(1, 0, 0), new Vector2(uvHi.getZ(), uvHi.getY())),
 
-                new Vertex(new Vector3f(minX, minY, minZ), new Vector3f(0, -1, 0), new Vector2f(uvLo.getX(), uvHi.getZ())),
-                new Vertex(new Vector3f(minX, minY, maxZ), new Vector3f(0, -1, 0), new Vector2f(uvLo.getX(), uvLo.getZ())),
-                new Vertex(new Vector3f(maxX, minY, maxZ), new Vector3f(0, -1, 0), new Vector2f(uvHi.getX(), uvLo.getZ())),
-                new Vertex(new Vector3f(maxX, minY, minZ), new Vector3f(0, -1, 0), new Vector2f(uvHi.getX(), uvHi.getZ())),
+                new Vertex(new Vector3(minX, minY, minZ), new Vector3(0, -1, 0), new Vector2(uvLo.getX(), uvHi.getZ())),
+                new Vertex(new Vector3(minX, minY, maxZ), new Vector3(0, -1, 0), new Vector2(uvLo.getX(), uvLo.getZ())),
+                new Vertex(new Vector3(maxX, minY, maxZ), new Vector3(0, -1, 0), new Vector2(uvHi.getX(), uvLo.getZ())),
+                new Vertex(new Vector3(maxX, minY, minZ), new Vector3(0, -1, 0), new Vector2(uvHi.getX(), uvHi.getZ())),
 
-                new Vertex(new Vector3f(minX, maxY, maxZ), new Vector3f(0, 1, 0), new Vector2f(uvLo.getX(), uvHi.getZ())),
-                new Vertex(new Vector3f(minX, maxY, minZ), new Vector3f(0, 1, 0), new Vector2f(uvLo.getX(), uvLo.getZ())),
-                new Vertex(new Vector3f(maxX, maxY, minZ), new Vector3f(0, 1, 0), new Vector2f(uvHi.getX(), uvLo.getZ())),
-                new Vertex(new Vector3f(maxX, maxY, maxZ), new Vector3f(0, 1, 0), new Vector2f(uvHi.getX(), uvHi.getZ()))
+                new Vertex(new Vector3(minX, maxY, maxZ), new Vector3(0, 1, 0), new Vector2(uvLo.getX(), uvHi.getZ())),
+                new Vertex(new Vector3(minX, maxY, minZ), new Vector3(0, 1, 0), new Vector2(uvLo.getX(), uvLo.getZ())),
+                new Vertex(new Vector3(maxX, maxY, minZ), new Vector3(0, 1, 0), new Vector2(uvHi.getX(), uvLo.getZ())),
+                new Vertex(new Vector3(maxX, maxY, maxZ), new Vector3(0, 1, 0), new Vector2(uvHi.getX(), uvHi.getZ()))
         }, new int[] {
 
                 0, 2, 1,
@@ -138,9 +138,10 @@ public class MeshBuilder {
         return mesh;
     }
 
+
     // Creates a ramp
-    public static Mesh Ramp(Vector3f a, Vector3f b, int direction, Material m) {
-        Vector3f fL, fR, bL, bR, tL, tR;
+    public static Mesh Ramp(Vector3 a, Vector3 b, int direction, Material m) {
+        Vector3 fL, fR, bL, bR, tL, tR;
         float minX = Math.min(a.getX(), b.getX());
         float maxX = Math.max(a.getX(), b.getX());
         float minY = Math.min(a.getY(), b.getY());
@@ -149,62 +150,62 @@ public class MeshBuilder {
         float maxZ = Math.max(a.getZ(), b.getZ());
         switch (direction) {
             default -> {
-                fL = new Vector3f(minX, minY, minZ);
-                fR = new Vector3f(maxX, minY, minZ);
-                bL = new Vector3f(minX, minY, maxZ);
-                bR = new Vector3f(maxX, minY, maxZ);
+                fL = new Vector3(minX, minY, minZ);
+                fR = new Vector3(maxX, minY, minZ);
+                bL = new Vector3(minX, minY, maxZ);
+                bR = new Vector3(maxX, minY, maxZ);
             }
             case 1 -> {
-                fL = new Vector3f(maxX, minY, minZ);
-                fR = new Vector3f(maxX, minY, maxZ);
-                bL = new Vector3f(minX, minY, minZ);
-                bR = new Vector3f(minX, minY, maxZ);
+                fL = new Vector3(maxX, minY, minZ);
+                fR = new Vector3(maxX, minY, maxZ);
+                bL = new Vector3(minX, minY, minZ);
+                bR = new Vector3(minX, minY, maxZ);
             }
             case 2 -> {
-                fL = new Vector3f(maxX, minY, maxZ);
-                fR = new Vector3f(minX, minY, maxZ);
-                bL = new Vector3f(maxX, minY, minZ);
-                bR = new Vector3f(minX, minY, minZ);
+                fL = new Vector3(maxX, minY, maxZ);
+                fR = new Vector3(minX, minY, maxZ);
+                bL = new Vector3(maxX, minY, minZ);
+                bR = new Vector3(minX, minY, minZ);
             }
             case 3 -> {
-                fL = new Vector3f(minX, minY, maxZ);
-                fR = new Vector3f(minX, minY, minZ);
-                bL = new Vector3f(maxX, minY, maxZ);
-                bR = new Vector3f(maxX, minY, minZ);
+                fL = new Vector3(minX, minY, maxZ);
+                fR = new Vector3(minX, minY, minZ);
+                bL = new Vector3(maxX, minY, maxZ);
+                bR = new Vector3(maxX, minY, minZ);
             }
         }
-        tL = new Vector3f(fL);
-        tR = new Vector3f(fR);
+        tL = new Vector3(fL);
+        tR = new Vector3(fR);
         tL.setY(maxY);
         tR.setY(maxY);
         Mesh mesh = new Mesh(new Vertex[] {
                 //Front face
-                new Vertex(fL, new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.0f)),
-                new Vertex(tL, new Vector3f(0, 0, 1), new Vector2f(0.0f, 1.0f)),
-                new Vertex(tR, new Vector3f(0, 0, 1), new Vector2f(1.0f, 1.0f)),
-                new Vertex(fR, new Vector3f(0, 0, 1), new Vector2f(1.0f, 0.0f)),
+                new Vertex(fL, new Vector3(0, 0, 1), new Vector2(0.0f, 0.0f)),
+                new Vertex(tL, new Vector3(0, 0, 1), new Vector2(0.0f, 1.0f)),
+                new Vertex(tR, new Vector3(0, 0, 1), new Vector2(1.0f, 1.0f)),
+                new Vertex(fR, new Vector3(0, 0, 1), new Vector2(1.0f, 0.0f)),
 
                 //Right face
-                new Vertex(fR, new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(tR, new Vector3f(1, 0, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(bR, new Vector3f(1, 0, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(fR, new Vector3(1, 0, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(tR, new Vector3(1, 0, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(bR, new Vector3(1, 0, 0), new Vector2(1.0f, 0.0f)),
 
                 //Left face
-                new Vertex(fL, new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(tL, new Vector3f(-1, 0, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(bL, new Vector3f(-1, 0, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(fL, new Vector3(-1, 0, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(tL, new Vector3(-1, 0, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(bL, new Vector3(-1, 0, 0), new Vector2(1.0f, 0.0f)),
 
                 //Top face
-                new Vertex(bL, new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(tL, new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(tR, new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
-                new Vertex(bR, new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(bL, new Vector3(0, 1, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(tL, new Vector3(0, 1, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(tR, new Vector3(0, 1, 0), new Vector2(1.0f, 1.0f)),
+                new Vertex(bR, new Vector3(0, 1, 0), new Vector2(1.0f, 0.0f)),
 
                 //Bottom face
-                new Vertex(bL, new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(fL, new Vector3f(0, -1, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(fR, new Vector3f(0, -1, 0), new Vector2f(1.0f, 1.0f)),
-                new Vertex(bR, new Vector3f(0, -1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(bL, new Vector3(0, -1, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(fL, new Vector3(0, -1, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(fR, new Vector3(0, -1, 0), new Vector2(1.0f, 1.0f)),
+                new Vertex(bR, new Vector3(0, -1, 0), new Vector2(1.0f, 0.0f)),
         }, new int[] {
                 //Front face
                 0, 1, 3,
@@ -230,10 +231,10 @@ public class MeshBuilder {
     // Creates a plane
     public static Mesh Plane(float size, Material m) {
         Mesh mesh = new Mesh(new Vertex[] {
-                new Vertex(new Vector3f(-0.5f * size,  0.0f,  0.5f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
-                new Vertex(new Vector3f(-0.5f * size,  0.0f, -0.5f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size,  0.0f, -0.5f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
-                new Vertex(new Vector3f( 0.5f * size,  0.0f,  0.5f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size,  0.0f,  0.5f * size), new Vector3(0, 1, 0), new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f * size,  0.0f, -0.5f * size), new Vector3(0, 1, 0), new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size,  0.0f, -0.5f * size), new Vector3(0, 1, 0), new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3( 0.5f * size,  0.0f,  0.5f * size), new Vector3(0, 1, 0), new Vector2(1.0f, 0.0f)),
         }, new int[] {
                 0, 1, 3,
                 3, 1, 2,
@@ -247,10 +248,10 @@ public class MeshBuilder {
         int[] tris = new int[size * size * 6];
         for (int x = 0, i = 0, j = 0; x < size; x++) {
             for (int z = 0; z < size; z++) {
-                vertices[i] = new Vertex(new Vector3f((0.0f + x),  0.0f,  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f));
-                vertices[i + 1] = new Vertex(new Vector3f((0.0f + x),  0.0f,  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f));
-                vertices[i + 2] = new Vertex(new Vector3f((1.0f + x),  0.0f,  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f));
-                vertices[i + 3] = new Vertex(new Vector3f((1.0f + x),  0.0f,  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f));
+                vertices[i] = new Vertex(new Vector3((0.0f + x),  0.0f,  (1.0f + z)), new Vector3(0, 1, 0), new Vector2(0.0f, 0.0f));
+                vertices[i + 1] = new Vertex(new Vector3((0.0f + x),  0.0f,  (0.0f + z)), new Vector3(0, 1, 0), new Vector2(0.0f, 1.0f));
+                vertices[i + 2] = new Vertex(new Vector3((1.0f + x),  0.0f,  (0.0f + z)), new Vector3(0, 1, 0), new Vector2(1.0f, 1.0f));
+                vertices[i + 3] = new Vertex(new Vector3((1.0f + x),  0.0f,  (1.0f + z)), new Vector3(0, 1, 0), new Vector2(1.0f, 0.0f));
                 tris[j] = i;
                 tris[j + 1] = i + 1;
                 tris[j + 2] = i + 3;
@@ -274,10 +275,10 @@ public class MeshBuilder {
             for (int z = 0; z < 511; z++) {
 
 
-                vertices[i] = new Vertex(new Vector3f((0.0f + x),  Scene.getHeightMap()[x][z + 1],  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f));
-                vertices[i + 1] = new Vertex(new Vector3f((0.0f + x),  Scene.getHeightMap()[x][z],  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f));
-                vertices[i + 2] = new Vertex(new Vector3f((1.0f + x),  Scene.getHeightMap()[x + 1][z],  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f));
-                vertices[i + 3] = new Vertex(new Vector3f((1.0f + x),  Scene.getHeightMap()[x + 1][z + 1],  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f));
+                vertices[i] = new Vertex(new Vector3((0.0f + x),  Scene.getHeightMap()[x][z + 1],  (1.0f + z)), new Vector3(0, 1, 0), new Vector2(0.0f, 0.0f));
+                vertices[i + 1] = new Vertex(new Vector3((0.0f + x),  Scene.getHeightMap()[x][z],  (0.0f + z)), new Vector3(0, 1, 0), new Vector2(0.0f, 1.0f));
+                vertices[i + 2] = new Vertex(new Vector3((1.0f + x),  Scene.getHeightMap()[x + 1][z],  (0.0f + z)), new Vector3(0, 1, 0), new Vector2(1.0f, 1.0f));
+                vertices[i + 3] = new Vertex(new Vector3((1.0f + x),  Scene.getHeightMap()[x + 1][z + 1],  (1.0f + z)), new Vector3(0, 1, 0), new Vector2(1.0f, 0.0f));
                 tris[j] = i;
                 tris[j + 1] = i + 1;
                 tris[j + 2] = i + 3;
