@@ -1,24 +1,24 @@
 package engine.math;
 
-public class Vector4 {
+public class Vector4f {
 
     private float x, y, z, w;
 
-    public Vector4(float x, float y, float z, float w) {
+    public Vector4f(float x, float y, float z, float w) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
     }
 
-    public Vector4(Vector4 other) {
+    public Vector4f(Vector4f other) {
         this.x = other.getX();
         this.y = other.getY();
         this.z = other.getZ();
         this.w = other.getW();
     }
 
-    public Vector4(Vector3 other, float w) {
+    public Vector4f(Vector3f other, float w) {
         this.x = other.getX();
         this.y = other.getY();
         this.z = other.getZ();
@@ -32,7 +32,7 @@ public class Vector4 {
      x*d + y*h + z*l + w*p)
      */
 
-    public Vector4 multiply(Matrix4 matrix) {
+    public Vector4f multiply(Matrix4f matrix) {
 
         float newX = x * matrix.get(0, 0) + y * matrix.get(0, 1) + z * matrix.get(0, 2) + w * matrix.get(0, 3);
         float newY = x * matrix.get(1, 0) + y * matrix.get(1, 1) + z * matrix.get(1, 2) + w * matrix.get(1, 3);
@@ -47,8 +47,8 @@ public class Vector4 {
         return this;
     }
 
-    public Vector3 getVector3f() {
-        return new Vector3(x, y, z);
+    public Vector3f getVector3f() {
+        return new Vector3f(x, y, z);
     }
 
     public float getX() {

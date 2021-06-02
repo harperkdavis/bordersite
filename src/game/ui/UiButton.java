@@ -1,7 +1,7 @@
 package game.ui;
 
 import engine.math.Mathf;
-import engine.math.Vector4;
+import engine.math.Vector4f;
 
 import static game.ui.UserInterface.p;
 
@@ -31,7 +31,7 @@ public abstract class UiButton extends UiPanel {
             t = Mathf.lerpdt(t, 0.0f, 0.1f);
         }
         setMesh(UiPanel.createPanel(x1 + p(2 * t), y1 + p(4 * t), x2 - p(2 * t), y2 - p(4 * t), getMesh().getMaterial()));
-        setColor(new Vector4(0, 0, 0, transparency + t * 0.05f));
+        setColor(new Vector4f(0, 0, 0, transparency + t * 0.05f));
     }
 
     private boolean isHovered() {

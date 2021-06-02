@@ -1,7 +1,7 @@
 package engine.io;
 
-import engine.math.Matrix4;
-import engine.math.Vector3;
+import engine.math.Matrix4f;
+import engine.math.Vector3f;
 import main.Main;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -30,13 +30,13 @@ public class Window {
 
     public Input input;
 
-    private Vector3 background;
+    private Vector3f background;
 
     private GLFWWindowSizeCallback sizeCallback;
     private boolean isResized;
 
-    private static Matrix4 projection;
-    private static Matrix4 ortho;
+    private static Matrix4f projection;
+    private static Matrix4f ortho;
 
     private float fov = 80.0f;
 
@@ -49,8 +49,8 @@ public class Window {
         this.title = title;
         this.fullscreen = fullscreen;
 
-        projection = Matrix4.projection(fov, (float) width / (float) height, 0.01f, 10000.0f);
-        ortho = Matrix4.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
+        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.01f, 10000.0f);
+        ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
     }
 
     public void create() {
@@ -139,8 +139,8 @@ public class Window {
 
     public void update() {
 
-        projection = Matrix4.projection(fov, (float) width / (float) height, 0.01f, 10000.0f);
-        ortho = Matrix4.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
+        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.01f, 10000.0f);
+        ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
 
         if (isResized) {
             GL11.glViewport(0, 0, width, height);
@@ -188,7 +188,7 @@ public class Window {
         GLFW.glfwTerminate();
     }
 
-    public void setBackgroundColor(Vector3 color) {
+    public void setBackgroundColor(Vector3f color) {
         background = color;
     }
 
@@ -217,11 +217,11 @@ public class Window {
         return window;
     }
 
-    public static Matrix4 getProjectionMatrix() {
+    public static Matrix4f getProjectionMatrix() {
         return projection;
     }
 
-    public static Matrix4 getOrthographicMatrix() {
+    public static Matrix4f getOrthographicMatrix() {
         return ortho;
     }
 

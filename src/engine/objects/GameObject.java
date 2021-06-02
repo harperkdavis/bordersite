@@ -6,8 +6,8 @@ import java.util.List;
 import engine.graphics.Material;
 import engine.graphics.mesh.Mesh;
 import engine.math.Transform;
-import engine.math.Vector3;
-import engine.math.Vector4;
+import engine.math.Vector3f;
+import engine.math.Vector4f;
 
 public class GameObject {
 
@@ -19,13 +19,13 @@ public class GameObject {
     protected GameObject parent;
 
     private Mesh mesh;
-    private Vector4 color;
+    private Vector4f color;
 
-    public GameObject(Vector3 position, Vector3 rotation, Vector3 scale, Mesh mesh) {
-        this(position, rotation, scale, mesh, new Vector4(1, 1, 1, 1));
+    public GameObject(Vector3f position, Vector3f rotation, Vector3f scale, Mesh mesh) {
+        this(position, rotation, scale, mesh, new Vector4f(1, 1, 1, 1));
     }
 
-    public GameObject(Vector3 position, Vector3 rotation, Vector3 scale, Mesh mesh, Vector4 color) {
+    public GameObject(Vector3f position, Vector3f rotation, Vector3f scale, Mesh mesh, Vector4f color) {
         this.transform = new Transform(position, rotation, scale);
         this.mesh = mesh;
         this.color = color;
@@ -33,12 +33,12 @@ public class GameObject {
         this.children = new ArrayList<>();
     }
 
-    public GameObject(Vector3 position, Mesh mesh) {
-        this(position, Vector3.zero(), Vector3.one(), mesh);
+    public GameObject(Vector3f position, Mesh mesh) {
+        this(position, Vector3f.zero(), Vector3f.one(), mesh);
     }
 
-    public GameObject(Vector3 position, Mesh mesh, Vector4 color) {
-        this(position, Vector3.zero(), Vector3.one(), mesh, color);
+    public GameObject(Vector3f position, Mesh mesh, Vector4f color) {
+        this(position, Vector3f.zero(), Vector3f.one(), mesh, color);
     }
 
     private void fix() {
@@ -98,47 +98,47 @@ public class GameObject {
         return parent;
     }
 
-    public Vector3 getPosition() {
+    public Vector3f getPosition() {
         return transform.getPosition();
     }
 
-    public Vector3 getRotation() {
+    public Vector3f getRotation() {
         return transform.getRotation();
     }
 
-    public Vector3 getScale() {
+    public Vector3f getScale() {
         return transform.getScale();
     }
 
-    public void setPosition(Vector3 position) {
+    public void setPosition(Vector3f position) {
         transform.setPosition(position);
         // fix();
     }
 
-    public void setRotation(Vector3 rotation) {
+    public void setRotation(Vector3f rotation) {
         transform.setRotation(rotation);
         // fix();
     }
 
-    public void setScale(Vector3 scale) {
+    public void setScale(Vector3f scale) {
         transform.setScale(scale);
         // fix();
     }
 
-    public Vector3 getLocalPosition() {
-        return new Vector3(transform.getLocalPosition());
+    public Vector3f getLocalPosition() {
+        return new Vector3f(transform.getLocalPosition());
     }
 
-    public Vector3 getLocalRotation() {
-        return new Vector3(transform.getLocalRotation());
+    public Vector3f getLocalRotation() {
+        return new Vector3f(transform.getLocalRotation());
     }
 
-    public void setLocalPosition(Vector3 position) {
+    public void setLocalPosition(Vector3f position) {
         transform.setLocalPosition(position);
         fix();
     }
 
-    public void setLocalRotation(Vector3 rotation) {
+    public void setLocalRotation(Vector3f rotation) {
         transform.setLocalRotation(rotation);
         fix();
     }
@@ -163,11 +163,11 @@ public class GameObject {
         return mesh;
     }
 
-    public Vector4 getColor() {
+    public Vector4f getColor() {
         return color;
     }
 
-    public void setColor(Vector4 color) {
+    public void setColor(Vector4f color) {
         this.color = color;
     }
 

@@ -1,7 +1,7 @@
 package game.viewmodel;
 
 import engine.graphics.render.Renderer;
-import engine.math.Vector3;
+import engine.math.Vector3f;
 import engine.objects.GameObject;
 import game.GamePlane;
 
@@ -13,13 +13,13 @@ public class Viewmodel implements GamePlane {
     protected static Viewmodel viewmodel;
     public static List<GameObject> objects = new ArrayList<>();
 
-    private static final Vector3 FORWARDS = new Vector3(0, -90, 0);
+    private static final Vector3f FORWARDS = new Vector3f(0, -90, 0);
 
     private static GameObject gunObject;
     private static GameObject armObject;
 
     public Viewmodel() {
-        // gunObject = addObject(new GameObject(new Vector3(0, 0, -1.5f), new Vector3(45, 0, 0), Vector3.one(), MeshBuilder.Cube(1.0f, Material.DEFAULT)));
+        // gunObject = addObject(new GameObject(new Vector3f(0, 0, -1.5f), new Vector3f(45, 0, 0), Vector3f.one(), MeshBuilder.Cube(1.0f, Material.DEFAULT)));
     }
 
     @Override
@@ -36,7 +36,7 @@ public class Viewmodel implements GamePlane {
 
     @Override
     public void update() {
-        // gunObject.setRotation(Vector3.lerpdt(gunObject.getRotation(), new Vector3(45, (float) Main.getElapsedTime() / 20.0f, 0), 0.1f));
+        // gunObject.setRotation(Vector3f.lerpdt(gunObject.getRotation(), new Vector3f(45, (float) Main.getElapsedTime() / 20.0f, 0), 0.1f));
     }
 
     @Override

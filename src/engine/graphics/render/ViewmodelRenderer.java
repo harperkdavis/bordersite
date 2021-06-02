@@ -3,8 +3,8 @@ package engine.graphics.render;
 import engine.graphics.Shader;
 import engine.graphics.light.DirectionalLight;
 import engine.io.Window;
-import engine.math.Matrix4;
-import engine.math.Vector3;
+import engine.math.Matrix4f;
+import engine.math.Vector3f;
 import engine.objects.GameObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -12,14 +12,14 @@ import org.lwjgl.opengl.GL30;
 
 public class ViewmodelRenderer extends Renderer {
 
-    private final Vector3 ambientLight;
+    private final Vector3f ambientLight;
     private final DirectionalLight directionalLight;
 
     public ViewmodelRenderer(Shader shader) {
         super(shader);
 
-        ambientLight = new Vector3(0.3f, 0.3f, 0.3f);
-        directionalLight = new DirectionalLight(new Vector3(1, 1, 1), new Vector3(0.5f, 0.7f, 0.2f), 1.0f);
+        ambientLight = new Vector3f(0.3f, 0.3f, 0.3f);
+        directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), new Vector3f(0.5f, 0.7f, 0.2f), 1.0f);
     }
 
     @Override
@@ -41,11 +41,11 @@ public class ViewmodelRenderer extends Renderer {
 
         shader.bind(); // SHADER BOUND
 
-        shader.setUniform("model", Matrix4.transform(object.getPosition(), object.getRotation(), object.getScale()));
-        shader.setUniform("view", Matrix4.view(Vector3.zero(), Vector3.zero(), false));
+        shader.setUniform("model", Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale()));
+        shader.setUniform("view", Matrix4f.view(Vector3f.zero(), Vector3f.zero(), false));
         shader.setUniform("projection", Window.getProjectionMatrix());
 
-        shader.setUniform("cameraPos", new Vector3(0, 0,0));
+        shader.setUniform("cameraPos", new Vector3f(0, 0,0));
 
         shader.setUniform("ambientLight", ambientLight);
         shader.setUniform("directionalLight", directionalLight);

@@ -3,10 +3,10 @@ package engine.graphics;
 import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.Fog;
 import engine.graphics.light.PointLight;
-import engine.math.Matrix4;
-import engine.math.Vector2;
-import engine.math.Vector3;
-import engine.math.Vector4;
+import engine.math.Matrix4f;
+import engine.math.Vector2f;
+import engine.math.Vector3f;
+import engine.math.Vector4f;
 import engine.util.Utils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -80,20 +80,20 @@ public class Shader {
         GL20.glUniform1i(getUniformLocation(name), value ? 1 : 0);
     }
 
-    public void setUniform(String name, Vector2 value) {
+    public void setUniform(String name, Vector2f value) {
         GL20.glUniform2f(getUniformLocation(name), value.x, value.y);
     }
 
-    public void setUniform(String name, Vector3 value) {
+    public void setUniform(String name, Vector3f value) {
         GL20.glUniform3f(getUniformLocation(name), value.getX(), value.getY(), value.getZ());
     }
 
-    public void setUniform(String name, Vector4 value) {
+    public void setUniform(String name, Vector4f value) {
         GL20.glUniform4f(getUniformLocation(name), value.getX(), value.getY(), value.getZ(), value.getW());
     }
 
-    public void setUniform(String name, Matrix4 value) {
-        FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4.SIZE * Matrix4.SIZE);
+    public void setUniform(String name, Matrix4f value) {
+        FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4f.SIZE * Matrix4f.SIZE);
         matrix.put(value.getAll()).flip();
         GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
     }

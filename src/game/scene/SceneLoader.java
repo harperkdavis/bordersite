@@ -8,8 +8,8 @@ import engine.graphics.Material;
 import engine.graphics.mesh.Mesh;
 import engine.graphics.mesh.MeshBuilder;
 import engine.graphics.vertex.Vertex;
-import engine.math.Vector2;
-import engine.math.Vector3;
+import engine.math.Vector2f;
+import engine.math.Vector3f;
 import engine.objects.GameObject;
 import net.Client;
 import net.packets.PacketLoaded;
@@ -35,7 +35,7 @@ public class SceneLoader {
     private byte[] treeMap;
     private byte[] treeNoiseMap;
 
-    private final List<Vector3> treePositions = new ArrayList<>();
+    private final List<Vector3f> treePositions = new ArrayList<>();
     private final List<Integer> treeASeeds = new ArrayList<>();
     private final List<Integer> treeBSeeds = new ArrayList<>();
 
@@ -109,7 +109,7 @@ public class SceneLoader {
                 wait(10);
             }
         } else if (loadingStage == 2) {
-            Scene.getScene().groundPlane = new GameObject(Vector3.zero(), Vector3.zero(), new Vector3(Scene.SCALE_X, Scene.SCALE_Y, Scene.SCALE_Z), MeshBuilder.Terrain(Material.ENV_GRASS));
+            Scene.getScene().groundPlane = new GameObject(Vector3f.zero(), Vector3f.zero(), new Vector3f(Scene.SCALE_X, Scene.SCALE_Y, Scene.SCALE_Z), MeshBuilder.Terrain(Material.ENV_GRASS));
             Scene.objects.add(Scene.getScene().groundPlane);
 
             // Load Trees
@@ -149,7 +149,7 @@ public class SceneLoader {
                                 float posZ = z * Scene.SCALE_Z + (g - 128.0f);
                                 posX = Math.max(Math.min(posX, 512.0f * Scene.SCALE_X), 0.0f);
                                 posZ = Math.max(Math.min(posZ, 512.0f * Scene.SCALE_Z), 0.0f);
-                                treePositions.add(new Vector3(posX, Scene.getTerrainHeight(posX, posZ) - 0.5f, posZ));
+                                treePositions.add(new Vector3f(posX, Scene.getTerrainHeight(posX, posZ) - 0.5f, posZ));
                             }
                         }
 
@@ -181,40 +181,40 @@ public class SceneLoader {
                     float yPos = treePositions.get(t).getY();
                     float zPos = treePositions.get(t).getZ();
 
-                    Vector3 position = new Vector3(xPos, yPos, zPos);
+                    Vector3f position = new Vector3f(xPos, yPos, zPos);
 
                     // TODO: Fix Normals
                     float TREE_WIDTH = 1.0f;
                     Vertex[] treeVertices = new Vertex[]{
                             //Back face
-                            new Vertex(new Vector3(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.0f)),
-                            new Vertex(new Vector3(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.25f)),
-                            new Vertex(new Vector3(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.25f)),
-                            new Vertex(new Vector3(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.0f)),
 
                             //Front face
-                            new Vertex(new Vector3(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.0f)),
-                            new Vertex(new Vector3(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.25f)),
-                            new Vertex(new Vector3(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.25f)),
-                            new Vertex(new Vector3(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.0f)),
 
                             //Right face
-                            new Vertex(new Vector3(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.0f)),
-                            new Vertex(new Vector3(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.25f)),
-                            new Vertex(new Vector3(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.25f)),
-                            new Vertex(new Vector3(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.0f)),
 
                             //Left face
-                            new Vertex(new Vector3(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.0f)),
-                            new Vertex(new Vector3(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.25f)),
-                            new Vertex(new Vector3(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.25f)),
-                            new Vertex(new Vector3(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(0.0f, TREE_SIZE, 0.0f).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.0f)),
 
                             //Bottom face
-                            new Vertex(new Vector3(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.0f)),
-                            new Vertex(new Vector3(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.0f, 0.25f)),
-                            new Vertex(new Vector3(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.25f)),
-                            new Vertex(new Vector3(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3(0, 1,0), new Vector2(0.25f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.0f)),
+                            new Vertex(new Vector3f(-TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.0f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, -TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.25f)),
+                            new Vertex(new Vector3f(TREE_WIDTH, 0.0f, TREE_WIDTH).add(position), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.0f)),
                     };
                     int[] treeTriangles = new int[]{
                             //Back face
@@ -246,24 +246,24 @@ public class SceneLoader {
                         float halfBranchSize = branchSize / 2.0f;
                         float longBranchSize = (float) Math.sqrt(branchSize * branchSize + (branchSize / 2.0f) * (branchSize / 2.0f));
 
-                        Vector3 c = new Vector3(0.0f, height, 0.0f);
-                        Vector3 f = new Vector3((float) Math.sin(turn) * branchSize, height - 0.3f * branchSize, (float) Math.cos(turn) * branchSize);
+                        Vector3f c = new Vector3f(0.0f, height, 0.0f);
+                        Vector3f f = new Vector3f((float) Math.sin(turn) * branchSize, height - 0.3f * branchSize, (float) Math.cos(turn) * branchSize);
 
-                        Vector3 r = new Vector3((float) Math.sin(turn + Math.PI / 2.0f) * halfBranchSize, height - 0.5f * branchSize, (float) Math.cos(turn + Math.PI / 2.0f) * halfBranchSize);
-                        Vector3 fr = new Vector3((float) Math.sin(turn + Math.PI / 6.0f) * longBranchSize, height - 0.7f * branchSize, (float) Math.cos(turn + Math.PI / 6.0f) * longBranchSize);
+                        Vector3f r = new Vector3f((float) Math.sin(turn + Math.PI / 2.0f) * halfBranchSize, height - 0.5f * branchSize, (float) Math.cos(turn + Math.PI / 2.0f) * halfBranchSize);
+                        Vector3f fr = new Vector3f((float) Math.sin(turn + Math.PI / 6.0f) * longBranchSize, height - 0.7f * branchSize, (float) Math.cos(turn + Math.PI / 6.0f) * longBranchSize);
 
-                        Vector3 l = new Vector3((float) Math.sin(turn - Math.PI / 2.0f) * halfBranchSize, height - 0.5f * branchSize, (float) Math.cos(turn - Math.PI / 2.0f) * halfBranchSize);
-                        Vector3 fl = new Vector3((float) Math.sin(turn - Math.PI / 6.0f) * longBranchSize, height - 0.7f * branchSize, (float) Math.cos(turn - Math.PI / 6.0f) * longBranchSize);
+                        Vector3f l = new Vector3f((float) Math.sin(turn - Math.PI / 2.0f) * halfBranchSize, height - 0.5f * branchSize, (float) Math.cos(turn - Math.PI / 2.0f) * halfBranchSize);
+                        Vector3f fl = new Vector3f((float) Math.sin(turn - Math.PI / 6.0f) * longBranchSize, height - 0.7f * branchSize, (float) Math.cos(turn - Math.PI / 6.0f) * longBranchSize);
 
-                        vertices[vertIndex + 20 + i * 8] = new Vertex(Vector3.add(position, f), new Vector3(0, 1,0), new Vector2(0.625f, 1.0f));
-                        vertices[vertIndex + 20 + i * 8 + 1] = new Vertex(Vector3.add(position, c), new Vector3(0, 1,0), new Vector2(0.625f, 0.0f));
-                        vertices[vertIndex + 20 + i * 8 + 2] = new Vertex(Vector3.add(position, r), new Vector3(0, 1,0), new Vector2(0.25f, 0.0f));
-                        vertices[vertIndex + 20 + i * 8 + 3] = new Vertex(Vector3.add(position, fr), new Vector3(0, 1,0), new Vector2(0.25f, 1.0f));
+                        vertices[vertIndex + 20 + i * 8] = new Vertex(Vector3f.add(position, f), new Vector3f(0, 1,0), new Vector2f(0.625f, 1.0f));
+                        vertices[vertIndex + 20 + i * 8 + 1] = new Vertex(Vector3f.add(position, c), new Vector3f(0, 1,0), new Vector2f(0.625f, 0.0f));
+                        vertices[vertIndex + 20 + i * 8 + 2] = new Vertex(Vector3f.add(position, r), new Vector3f(0, 1,0), new Vector2f(0.25f, 0.0f));
+                        vertices[vertIndex + 20 + i * 8 + 3] = new Vertex(Vector3f.add(position, fr), new Vector3f(0, 1,0), new Vector2f(0.25f, 1.0f));
 
-                        vertices[vertIndex + 20 + i * 8 + 4] = new Vertex(Vector3.add(position, fl), new Vector3(0, 1,0), new Vector2(1.0f, 1.0f));
-                        vertices[vertIndex + 20 + i * 8 + 5] = new Vertex(Vector3.add(position, l), new Vector3(0, 1,0), new Vector2(1.0f, 0.0f));
-                        vertices[vertIndex + 20 + i * 8 + 6] = new Vertex(Vector3.add(position, c), new Vector3(0, 1,0), new Vector2(0.625f, 0.0f));
-                        vertices[vertIndex + 20 + i * 8 + 7] = new Vertex(Vector3.add(position, f), new Vector3(0, 1,0), new Vector2(0.625f, 1.0f));
+                        vertices[vertIndex + 20 + i * 8 + 4] = new Vertex(Vector3f.add(position, fl), new Vector3f(0, 1,0), new Vector2f(1.0f, 1.0f));
+                        vertices[vertIndex + 20 + i * 8 + 5] = new Vertex(Vector3f.add(position, l), new Vector3f(0, 1,0), new Vector2f(1.0f, 0.0f));
+                        vertices[vertIndex + 20 + i * 8 + 6] = new Vertex(Vector3f.add(position, c), new Vector3f(0, 1,0), new Vector2f(0.625f, 0.0f));
+                        vertices[vertIndex + 20 + i * 8 + 7] = new Vertex(Vector3f.add(position, f), new Vector3f(0, 1,0), new Vector2f(0.625f, 1.0f));
 
                         triangles[triIndex + 30 + i * 12] = vertIndex + 20 + i * 8;
                         triangles[triIndex + 30 + i * 12 + 1] = vertIndex + 20 + i * 8 + 1;
@@ -285,7 +285,7 @@ public class SceneLoader {
                 treeIndex += 128;
             } else {
                 Mesh mesh = new Mesh(vertices, triangles, Material.ENV_TREE);
-                Scene.objects.add(new GameObject(Vector3.zero(), mesh));
+                Scene.objects.add(new GameObject(Vector3f.zero(), mesh));
                 advanceLoading();
             }
         } else if (loadingStage == 5) {

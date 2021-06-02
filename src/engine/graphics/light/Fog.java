@@ -1,22 +1,22 @@
 package engine.graphics.light;
 
-import engine.math.Vector3;
+import engine.math.Vector3f;
 
 public class Fog {
 
     private boolean active;
-    private Vector3 color;
+    private Vector3f color;
     private float density;
 
     public static Fog NOFOG = new Fog();
 
     public Fog() {
         active = false;
-        this.color = new Vector3(0, 0, 0);
+        this.color = new Vector3f(0, 0, 0);
         this.density = 0;
     }
 
-    public Fog(boolean active, Vector3 colour, float density) {
+    public Fog(boolean active, Vector3f colour, float density) {
         this.color = colour;
         this.density = density;
         this.active = active;
@@ -30,11 +30,11 @@ public class Fog {
         this.active = active;
     }
 
-    public Vector3 getColor() {
+    public Vector3f getColor() {
         return color;
     }
 
-    public void setColor(Vector3 color) {
+    public void setColor(Vector3f color) {
         this.color = color;
     }
 
