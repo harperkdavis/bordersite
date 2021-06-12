@@ -133,10 +133,18 @@ public class Vector2f {
         return x * other.x + y * other.y;
     }
 
+    public static float distance(Vector2f a, Vector2f b) {
+        return (float) Math.sqrt(Math.pow(a.x + b.x, 2) + Math.pow(a.y + b.y, 2));
+    }
+
     public static float dot(Vector2f a, Vector2f b) {
         return a.x * b.x + a.y * b.y;
     }
-    
+
+    public static float cross(Vector2f a, Vector2f b) {
+        return a.x * b.y - a.y * b.x;
+    }
+
     public static Vector2f toPolar(Vector2f origin, Vector2f vector) {
         Vector2f distanceVector = Vector2f.subtract(origin, vector);
         double angle = Math.atan2(distanceVector.getX(), distanceVector.getY());

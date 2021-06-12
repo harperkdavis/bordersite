@@ -1,11 +1,13 @@
 package game.scene;
 
+import engine.components.BlockComponent;
+import engine.components.Component;
 import engine.graphics.Material;
 import engine.graphics.mesh.MeshBuilder;
-import engine.io.MeshLoader;
 import engine.math.*;
 import engine.objects.GameObject;
 import game.GamePlane;
+import game.PlayerMovement;
 
 import java.util.*;
 
@@ -48,13 +50,15 @@ public class Scene implements GamePlane {
     public void load() {
         // Load ARENA
         // Outer Walls
+        addBlock(new Vector3f(-10, -2, -10), new Vector3f(-10, -2, 20), new Vector3f(20, -2, 20), 2, Material.ENV_FLOOR);
+        addBlock(new Vector3f(1, 0, 1), new Vector3f(1, 0, 4), new Vector3f(4, 0, 4), 4, Material.ENV_FLOOR);
 
-        // Spawns
-        addBox(new Vector3f(4, 0, 4), new Vector3f(20, 4, 20), Material.ENV_FLOOR);
-        addBox(new Vector3f(20, 0, 12), new Vector3f(36, 4, 20), Material.ENV_FLOOR);
-        addBox(new Vector3f(36, 0, 12), new Vector3f(52, 12, 24), Material.ENV_BRICK);
+        addBlock(new Vector3f(3, 0, 3), new Vector3f(3, 0, 4), new Vector3f(5, 0, 5), 4, Material.ENV_FLOOR);
 
-        addObject(new GameObject(Vector3f.zero(), MeshLoader.loadModel("sphere.obj", Material.ENV_FLOOR)), false);
+        addBlock(new Vector3f(5, 0, 5), new Vector3f(5, 0, 7), new Vector3f(7, 0, 7), 2.5f, Material.ENV_FLOOR);
+
+        addBlock(new Vector3f(8, 0, 8), new Vector3f(8, 0 , 10), new Vector3f(10, 0, 10),1.5f, Material.ENV_BRICK);
+
 
         loading = true;
         loaded = false;
@@ -90,6 +94,12 @@ public class Scene implements GamePlane {
         for (GameObject go : objects) {
                 go.unload();
         }
+    }
+
+    private void addBlock(Vector3f a, Vector3f b, Vector3f c, float height, Material material) {
+        BlockComponent blockComponent = new BlockComponent(a, b, c, height, material);
+        addObject(blockComponent.getObject(), false);
+        PlayerMovement.addCollisionComponent(blockComponent);
     }
 
     private void addBox(Vector3f a, Vector3f b, Material material) {

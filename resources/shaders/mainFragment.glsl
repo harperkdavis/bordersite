@@ -98,13 +98,13 @@ float calcShadow(vec4 position) {
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
 
-    for(int x = -4; x <= 4; ++x) {
-        for(int y = -4; y <= 4; ++y) {
+    for(int x = -10; x <= 10; ++x) {
+        for(int y = -10; y <= 10; ++y) {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
             shadow += currentDepth - 0.0005 > pcfDepth ? 1.0 : 0.0;
         }
     }
-    shadow /= 81.0;
+    shadow /= 441.0;
 
     if(projCoords.z > 1.0)
     shadow = 0.0;

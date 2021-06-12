@@ -30,8 +30,7 @@ public class Material {
     // FONT
 
     public static final Material FONT_KREMLIN = new Material("font/kremlin_font.png");
-    public static final Material FONT_UBUNTU = new Material("font/ubuntu_font.png");
-    public static final Material FONT_UBUNTU_OUTLINE = new Material("font/ubuntu_font_outline.png");
+    public static final Material FONT_SYNE = new Material("font/syne_font.png");
 
     // ENVIRONMENT
 
@@ -45,15 +44,6 @@ public class Material {
     public static final Material ENV_HEIGHTMAP = new Material("environment/heightmap.png");
     public static final Material ENV_TREEMAP = new Material("environment/treemap.png");
     public static final Material ENV_TREEMAP_NOISE = new Material("environment/treemap_noise.png");
-
-    // MAP
-
-    public static final Material MAP_MAP = new Material("map/map.png");
-    public static final Material MAP_BACKGROUND = new Material("map/map_background.png");
-    public static final Material MAP_GRID = new Material("map/map_grid.png");
-    public static final Material MAP_OVERLAY = new Material("map/map_overlay.png");
-
-    public static final Material MAP_MARKER_PLAYER = new Material("map/marker_player.png");
 
     // UI
 

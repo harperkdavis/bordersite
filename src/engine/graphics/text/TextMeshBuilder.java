@@ -8,7 +8,7 @@ import engine.math.Vector3f;
 
 public class TextMeshBuilder {
 
-    private static final Material ubuntuMaterial = Material.FONT_UBUNTU;
+    private static final Material syneMaterial = Material.FONT_SYNE;
     private static final Material kremlinMaterial = Material.FONT_KREMLIN;
 
     // Creates the mesh for text
@@ -22,15 +22,15 @@ public class TextMeshBuilder {
 
     private static Mesh createTextMesh(String text, float characterHeight, TextMode textMode, boolean kremlinFont) {
         text = " " + text;
-        Material textMaterial = kremlinFont ? kremlinMaterial : ubuntuMaterial;
+        Material textMaterial = kremlinFont ? kremlinMaterial : syneMaterial;
         Vertex[] vertices = new Vertex[text.length() * 4];
         int[] tris = new int[text.length() * 6];
         float xUnit = 1.0f / 16.0f;
-        float yUnit = 1.0f / 8.0f;
-        float metric = characterHeight / 1.2f;
+        float yUnit = 1.0f / 16.0f;
+        float metric = characterHeight;
         float textWidth = textLength(text, kremlinFont) * metric;
         float modifier = 0;
-        float length = 0;
+        float length = -0.8f;
         modifier = switch (textMode) {
             case LEFT -> 0;
             case CENTER -> -textWidth / 2;
@@ -43,10 +43,10 @@ public class TextMeshBuilder {
             int xTex = (character % 16);
             int yTex = (character / 16);
 
-            vertices[j] = new Vertex(new Vector3f(modifier + length * metric, characterHeight, -length / 1000), new Vector2f(xTex * xUnit, yTex * yUnit ));
-            vertices[j + 1] = new Vertex(new Vector3f(modifier + length * metric, 0, -length / 1000), new Vector2f(xTex * xUnit, yTex * yUnit + yUnit / 2));
-            vertices[j + 2] = new Vertex(new Vector3f(modifier + length * metric + characterHeight, 0, -length / 1000), new Vector2f(xTex * xUnit + xUnit, yTex * yUnit + yUnit / 2));
-            vertices[j + 3] = new Vertex(new Vector3f(modifier + length * metric + characterHeight, characterHeight, -length / 1000), new Vector2f(xTex * xUnit + xUnit, yTex * yUnit));
+            vertices[j] = new Vertex(new Vector3f(modifier + length * characterHeight, characterHeight, -length / 1000), new Vector2f(xTex * xUnit, yTex * yUnit ));
+            vertices[j + 1] = new Vertex(new Vector3f(modifier + length * characterHeight, 0, -length / 1000), new Vector2f(xTex * xUnit, yTex * yUnit + yUnit));
+            vertices[j + 2] = new Vertex(new Vector3f(modifier + length * characterHeight + characterHeight, 0, -length / 1000), new Vector2f(xTex * xUnit + xUnit, yTex * yUnit + yUnit));
+            vertices[j + 3] = new Vertex(new Vector3f(modifier + length * characterHeight + characterHeight, characterHeight, -length / 1000), new Vector2f(xTex * xUnit + xUnit, yTex * yUnit));
 
             tris[k] = j;
             tris[k + 1] = j + 1;
@@ -58,7 +58,7 @@ public class TextMeshBuilder {
             j += 4;
             k += 6;
             if (!kremlinFont) {
-                length += 0.6f;
+                length += 0.55f;
             } else {
                 length += (text.charAt(i) == 'i' || text.charAt(i) == 'I' || text.charAt(i) == '1' || text.charAt(i) == '.' || text.charAt(i) == ',' || text.charAt(i) == '\"') ? 0.35f : 0.95f;
             }

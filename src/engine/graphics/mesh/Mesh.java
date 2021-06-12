@@ -109,7 +109,7 @@ public class Mesh {
 
     }
 
-    private void setTangents() {
+    public void setTangents() {
         for (int i = 0; i < indices.length; i += 3) {
 
             if (vertices[indices[i]].getNormal().equals(Vector3f.zero())) {
