@@ -31,7 +31,7 @@ public class MainRenderer extends Renderer {
     private final Fog fog;
 
     private static final int MAX_POINT_LIGHTS = 128;
-    private static float exposure = 0.6f;
+    private static float exposure = 1.0f;
 
     private final PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
 
@@ -52,7 +52,7 @@ public class MainRenderer extends Renderer {
 
     private Mesh renderQuad;
 
-    private static final int SHADOW_MAP_WIDTH = 32768, SHADOW_MAP_HEIGHT = 32768;
+    private static final int SHADOW_MAP_WIDTH = 8192, SHADOW_MAP_HEIGHT = 8192;
 
 
     public MainRenderer(Shader gShader, Shader ssaoShader, Shader ssaoBlurShader, Shader shader, Shader depthShader, Shader blurShader, Shader postShader) {

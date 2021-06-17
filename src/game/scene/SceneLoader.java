@@ -11,8 +11,6 @@ import engine.graphics.vertex.Vertex;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
-import net.Client;
-import net.packets.PacketLoaded;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -295,16 +293,12 @@ public class SceneLoader {
                 go.load();
             }
 
-            if (Client.isConnected()) {
-                System.out.println("[INFO] Sending loaded packet");
-                Client.getSocketClient().sendData(new PacketLoaded().getByteData());
-
-            }
-
             Scene.loading = false;
             Scene.loaded = true;
 
-            System.out.println("[INFO] Scene Loaded!");
+            for (GameObject go : Scene.objects) {
+                go.load();
+            }
 
             advanceLoading();
         }

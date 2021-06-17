@@ -37,6 +37,14 @@ public class MaterialLoader {
         return finished;
     }
 
+    public static void loadMapMaterials(String path) {
+
+    }
+
+    public static void unloadMapMaterials() {
+
+    }
+
     public static void unloadAll() {
         for (Material m : Material.materials) {
             m.destroy();

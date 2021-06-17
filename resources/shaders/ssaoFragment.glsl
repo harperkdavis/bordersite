@@ -10,7 +10,7 @@ uniform sampler2D ssaoNoise;
 uniform vec3 samples[32];
 
 int KERNEL_SIZE = 32;
-float RADIUS = 0.5;
+float RADIUS = 2.5;
 float BIAS = 0.025;
 
 uniform vec2 noiseScale;

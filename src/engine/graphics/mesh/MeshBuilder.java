@@ -6,6 +6,8 @@ import engine.math.Vector2f;
 import engine.math.Vector3f;
 import game.scene.Scene;
 
+import java.util.Random;
+
 public class MeshBuilder {
 
     // Creates a cube
@@ -72,6 +74,84 @@ public class MeshBuilder {
                 23, 21, 22
         }, m);
         return mesh;
+    }
+
+    public static Mesh MetricFuckTonOfCubes(int amount, float size, Material m) {
+        Vertex[] vertices = new Vertex[amount * 4 * 6];
+        int[] indices = new int[amount * 6 * 6];
+        Random random = new Random();
+        for (int i = 0; i < amount; i++) {
+            float dir = random.nextFloat() * 4 * (float) Math.PI;
+            float x = (float) Math.sin(dir) * 20, y = random.nextFloat() * 20, z = (float) Math.cos(dir) * 20;
+            Vertex[] cube = new Vertex[] {
+                    //Back face
+                    new Vertex(new Vector3f(-0.5f * size + x,  0.5f * size + y, -0.5f * size + z), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.5f * size + x, -0.5f * size + y, -0.5f * size + z), new Vector3f(0, 0, -1), new Vector2f(0.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x, -0.5f * size + y, -0.5f * size + z), new Vector3f(0, 0, -1), new Vector2f(1.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x,  0.5f * size + y, -0.5f * size + z), new Vector3f(0, 0, -1), new Vector2f(1.0f, 0.0f)),
+
+                    //Front face
+                    new Vertex(new Vector3f(-0.5f * size + x,  0.5f * size + y,  0.5f * size + z), new Vector3f(0, 0, 1), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.5f * size + x, -0.5f * size + y,  0.5f * size + z), new Vector3f(0, 0, 1), new Vector2f(0.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x, -0.5f * size + y,  0.5f * size + z), new Vector3f(0, 0, 1), new Vector2f(1.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x,  0.5f * size + y,  0.5f * size + z), new Vector3f(0, 0, 1), new Vector2f(1.0f, 0.0f)),
+
+                    //Right face
+                    new Vertex(new Vector3f( 0.5f * size + x,  0.5f * size + y, -0.5f * size + z), new Vector3f(1, 0, 0), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x, -0.5f * size + y, -0.5f * size + z), new Vector3f(1, 0, 0), new Vector2f(0.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x, -0.5f * size + y,  0.5f * size + z), new Vector3f(1, 0, 0), new Vector2f(1.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x,  0.5f * size + y,  0.5f * size + z), new Vector3f(1, 0, 0), new Vector2f(1.0f, 0.0f)),
+
+                    //Left face
+                    new Vertex(new Vector3f(-0.5f * size + x,  0.5f * size + y, -0.5f * size + z), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.5f * size + x, -0.5f * size + y, -0.5f * size + z), new Vector3f(-1, 0, 0), new Vector2f(0.0f, 1.0f)),
+                    new Vertex(new Vector3f(-0.5f * size + x, -0.5f * size + y,  0.5f * size + z), new Vector3f(-1, 0, 0), new Vector2f(1.0f, 1.0f)),
+                    new Vertex(new Vector3f(-0.5f * size + x,  0.5f * size + y,  0.5f * size + z), new Vector3f(-1, 0, 0), new Vector2f(1.0f, 0.0f)),
+
+                    //Top face
+                    new Vertex(new Vector3f(-0.5f * size + x,  0.5f * size + y,  0.5f * size + z), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.5f * size + x,  0.5f * size + y, -0.5f * size + z), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x,  0.5f * size + y, -0.5f * size + z), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x,  0.5f * size + y,  0.5f * size + z), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+
+                    //Bottom face
+                    new Vertex(new Vector3f(-0.5f * size + x, -0.5f * size + y,  0.5f * size + z), new Vector3f(0, -1, 0), new Vector2f(0.0f, 0.0f)),
+                    new Vertex(new Vector3f(-0.5f * size + x, -0.5f * size + y, -0.5f * size + z), new Vector3f(0, -1, 0), new Vector2f(0.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x, -0.5f * size + y, -0.5f * size + z), new Vector3f(0, -1, 0), new Vector2f(1.0f, 1.0f)),
+                    new Vertex(new Vector3f( 0.5f * size + x, -0.5f * size + y,  0.5f * size + z), new Vector3f(0, -1, 0), new Vector2f(1.0f, 0.0f)),
+            };
+            int[] cubeTris = new int[] {
+                    //Back face
+                    i * 24 + 0, i * 24 + 1, i * 24 + 3,
+                    i * 24 + 3, i * 24 + 1, i * 24 + 2,
+
+                    //Front face
+                    i * 24 + 4, i * 24 + 5, i * 24 + 7,
+                    i * 24 + 7, i * 24 + 5, i * 24 + 6,
+
+                    //Right face
+                    i * 24 + 8, i * 24 + 9, i * 24 + 11,
+                    i * 24 + 11, i * 24 + 9, i * 24 + 10,
+
+                    //Left face
+                    i * 24 + 12, i * 24 + 13, i * 24 + 15,
+                    i * 24 + 15, i * 24 + 13, i * 24 + 14,
+
+                    //Top face
+                    i * 24 + 16, i * 24 + 17, i * 24 + 19,
+                    i * 24 + 19, i * 24 + 17, i * 24 + 18,
+
+                    //Bottom face
+                    i * 24 + 20, i * 24 + 21, i * 24 + 23,
+                    i * 24 + 23, i * 24 + 21, i * 24 + 22
+            };
+
+            System.arraycopy(cube, 0, vertices, i * 24, 24);
+            System.arraycopy(cubeTris, 0, indices, i * 36, 36);
+        }
+
+
+        return new Mesh(vertices, indices, m);
     }
 
     // Creates a rectangular prism

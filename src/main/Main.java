@@ -13,9 +13,6 @@ import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.UserInterface;
 import game.viewmodel.Viewmodel;
-import net.Client;
-import net.packets.PacketDisconnect;
-import net.packets.PacketLogin;
 import org.lwjgl.glfw.GLFW;
 
 import javax.swing.*;
@@ -170,25 +167,13 @@ public class Main implements Runnable {
     }
 
     private void connect() {
-        Client.setSocketClient(new Client( "localhost"));
-        Client.getSocketClient().start();
 
         Scene.getScene().load();
         Viewmodel.getViewmodel().load();
 
-        PacketLogin packet = new PacketLogin(username);
-        packet.writeData(Client.getSocketClient());
     }
 
     private void disconnect() {
-        System.out.println("[INFO] Sending disconnect packet");
-        if (Client.isConnected()) {
-            PacketDisconnect packet = new PacketDisconnect();
-            packet.writeData(Client.getSocketClient());
-            System.out.println("[INFO] Ending client thread");
-            Client.setRunning(false);
-            Client.getClientThread().interrupt();
-        }
     }
 
     public void run() {
@@ -230,15 +215,11 @@ public class Main implements Runnable {
             lastFixedUpdate = System.currentTimeMillis();
         }
 
-        if (Client.isConnected()) {
+        Scene.getScene().update();
+        if (Scene.isLoaded()) {
             PlayerMovement.getPlayerMovement().update();
             Viewmodel.getViewmodel().update();
-            Scene.getScene().update();
 
-            if (fixedUpdate && Scene.isLoaded()) {
-                Client.getSocketClient().getSender().sendData();
-                lastFixedUpdate = System.currentTimeMillis();
-            }
         }
 
             AudioMaster.update();
@@ -246,7 +227,7 @@ public class Main implements Runnable {
 
     private void render() {
 
-        if (Client.isConnected() && materialsLoaded) {
+        if (materialsLoaded && Scene.isLoaded()) {
             Renderer.getMain().renderScene();
 
             Viewmodel.getViewmodel().render();

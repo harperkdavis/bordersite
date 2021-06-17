@@ -11,7 +11,6 @@ import engine.objects.Camera;
 import game.scene.Scene;
 import main.Global;
 import main.Main;
-import net.Client;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -108,7 +107,7 @@ public class PlayerMovement {
             velY = 0;
             if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
                 velY = 10.0f * Main.getDeltaTime() * 120;
-                position.add(0, 0.02f, 0);
+                position.add(0, 0.1f, 0);
                 AudioMaster.playSound(SoundEffect.JUMP);
                 isGrounded = false;
             }
@@ -249,7 +248,7 @@ public class PlayerMovement {
 
         float bobbingTime = (System.currentTimeMillis() - movementStarted) / ((isSprinting ? 600.0f : (isCrouching ? 1000.0f : 600.0f)) / 9.0f);
         float bobbing = (float) Math.sin(bobbingTime);
-        cameraTilt = Mathf.lerpdt(cameraTilt,bobbingMultiplier * (float) Math.sin(bobbingTime / 2) * 0.2f, 0.05f);
+        cameraTilt = Mathf.lerpdt(cameraTilt,bobbingMultiplier * (float) Math.sin(bobbingTime / 2) * 2.0f, 0.05f);
 
         cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1f : 1.5f, 0.01f) + bobbing * bobbingMultiplier * (isSprinting ? 2.5f : (isCrouching ? 1.5f : 1.0f)) * 0.01f;
 
@@ -284,7 +283,7 @@ public class PlayerMovement {
 
     public void update() {
 
-        if (!(Client.isConnected() && Scene.isLoaded())) {
+        if (!Scene.isLoaded()) {
             return;
         }
 

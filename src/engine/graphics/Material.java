@@ -21,6 +21,7 @@ public class Material {
     private float width, height;
 
     protected static List<Material> materials = new ArrayList<>();
+    protected static List<Material> mapMaterials = new ArrayList<>();
 
     // GLOBAL
 
