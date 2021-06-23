@@ -63,18 +63,10 @@ vec3 calculateDirectionalLight(DirectionalLight light, vec3 position, vec3 norma
     vec3 fromLightDir = -lightDir;
     vec3 reflectedLight = normalize(reflect(fromLightDir , normal));
     float specularFactor = max(dot(cameraDirection, reflectedLight), 0.0);
-    specularFactor = pow(specularFactor, 32);
+    specularFactor = pow(specularFactor, 8);
     vec3 specColor = specular * light.intensity * specularFactor * light.color;
 
     return (diffuseColor + specColor);
-}
-
-vec3 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
-    vec3 lightDir = -light.direction;
-    lightDir.y = -lightDir.y;
-
-    float diffuseFactor = max(dot(normal, lightDir), 0.0);
-    return diffuse * light.color * light.intensity * diffuseFactor;
 }
 
 vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirectionalLight dirLight) {
@@ -101,7 +93,7 @@ float calcShadow(vec4 position) {
     for(int x = -1; x <= 1; ++x) {
         for(int y = -1; y <= 1; ++y) {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - 0.0005 > pcfDepth ? 1.0 : 0.0;
+            shadow += currentDepth - 0.0007 > pcfDepth ? 1.0 : 0.0;
         }
     }
     shadow /= 9.0;

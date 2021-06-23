@@ -12,7 +12,7 @@ import game.PlayerMovement;
 
 public class RampComponent implements Component {
 
-    private Vector3f stl, str, sbl, sbr, ntl, ntr, nbl, nbr;
+    private final Vector3f stl, str, sbl, sbr, ntl, ntr, nbl, nbr;
     private Vector3f tnor, bnor, lnor, rnor, nnor, frontnormal, leftnormal, rightnormal;
     private Vector2f tl, tr, bl, br,
             etl, etr, ebl, ebr,
@@ -27,8 +27,8 @@ public class RampComponent implements Component {
     private int direction;
     private float crossMagnitude;
     private float height, slope;
-    private final float tiling = 2.0f;
-    private boolean slowAscent = true;
+    private float tiling = 2.0f;
+    private boolean mesh = true, collision = true;
 
     /*
             Z-
@@ -40,6 +40,16 @@ public class RampComponent implements Component {
             Z+
      */
 
+    public RampComponent(Vector3f a, Vector3f b, Vector3f c, float height, int direction, Material material, float tiling, boolean mesh, boolean collision) {
+        this(a, b, c, height, direction, material, tiling);
+        this.collision = collision;
+        this.mesh = mesh;
+    }
+
+    public RampComponent(Vector3f a, Vector3f b, Vector3f c, float height, int direction, Material material, float tiling) {
+        this(a, b, c, height, direction, material);
+        this.tiling = tiling;
+    }
 
     public RampComponent(Vector3f a, Vector3f b, Vector3f c, float height, int direction, Material material) {
         this.stl = a;
@@ -66,13 +76,13 @@ public class RampComponent implements Component {
         bl = new Vector2f(sbl.getX(), sbl.getZ());
         br = new Vector2f(sbr.getX(), sbr.getZ());
 
-        Vector2f midpoint2 = new Vector2f(midpoint.getX(), midpoint.getZ());
-
         float radius = PlayerMovement.PLAYER_RADIUS;
-        etl = getExtended(midpoint2, tl, radius);
-        etr = getExtended(midpoint2, tr, radius);
-        ebl = getExtended(midpoint2, bl, radius);
-        ebr = getExtended(midpoint2, br, radius);
+        calculateSideNormals();
+
+        etl = getExtended(bl, tl, tr, lnor, tnor, radius);
+        etr = getExtended(tl, tr, br, tnor, rnor, radius);
+        ebr = getExtended(tr, br, bl, rnor, bnor, radius);
+        ebl = getExtended(br, bl, tl, bnor, lnor, radius);
 
         switch(direction) {
             case 0 -> {
@@ -117,7 +127,7 @@ public class RampComponent implements Component {
             }
         }
 
-        calculateNormals();
+        calculateTopNormal();
 
         slope = Vector3f.dot(Vector3f.oneY(), nnor.normalized());
 
@@ -144,10 +154,10 @@ public class RampComponent implements Component {
             }
         }
 
-        setl = getExtended(midpoint2, topl, radius - 0.1f);
-        setr = getExtended(midpoint2, topr, radius - 0.1f);
-        sebl = getExtended(midpoint2, btml, radius - 0.1f);
-        sebr = getExtended(midpoint2, btmr, radius - 0.1f);
+        setl = getExtended(bl, tl, tr, lnor, tnor, radius - 0.1f);
+        setr = getExtended(tl, tr, br, tnor, rnor, radius - 0.1f);
+        sebr = getExtended(tr, br, bl, rnor, bnor, radius - 0.1f);
+        sebl = getExtended(br, bl, tl, bnor, lnor, radius - 0.1f);
 
         stopl = Mathf.intersectPoint(setl.getX(), setl.getY(), sebl.getX(), sebl.getY(), topl.getX(), topl.getY(), topr.getX(), topr.getY());
         stopr = Mathf.intersectPoint(setr.getX(), setr.getY(), sebr.getX(), sebr.getY(), topl.getX(), topl.getY(), topr.getX(), topr.getY());
@@ -160,20 +170,26 @@ public class RampComponent implements Component {
         baseObject = new GameObject(Vector3f.zero(), build());
     }
 
-    private Vector2f getExtended(Vector2f midpoint, Vector2f position, float extension) {
-        Vector2f distance = Vector2f.subtract(position, midpoint);
-        Vector2f extend = distance.normalized();
-        extend.multiply(distance.magnitude() + extension);
-        return Vector2f.add(midpoint, extend);
+    private Vector2f getExtended(Vector2f a, Vector2f b, Vector2f c, Vector3f abnor, Vector3f bcnor, float extention) {
+        Vector2f eab = new Vector2f(a.getX() + abnor.getX() * extention, a.getY() + abnor.getZ() * extention);
+        Vector2f eba = new Vector2f(b.getX() + abnor.getX() * extention, b.getY() + abnor.getZ() * extention);
+
+        Vector2f ebc = new Vector2f(b.getX() + bcnor.getX() * extention, b.getY() + bcnor.getZ() * extention);
+        Vector2f ecb = new Vector2f(c.getX() + bcnor.getX() * extention, c.getY() + bcnor.getZ() * extention);
+
+        return Mathf.intersectPoint(eab.getX(), eab.getY(), eba.getX(), eba.getY(), ebc.getX(), ebc.getY(), ecb.getX(), ecb.getY());
     }
 
-    private void calculateNormals() {
+    private void calculateSideNormals() {
         Vector3f nsnor = getSideNormal(stl, str);
         Vector3f lrnor = getSideNormal(str, sbr);
         tnor = new Vector3f(nsnor).multiply(-1);
         bnor = new Vector3f(nsnor);
         rnor = new Vector3f(lrnor).multiply(-1);
         lnor = new Vector3f(lrnor);
+    }
+
+    private void calculateTopNormal() {
         nnor = getTopNormal(new Vector3f(ebtml.getX(), stl.getY(), ebtml.getY()),
                 new Vector3f(etopl.getX(), stl.getY() + height, etopl.getY()),
                 new Vector3f(ebtmr.getX(), stl.getY(), ebtmr.getY())).normalize().multiply(-1);
@@ -192,6 +208,10 @@ public class RampComponent implements Component {
 
     private Mesh build() {
         Vector3f ful, fur, fbl, fbr, bbl, bbr;
+
+        if (!mesh) {
+            return new Mesh(new Vertex[]{}, new int[]{}, Material.DEFAULT);
+        }
 
         if (direction == 0) {
             ful = ntl;
@@ -272,6 +292,10 @@ public class RampComponent implements Component {
 
     @Override
     public Collision getCollision(Vector3f previous, Vector3f position, Vector3f velocity, float height, boolean isGrounded) {
+        if (!collision) {
+            return new Collision(position, velocity, false);
+        }
+
         float radius = PlayerMovement.PLAYER_RADIUS;
 
         Vector3f newPosition = new Vector3f(position);
@@ -288,13 +312,9 @@ public class RampComponent implements Component {
         if (newPosition.equals(position)) {
             if (isWithinRampBounds(new Vector2f(newPosition.getX(), newPosition.getZ()))) {
                 if (newPosition.getY() > stl.getY() - radius) {
-                    if (newPosition.getY() < getHeightAt(position) + radius + 0.1f) {
+                    if (newPosition.getY() < getHeightAt(position) + radius + 0.05f) {
                         Vector2f prev = new Vector2f(previous.getX(), previous.getZ()), pos = new Vector2f(newPosition.getX(), newPosition.getZ());
                         Vector2f dist = Vector2f.subtract(pos, prev);
-                        float modifier = ((slope + 1) * (slope + 1) - 1) / 3;
-                        if (slowAscent) {
-                            dist.multiply(modifier);
-                        }
                         Vector3f newerPosition = new Vector3f(prev.getX() + dist.getX(), newPosition.getY(), prev.getY() + dist.getY());
                         return new Collision(new Vector3f(newerPosition.getX(), getHeightAt(newerPosition) + radius, newerPosition.getZ()), velocity, true);
                     }

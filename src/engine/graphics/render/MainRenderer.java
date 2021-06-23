@@ -27,13 +27,9 @@ import java.util.Random;
 public class MainRenderer extends Renderer {
 
     private final Vector3f ambientLight;
-    private final DirectionalLight directionalLight;
     private final Fog fog;
 
-    private static final int MAX_POINT_LIGHTS = 128;
-    private static float exposure = 1.0f;
-
-    private final PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
+    private static float exposure = 1.8f;
 
     private Shader gShader, depthShader, ssaoShader, ssaoBlurShader, blurShader, postShader;
     protected int depthMapFramebuffer, depthMapTexture;
@@ -67,12 +63,7 @@ public class MainRenderer extends Renderer {
         this.postShader = postShader;
 
         ambientLight = new Vector3f(0.2f, 0.2f, 0.205f);
-        directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), new Vector3f(0.8f, 1.0f, 0.4f).normalize(), 1.0f);
         fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.002f);
-
-        for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
-            pointLights[i] = PointLight.IDENTITY;
-        }
 
     }
 
@@ -398,9 +389,9 @@ public class MainRenderer extends Renderer {
         shader.setUniform("view", view);
 
         shader.setUniform("ambientLight", ambientLight);
-        shader.setUniform("directionalLight", directionalLight);
+        shader.setUniform("directionalLight", Scene.directionalLight);
 
-        shader.setUniform("pointLights", pointLights);
+        shader.setUniform("pointLights", Scene.pointLights);
 
         renderQuad();
 
@@ -465,7 +456,7 @@ public class MainRenderer extends Renderer {
 
     private Matrix4f getLightSpaceMatrix() {
         Matrix4f lightOrtho = Matrix4f.ortho(-100, 100, -100, 100, 1.0f, 320.0f);
-        Vector3f lightDir = new Vector3f(directionalLight.getDirection());
+        Vector3f lightDir = new Vector3f(Scene.directionalLight.getDirection());
         Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 20, lightDir.getY() * 20, -lightDir.getZ() * 20), Vector3f.zero(), Vector3f.oneY());
         return Matrix4f.multiply(lightView, lightOrtho);
     }

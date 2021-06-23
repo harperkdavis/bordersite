@@ -4,6 +4,8 @@ import engine.components.BlockComponent;
 import engine.components.Component;
 import engine.components.RampComponent;
 import engine.graphics.Material;
+import engine.graphics.light.DirectionalLight;
+import engine.graphics.light.PointLight;
 import engine.graphics.mesh.MeshBuilder;
 import engine.math.*;
 import engine.objects.GameObject;
@@ -20,7 +22,10 @@ public class Scene implements GamePlane {
     protected static boolean loaded = false;
     protected static boolean loading = false;
 
-    public GameObject groundPlane;
+    protected static final int MAX_POINT_LIGHTS = 128;
+
+    public static DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), new Vector3f(0.8f, 1.0f, 0.4f).normalize(), 1.0f);
+    public static PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
 
     public static List<GameObject> objects = new ArrayList<>();
     public static List<Component> components = new ArrayList<>();
@@ -51,17 +56,6 @@ public class Scene implements GamePlane {
 
     @Override
     public void load() {
-        // Load ARENA
-        // Outer Walls
-        addBlock(new Vector3f(-10, -2, -10), new Vector3f(-10, -2, 20), new Vector3f(20, -2, 20), 2, Material.ENV_FLOOR);
-        addBlock(new Vector3f(1, 0, 1), new Vector3f(1, 0, 4), new Vector3f(4, 0, 4), 4, Material.ENV_FLOOR);
-        addBlock(new Vector3f(3, 0, 3), new Vector3f(3, 0, 4), new Vector3f(5, 0, 5), 4, Material.ENV_FLOOR);
-        addBlock(new Vector3f(5, 2.0f, 5), new Vector3f(5, 2.0f, 7), new Vector3f(7, 2.0f, 7), 1.0f, Material.ENV_FLOOR);
-        addBlock(new Vector3f(8, 0, 8), new Vector3f(8, 0 , 10), new Vector3f(10, 0, 10),1.5f, Material.ENV_BRICK);
-        addBlock(new Vector3f(2, 4, 6), new Vector3f(2, 4, 8), new Vector3f(4, 4, 8),1.5f, Material.ENV_BRICK);
-
-        addRamp(new Vector3f(-5, 1, -5), new Vector3f(-5, 1, 10), new Vector3f(-1, 1, 10), 4, 0, Material.ENV_FLOOR);
-        addBlock(new Vector3f(-10, -1, -20), new Vector3f(-10, -1, -5), new Vector3f(5, -1, -5), 6, Material.ENV_FLOOR);
 
         loading = true;
         loaded = false;
@@ -86,7 +80,6 @@ public class Scene implements GamePlane {
     public void render() {
 
     }
-
     @Override
     public void fixedUpdate() {
 
@@ -99,23 +92,38 @@ public class Scene implements GamePlane {
         }
     }
 
-    private void addBlock(Vector3f a, Vector3f b, Vector3f c, float height, Material material) {
+    public static void addComponent(Component c) {
+        addObject(c.getObject(), false);
+        PlayerMovement.addCollisionComponent(c);
+    }
+
+    public static void addBlock(BlockComponent block) {
+        addObject(block.getObject(), false);
+        PlayerMovement.addCollisionComponent(block);
+    }
+
+    public static void addRamp(RampComponent ramp) {
+        addObject(ramp.getObject(), false);
+        PlayerMovement.addCollisionComponent(ramp);
+    }
+
+    public static void addBlock(Vector3f a, Vector3f b, Vector3f c, float height, Material material) {
         BlockComponent blockComponent = new BlockComponent(a, b, c, height, material);
         addObject(blockComponent.getObject(), false);
         PlayerMovement.addCollisionComponent(blockComponent);
     }
 
-    private void addRamp(Vector3f a, Vector3f b, Vector3f c, float height, int direction, Material material) {
+    public static void addRamp(Vector3f a, Vector3f b, Vector3f c, float height, int direction, Material material) {
         RampComponent rampComponent = new RampComponent(a, b, c, height, direction, material);
         addObject(rampComponent.getObject(), false);
         PlayerMovement.addCollisionComponent(rampComponent);
     }
 
-    public GameObject addObject(GameObject object) {
+    public static GameObject addObject(GameObject object) {
         return addObject(object, false);
     }
 
-    public GameObject addObject(GameObject object, boolean load) {
+    public static GameObject addObject(GameObject object, boolean load) {
         objects.add(object);
         if (load) {
             object.load();
@@ -123,7 +131,7 @@ public class Scene implements GamePlane {
         return object;
     }
 
-    public void removeObject(GameObject object) {
+    public static void removeObject(GameObject object) {
         objects.remove(object);
         object.unload();
     }

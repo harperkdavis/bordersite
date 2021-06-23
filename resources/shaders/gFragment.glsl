@@ -30,6 +30,6 @@ void main() {
 
     gNormal = vec4((texture(texture_normal, vertexUV).rgb * 2.0 - 1.0) * tangentMatrix, 1);
 
-    gAlbedoSpec = vec4(texture(texture_diffuse, vertexUV).rgb, 1 - texture(texture_specular, vertexUV).r);
+    gAlbedoSpec = vec4(texture(texture_diffuse, vertexUV).rgb, texture(texture_specular, vertexUV).r);
 
 }

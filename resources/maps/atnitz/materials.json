@@ -1,11 +1,9 @@
 {
-  "diffuse": [
-
-  ],
-  "normal": [
-
-  ],
-  "specular": [
-
-  ]
+  "materials": {
+    "concrete": ["materials/concrete.png", "materials/concrete_normal.png", "materials/concrete_specular.png"],
+    "floor": ["materials/floor.png", "materials/floor_normal.png", "materials/floor_specular.png"],
+    "mud": ["materials/mud.png", "materials/mud_normal.png", "materials/mud_specular.png"],
+    "path": ["materials/path.png", "materials/path_normal.png", "materials/path_specular.png"],
+    "planks": ["materials/planks.png", "materials/planks_normal.png", "materials/planks_specular.png"]
+  }
 }

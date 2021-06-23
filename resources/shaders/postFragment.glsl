@@ -11,7 +11,6 @@ uniform float exposure;
 void main() {
     const float gamma = 1.2;
     vec3 hdrColor = texture(hdrBuffer, vertexUV).rgb;
-    vec3 bloomColor = texture(brightBuffer, vertexUV).rgb;
 
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
     mapped = pow(mapped, vec3(1.0 / gamma));

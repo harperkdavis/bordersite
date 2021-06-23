@@ -22,6 +22,7 @@ public class BlockComponent implements Component {
     private float height;
     private float lrScale = 1, yScale = 1, udScale = 1;
     private float tiling = 2.0f;
+    private boolean mesh = true, collision = true;
 
     /*
             Z-
@@ -32,6 +33,17 @@ public class BlockComponent implements Component {
         BL-----BR
             Z+
      */
+
+    public BlockComponent(Vector3f a, Vector3f b, Vector3f c, float height, Material material, float tiling) {
+        this(a, b, c, height, material);
+        this.tiling = tiling;
+    }
+
+    public BlockComponent(Vector3f a, Vector3f b, Vector3f c, float height, Material material, float tiling, boolean mesh, boolean collision) {
+        this(a, b, c, height, material, tiling);
+        this.mesh = mesh;
+        this.collision = collision;
+    }
 
 
     public BlockComponent(Vector3f a, Vector3f b, Vector3f c, float height, Material material) {
@@ -62,29 +74,31 @@ public class BlockComponent implements Component {
         udScale = Vector2f.subtract(tl, bl).magnitude();
         yScale = ntl.getY() - stl.getY();
 
-        Vector2f midpoint2 = new Vector2f(midpoint.getX(), midpoint.getZ());
-
         float radius = PlayerMovement.PLAYER_RADIUS;
-        etl = getExtended(midpoint2, tl, radius);
-        etr = getExtended(midpoint2, tr, radius);
-        ebl = getExtended(midpoint2, bl, radius);
-        ebr = getExtended(midpoint2, br, radius);
-
-        setl = getExtended(midpoint2, tl, radius - 0.1f);
-        setr = getExtended(midpoint2, tr, radius - 0.1f);
-        sebl = getExtended(midpoint2, bl, radius - 0.1f);
-        sebr = getExtended(midpoint2, br, radius - 0.1f);
 
         calculateNormals();
+
+        etl = getExtended(bl, tl, tr, lnor, tnor, radius);
+        etr = getExtended(tl, tr, br, tnor, rnor, radius);
+        ebr = getExtended(tr, br, bl, rnor, bnor, radius);
+        ebl = getExtended(br, bl, tl, bnor, lnor, radius);
+
+        setl = getExtended(bl, tl, tr, lnor, tnor, radius - 0.1f);
+        setr = getExtended(tl, tr, br, tnor, rnor, radius - 0.1f);
+        sebr = getExtended(tr, br, bl, rnor, bnor, radius - 0.1f);
+        sebl = getExtended(br, bl, tl, bnor, lnor, radius - 0.1f);
 
         baseObject = new GameObject(Vector3f.zero(), build());
     }
 
-    private Vector2f getExtended(Vector2f midpoint, Vector2f position, float extention) {
-        Vector2f distance = Vector2f.subtract(position, midpoint);
-        Vector2f extend = distance.normalized();
-        extend.multiply(distance.magnitude() + extention);
-        return Vector2f.add(midpoint, extend);
+    private Vector2f getExtended(Vector2f a, Vector2f b, Vector2f c, Vector3f abnor, Vector3f bcnor, float extention) {
+        Vector2f eab = new Vector2f(a.getX() + abnor.getX() * extention, a.getY() + abnor.getZ() * extention);
+        Vector2f eba = new Vector2f(b.getX() + abnor.getX() * extention, b.getY() + abnor.getZ() * extention);
+
+        Vector2f ebc = new Vector2f(b.getX() + bcnor.getX() * extention, b.getY() + bcnor.getZ() * extention);
+        Vector2f ecb = new Vector2f(c.getX() + bcnor.getX() * extention, c.getY() + bcnor.getZ() * extention);
+
+        return Mathf.intersectPoint(eab.getX(), eab.getY(), eba.getX(), eba.getY(), ebc.getX(), ebc.getY(), ecb.getX(), ecb.getY());
     }
 
     private void calculateNormals() {
@@ -103,6 +117,11 @@ public class BlockComponent implements Component {
     }
 
     private Mesh build() {
+
+        if (!mesh) {
+            return new Mesh(new Vertex[]{}, new int[]{}, Material.DEFAULT);
+        }
+
         Mesh mesh = new Mesh(new Vertex[] {
                 // TOP
                 new Vertex(new Vector3f(stl.getX(), ntl.getY(), stl.getZ()), tnor, new Vector2f(0, yScale / tiling)),
@@ -153,6 +172,10 @@ public class BlockComponent implements Component {
 
     @Override
     public Collision getCollision(Vector3f previous, Vector3f position, Vector3f velocity, float height, boolean isGrounded) {
+        if (!collision) {
+            return new Collision(position, velocity, false);
+        }
+
         float radius = PlayerMovement.PLAYER_RADIUS;
 
         Vector3f newPosition = new Vector3f(position);
