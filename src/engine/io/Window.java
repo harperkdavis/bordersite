@@ -18,7 +18,7 @@ public class Window {
     private static int width, height;
     private boolean fullscreen;
     private final String title;
-    private long window;
+    private static long window;
 
     private long fpsTime;
 
@@ -117,6 +117,13 @@ public class Window {
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
         fpsTime = System.currentTimeMillis();
+
+        try {
+            IconLoader.setIcon("resources/icon-64.png");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         System.out.println("    [INFO] Window process completed.");
     }
 
@@ -213,7 +220,7 @@ public class Window {
         return title;
     }
 
-    public long getWindow() {
+    public static long getWindow() {
         return window;
     }
 
@@ -256,4 +263,6 @@ public class Window {
     public float getFPS() {
         return frameRate;
     }
+
+
 }

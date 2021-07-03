@@ -9,8 +9,8 @@ import engine.io.Window;
 import engine.math.*;
 import engine.objects.Camera;
 import game.scene.Scene;
-import main.Global;
 import main.Main;
+import main.Global;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -248,7 +248,7 @@ public class PlayerMovement {
 
         float bobbingTime = (System.currentTimeMillis() - movementStarted) / ((isSprinting ? 600.0f : (isCrouching ? 1000.0f : 600.0f)) / 9.0f);
         float bobbing = (float) Math.sin(bobbingTime);
-        cameraTilt = Mathf.lerpdt(cameraTilt,bobbingMultiplier * (float) Math.sin(bobbingTime / 2) * 2.0f, 0.05f);
+        cameraTilt = Mathf.lerpdt(cameraTilt, 0, 0.05f);
 
         cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1f : 1.5f, 0.01f) + bobbing * bobbingMultiplier * (isSprinting ? 2.5f : (isCrouching ? 1.5f : 1.0f)) * 0.01f;
 

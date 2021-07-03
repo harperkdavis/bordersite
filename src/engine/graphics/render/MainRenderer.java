@@ -31,7 +31,7 @@ public class MainRenderer extends Renderer {
 
     private static float exposure = 1.8f;
 
-    private Shader gShader, depthShader, ssaoShader, ssaoBlurShader, blurShader, postShader;
+    private final Shader gShader, depthShader, ssaoShader, ssaoBlurShader, blurShader, postShader, unlitShader;
     protected int depthMapFramebuffer, depthMapTexture;
 
     private int gBuffer, rboDepth;
@@ -51,7 +51,7 @@ public class MainRenderer extends Renderer {
     private static final int SHADOW_MAP_WIDTH = 8192, SHADOW_MAP_HEIGHT = 8192;
 
 
-    public MainRenderer(Shader gShader, Shader ssaoShader, Shader ssaoBlurShader, Shader shader, Shader depthShader, Shader blurShader, Shader postShader) {
+    public MainRenderer(Shader gShader, Shader ssaoShader, Shader ssaoBlurShader, Shader shader, Shader depthShader, Shader blurShader, Shader postShader, Shader unlitShader) {
         super(shader);
         Renderer.setMain(this);
 
@@ -61,6 +61,7 @@ public class MainRenderer extends Renderer {
         this.ssaoBlurShader = ssaoBlurShader;
         this.blurShader = blurShader;
         this.postShader = postShader;
+        this.unlitShader = unlitShader;
 
         ambientLight = new Vector3f(0.2f, 0.2f, 0.205f);
         fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.002f);
@@ -429,6 +430,13 @@ public class MainRenderer extends Renderer {
         renderQuad();
         postShader.unbind();
 
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, gBuffer);
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
+        GL30.glBlitFramebuffer(0, 0, Window.getWidth(), Window.getHeight(), 0, 0, Window.getWidth(), Window.getHeight(), GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+
+        render(Scene.getSkybox());
+
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
@@ -450,8 +458,39 @@ public class MainRenderer extends Renderer {
         GL30.glBindVertexArray(0);
     }
 
-    @Override
-    public void render(GameObject object) {
+    public void forwardsRender(Shader shader, GameObject object) {
+        shader.bind();
+
+        Matrix4f view = Matrix4f.view(Camera.getMainCameraPosition(), Camera.getMainCameraRotation(), true);
+        Matrix4f projection = Window.getProjectionMatrix();
+
+        if (!object.isVisible()) {
+            return;
+        }
+        if (object.hasChildren()) {
+            for (GameObject go : object.getChildren()) {
+                render(go);
+            }
+        }
+
+        GL30.glBindVertexArray(object.getMesh().getVAO());
+        enableVertexArrays(5);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, object.getMesh().getIBO());
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL13.glBindTexture(GL11.GL_TEXTURE_2D, object.getMesh().getMaterial().getDiffuseID());
+
+        shader.setUniform("model", Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale()));
+        shader.setUniform("view", view);
+        shader.setUniform("projection", projection);
+
+        GL11.glDrawElements(GL11.GL_TRIANGLES, object.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+        disableVertexArrays(5);
+        GL30.glBindVertexArray(0);
+
+        shader.unbind();
     }
 
     private Matrix4f getLightSpaceMatrix() {
@@ -541,4 +580,8 @@ public class MainRenderer extends Renderer {
         GL30.glBindVertexArray(0);
     }
 
+    @Override
+    public void render(GameObject gameObject) {
+        forwardsRender(unlitShader, gameObject);
+    }
 }

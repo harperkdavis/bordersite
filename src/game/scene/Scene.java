@@ -8,6 +8,7 @@ import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.PointLight;
 import engine.graphics.mesh.MeshBuilder;
 import engine.math.*;
+import engine.objects.Camera;
 import engine.objects.GameObject;
 import game.GamePlane;
 import game.PlayerMovement;
@@ -27,8 +28,10 @@ public class Scene implements GamePlane {
     public static DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), new Vector3f(0.8f, 1.0f, 0.4f).normalize(), 1.0f);
     public static PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
 
+
     public static List<GameObject> objects = new ArrayList<>();
     public static List<Component> components = new ArrayList<>();
+    protected static GameObject skybox;
     private static final List<GameObject> bufferedObjects = new ArrayList<>();
 
     public static Map<String, GameObject> playerObjects = new HashMap<>();
@@ -38,8 +41,6 @@ public class Scene implements GamePlane {
     protected static float SCALE_X = 4;
     protected static float SCALE_Y = 1;
     protected static float SCALE_Z = 4;
-
-    private List<GameObject> spinnyObjects;
 
     public Scene() {
 
@@ -73,6 +74,8 @@ public class Scene implements GamePlane {
             object.load();
             objects.add(object);
         }
+
+        skybox.setPosition(Camera.getMainCameraPosition());
 
     }
 
@@ -222,5 +225,9 @@ public class Scene implements GamePlane {
 
     public static float getScaleZ() {
         return SCALE_Z;
+    }
+
+    public static GameObject getSkybox() {
+        return skybox;
     }
 }

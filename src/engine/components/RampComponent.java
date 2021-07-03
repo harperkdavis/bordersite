@@ -165,7 +165,7 @@ public class RampComponent implements Component {
         sbotl = Mathf.intersectPoint(setl.getX(), setl.getY(), sebl.getX(), sebl.getY(), btml.getX(), btml.getY(), btmr.getX(), btmr.getY());
         sbotr = Mathf.intersectPoint(setr.getX(), setr.getY(), sebr.getX(), sebr.getY(), btml.getX(), btml.getY(), btmr.getX(), btmr.getY());
 
-        crossMagnitude = Mathf.pointLine(btml.getX(), btml.getY(), topl.getX(), topl.getY(), topr.getX(), topr.getY());
+        crossMagnitude = Mathf.pointLine(ebtml.getX(), ebtml.getY(), topl.getX(), topl.getY(), topr.getX(), topr.getY());
 
         baseObject = new GameObject(Vector3f.zero(), build());
     }
@@ -190,9 +190,7 @@ public class RampComponent implements Component {
     }
 
     private void calculateTopNormal() {
-        nnor = getTopNormal(new Vector3f(ebtml.getX(), stl.getY(), ebtml.getY()),
-                new Vector3f(etopl.getX(), stl.getY() + height, etopl.getY()),
-                new Vector3f(ebtmr.getX(), stl.getY(), ebtmr.getY())).normalize().multiply(-1);
+        nnor = getTopNormal(ntl, ntr, nbr).normalize();
     }
 
     private Vector3f getTopNormal(Vector3f a, Vector3f b, Vector3f c) {
@@ -254,10 +252,10 @@ public class RampComponent implements Component {
                 new Vertex(new Vector3f(fbr.getX(), fbr.getY(), fbr.getZ()), frontnormal, new Vector2f(lrScale / tiling, 0)),
                 new Vertex(new Vector3f(fur.getX(), fur.getY(), fur.getZ()), frontnormal, new Vector2f(lrScale / tiling, yScale / tiling)),
 
-                new Vertex(new Vector3f(ful.getX(), ful.getY(), ful.getZ()), nnor, new Vector2f(0, 0)),
-                new Vertex(new Vector3f(bbl.getX(), bbl.getY(), bbl.getZ()), nnor, new Vector2f(0, udScale / tiling)),
-                new Vertex(new Vector3f(bbr.getX(), bbr.getY(), bbr.getZ()), nnor, new Vector2f(lrScale / tiling, udScale / tiling)),
-                new Vertex(new Vector3f(fur.getX(), fur.getY(), fur.getZ()), nnor, new Vector2f(lrScale / tiling, 0)),
+                new Vertex(new Vector3f(ful.getX(), ful.getY(), ful.getZ()), Vector3f.oneY(), new Vector2f(0, 0)),
+                new Vertex(new Vector3f(bbl.getX(), bbl.getY(), bbl.getZ()), Vector3f.oneY(), new Vector2f(0, udScale / tiling)),
+                new Vertex(new Vector3f(bbr.getX(), bbr.getY(), bbr.getZ()), Vector3f.oneY(), new Vector2f(lrScale / tiling, udScale / tiling)),
+                new Vertex(new Vector3f(fur.getX(), fur.getY(), fur.getZ()), Vector3f.oneY(), new Vector2f(lrScale / tiling, 0)),
 
                 new Vertex(new Vector3f(fbl.getX(), fbl.getY(), fbl.getZ()), new Vector3f(0, -1, 0), new Vector2f(0, udScale / tiling)),
                 new Vertex(new Vector3f(bbl.getX(), bbl.getY(), bbl.getZ()), new Vector3f(0, -1, 0), new Vector2f(0, 0)),
@@ -347,9 +345,9 @@ public class RampComponent implements Component {
 
     public float getHeightAt(Vector3f pos) {
         float distance1 = Mathf.pointLine(pos.getX(), pos.getZ(), topl.getX(), topl.getY(), topr.getX(), topr.getY());
-        float distance2 = Mathf.pointLine(pos.getX(), pos.getZ(), btml.getX(), btml.getY(), btmr.getX(), btmr.getY());
-        float distance = distance2 / crossMagnitude;
-        return Mathf.lerp(stl.getY(), stl.getY() + height + 0.11f, distance);
+        float distance2 = Mathf.pointLine(pos.getX(), pos.getZ(), ebtml.getX(), ebtml.getY(), ebtmr.getX(), ebtmr.getY());
+        float distance = ((distance2 / crossMagnitude) + (1 - distance1 / crossMagnitude)) / 2;
+        return Mathf.lerp(stl.getY(), stl.getY() + height * 1.1f + 0.1f, distance);
     }
 
     private Vector3f sideCollision(Vector3f pos, Vector2f a, Vector2f b, Vector2f c, Vector2f d, Vector3f normal, boolean checkHeight) {

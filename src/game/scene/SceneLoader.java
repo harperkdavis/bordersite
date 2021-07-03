@@ -114,7 +114,7 @@ public class SceneLoader {
                         int direction = val.get(13).intValue();
 
                         RampComponent newComponent = new RampComponent(a, b, c, height, direction, material, tiling, mesh, collision);
-                        // Scene.addComponent(newComponent);
+                        Scene.addComponent(newComponent);
 
                     }
                 }
@@ -165,6 +165,10 @@ public class SceneLoader {
                     System.out.println(position + " | " + color);
                     Scene.pointLights[i] = new PointLight(position, color);
                 }
+
+                String skyboxMat = (String) map.get("skybox");
+                Scene.skybox = new GameObject(Vector3f.zero(), MeshBuilder.Skybox(1000, MaterialLoader.loadMapSkyboxMaterial(MAP, skyboxMat)));
+                Scene.skybox.load();
 
             } catch (Exception e) {
                 e.printStackTrace();

@@ -79,6 +79,13 @@ public class MaterialLoader {
         }
     }
 
+    public static Material loadMapSkyboxMaterial(String mapName, String path) {
+        String matPath = "/maps/" + mapName + "/" + path;
+        Material material = new Material(matPath);
+        material.create();
+        return material;
+    }
+
     public static void unloadMapMaterials() {
         for (Material m : Material.mapMaterials.values()) {
             m.destroy();

@@ -14,6 +14,7 @@ import game.scene.Scene;
 import game.ui.UserInterface;
 import game.viewmodel.Viewmodel;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,11 +22,11 @@ import java.awt.*;
 public class Main implements Runnable {
 
     public Thread game;
-    public Shader gShader, ssaoShader, ssaoBlurShader, shadowShader, mainShader, blurShader, postShader, uiShader, viewmodelShader;
+    public Shader gShader, ssaoShader, ssaoBlurShader, shadowShader, mainShader, blurShader, postShader, uiShader, viewmodelShader, unlitShader;
 
     public int WIDTH, HEIGHT;
     public boolean FULLSCREEN;
-    public final String TITLE = "Bordersite";
+    public final String TITLE = "Main";
 
     private String username = "Player";
 
@@ -60,7 +61,7 @@ public class Main implements Runnable {
         usr.setVisible(true);
         panel.add(usr);
 
-        int result = JOptionPane.showConfirmDialog(null, panel, "Bordersite Launching", JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(null, panel, "Main Launching", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == 2 || result == -1) {
             return;
@@ -136,10 +137,12 @@ public class Main implements Runnable {
         uiShader = loadShader("ui");
         viewmodelShader = loadShader("viewmodel");
 
+        unlitShader = loadShader("unlit");
+
         System.out.println("[INFO] Loading shader complete.");
 
         System.out.println("[INFO] Initializing renderer...");
-        Renderer.setMain(new MainRenderer(gShader, ssaoShader, ssaoBlurShader, mainShader, shadowShader, blurShader, postShader));
+        Renderer.setMain(new MainRenderer(gShader, ssaoShader, ssaoBlurShader, mainShader, shadowShader, blurShader, postShader, unlitShader));
         Renderer.setUi(new UiRenderer(uiShader));
         Renderer.setViewmodel(new ViewmodelRenderer(viewmodelShader));
         System.out.println("[INFO] Renderer initialized!");
@@ -232,6 +235,7 @@ public class Main implements Runnable {
 
             Viewmodel.getViewmodel().render();
         }
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
         UserInterface.getUi().render();
 
         Window.getGameWindow().swapBuffers();
