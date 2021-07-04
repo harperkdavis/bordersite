@@ -7,8 +7,6 @@ import engine.graphics.Material;
 import engine.graphics.MaterialLoader;
 import engine.graphics.mesh.UiBuilder;
 import engine.graphics.render.Renderer;
-import engine.graphics.text.TextMeshBuilder;
-import engine.graphics.text.TextMode;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector2f;
@@ -38,7 +36,8 @@ public class UserInterface implements GamePlane {
 
     public static boolean mouseLock = true;
 
-    private GameObject loadingBackground, loadingText, loadingProgress, loadingMaterial;
+    private GameObject loadingBackground, loadingText, loadingMaterial;
+    private UiText loadingProgress;
 
     public UserInterface(int width, int height) {
         UserInterface.width = width;
@@ -52,8 +51,8 @@ public class UserInterface implements GamePlane {
         mapMenu = new MapMenu();
 
         loadingBackground = addObject(new UiPanel(0, 0, 2, 2, 3, 1));
-        loadingText = addObject(new GameObject(screen(0 - p(8), 0 + p(32), 1), TextMeshBuilder.TextMesh("LOADING...", p(32), TextMode.LEFT, true)));
-        loadingProgress = addObject(new GameObject(screen(0 + p(2), 0 + p(52), 1), TextMeshBuilder.TextMesh("0% / loaded", p(16), TextMode.LEFT)));
+        loadingText = addObject(new UiText(screen(0 - p(8), 0 + p(32), 1), "LOADING..."));
+        loadingProgress = (UiText) addObject(new UiText(screen(0 + p(2), 0 + p(46), 1), "0% / loaded"));
         loadingMaterial = addObject(new GameObject(screen(0 + p(4), 0 + p(60), 1), UiBuilder.UIRect(p(1),  Material.DEFAULT)));
     }
 
@@ -101,6 +100,13 @@ public class UserInterface implements GamePlane {
                 mapLoadingMenu.setVisible(false);
             }
 
+            if (Scene.isLoaded()) {
+                inGameMenu.setVisible(true);
+                inGameMenu.update();
+            } else {
+                inGameMenu.setVisible(false);
+            }
+
             Window.getGameWindow().mouseState(mouseLock);
 
             if (Input.isBindDown("esc")) {
@@ -114,7 +120,7 @@ public class UserInterface implements GamePlane {
                 int width = current.getDiffuseTexture().getTextureWidth(), height = current.getDiffuseTexture().getTextureHeight();
                 String percent = (Math.round(MaterialLoader.getProgress() * 1000) / 10.0f) + "%";
 
-                loadingProgress.setMesh(TextMeshBuilder.TextMesh( percent + " // [" + current.getDiffusePath() + "] (" + width + "x" + height + ")", p(16), TextMode.LEFT));
+                loadingProgress.setText(percent + " // [" + current.getDiffusePath() + "] (" + width + "x" + height + ")");
                 loadingMaterial.setMaterial(current);
                 loadingMaterial.setScale(new Vector3f(width, width, width));
             }

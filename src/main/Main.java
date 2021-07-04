@@ -18,6 +18,7 @@ import org.lwjgl.opengl.GL11;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Random;
 
 public class Main implements Runnable {
 
@@ -61,7 +62,11 @@ public class Main implements Runnable {
         usr.setVisible(true);
         panel.add(usr);
 
-        int result = JOptionPane.showConfirmDialog(null, panel, "Main Launching", JOptionPane.OK_CANCEL_OPTION);
+        String[] randoms = new String[]{"Atrovel", "Famongs", "Distropertity", "Ternal", "Ankelers", "Pulappli", "Oblivia", "Tribution", "Gerrassa", "Exibillia", "Flunge", "Sinullacce", "Friness", "Hevephiny", "Excred", "Exciling", "Dumpined", "Buwheal", "Cotableat", "Litated", "Ationsoles", "Citions", "Catchibed", "Rumadle", "Diligord", "Conveyhopk", "Dropperclear", "Eefullanizess", "Cobypatachered", "Breestrass", "Wethosted", "Avorthuades", "Burgination", "Adwadiansie", "Disaplurntor", "Canous", "Morpenes", "Opcong", "Mitimigrood", "Ceallip", "Galition", "Innous", "Seiliu", "Arinterpord", "Writme", "Hasteives", "Cellordion", "Obseum", "Alerrawia", "Endency", "AbsoluteFuckingClown"};
+        Random random = new Random();
+        usr.setText(randoms[random.nextInt(50)] + random.nextInt(1000));
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "\uD83C\uDFF3 Bordersite Launching... ️", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == 2 || result == -1) {
             return;
@@ -98,7 +103,10 @@ public class Main implements Runnable {
             HEIGHT = 1080;
         }
         FULLSCREEN = box.isSelected();
-        username = usr.getText();
+        username = usr.getText().substring(0, Math.min(username.length(), 64));
+        if (username.equals("")) {
+            username = "ThisPersonDoesntCare";
+        }
 
         PlayerMovement.setPlayerMovement(new PlayerMovement());
 

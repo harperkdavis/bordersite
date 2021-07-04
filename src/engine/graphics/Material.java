@@ -48,28 +48,10 @@ public class Material {
 
     // UI
 
-    public static final Material UI_BACK_ICON = new Material("/textures/ui/back_icon.png");
     public static final Material UI_BORDERSITE_LOGO = new Material("/textures/ui/bordersite_logo.png");
     public static final Material UI_LOADING_LOGO = new Material("/textures/ui/loading_logo.png");
 
-    public static final Material UI_CROSSHAIR_CENTER = new Material("/textures/ui/crosshair_center.png");
-    public static final Material UI_CROSSHAIR_OUT = new Material("/textures/ui/crosshair_out.png");
-
-    public static final Material UI_EFFECT_BLEEDING = new Material("/textures/ui/effect_bleeding.png");
-    public static final Material UI_EFFECT_FATIGUED = new Material("/textures/ui/effect_fatigued.png");
-
-    public static final Material UI_HEALTH_ICON = new Material("/textures/ui/health_icon.png");
-    public static final Material UI_HEALTH_REGEN_ICON = new Material("/textures/ui/health_regen_icon.png");
-    public static final Material UI_SPEED_ICON = new Material("/textures/ui/speed_icon.png");
-    public static final Material UI_STAMINA_ICON = new Material("/textures/ui/stamina_icon.png");
-
-    public static final Material UI_HIT_INDICATOR = new Material("/textures/ui/hit_indicator.png");
-    public static final Material UI_HIT_MARKER = new Material("/textures/ui/hit_marker.png");
-
-    public static final Material UI_STATUSBAR = new Material("/textures/ui/statusbar.png");
-    public static final Material UI_STATUSBAR_OUTLINE_80 = new Material("/textures/ui/statusbar_outline_80.png");
-    public static final Material UI_STATUSBAR_OUTLINE_100 = new Material("/textures/ui/statusbar_outline_100.png");
-    public static final Material UI_STATUSBAR_OUTLINE_200 = new Material("/textures/ui/statusbar_outline_200.png");
+    public static final Material UI_CROSSHAIR = new Material("/textures/ui/crosshair.png");
 
     // WEAPONS
 

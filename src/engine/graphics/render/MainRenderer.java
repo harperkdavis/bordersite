@@ -43,7 +43,10 @@ public class MainRenderer extends Renderer {
     private int hdrFBO, brightBlurFBO;
     private int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
 
-    private Vector3f[] ssaoKernel = new Vector3f[32];
+    private final int SSAO_KERNEL_SIZE = 4;
+    private final int MSAA_SAMPLES = 4;
+
+    private Vector3f[] ssaoKernel = new Vector3f[SSAO_KERNEL_SIZE];
     private float[] ssaoNoise = new float[48];
 
     private Mesh renderQuad;
@@ -152,11 +155,11 @@ public class MainRenderer extends Renderer {
 
         Random randomSample = new Random();
 
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < SSAO_KERNEL_SIZE; i++) {
             Vector3f sample = new Vector3f(randomSample.nextFloat() * 2.0f - 1.0f, randomSample.nextFloat() * 2.0f - 1.0f, randomSample.nextFloat()).normalize();
             sample.multiply(randomSample.nextFloat());
 
-            float scale = Mathf.lerp(0.1f, 1.0f, (i / 32.0f) * (i / 32.0f));
+            float scale = Mathf.lerp(0.1f, 1.0f, (i / (float) SSAO_KERNEL_SIZE) * (i / (float) SSAO_KERNEL_SIZE));
             sample.multiply(scale);
             ssaoKernel[i] = sample;
         }
@@ -325,7 +328,7 @@ public class MainRenderer extends Renderer {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ssaoFBO);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
         ssaoShader.bind();
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < SSAO_KERNEL_SIZE; i++) {
             ssaoShader.setUniform("samples[" + i + "]", ssaoKernel[i]);
         }
 

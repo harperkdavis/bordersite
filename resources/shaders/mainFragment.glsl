@@ -117,7 +117,7 @@ void main() {
 
     if (vertexNormal != vec3(0)) { // Normal Pixel
 
-        ambient = diffuse * ambientLight * ao;
+        ambient = diffuse * ambientLight;
         float shadow = calcShadow(lightSpaceMatrix * vec4(vertexPos, 1));
 
         vec3 lighting = calculateDirectionalLight(directionalLight, vertexPos, vertexNormal) * (1 - shadow);
@@ -148,7 +148,7 @@ void main() {
             }
         }
 
-        fragColor = vec4((ambient + lighting), 1.0);
+        fragColor = vec4((ambient + lighting) * ao, 1.0);
         fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);
 
     } else { // Sky pixel
