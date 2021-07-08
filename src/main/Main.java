@@ -13,6 +13,7 @@ import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.UserInterface;
 import game.viewmodel.Viewmodel;
+import net.ClientHandler;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
@@ -29,7 +30,7 @@ public class Main implements Runnable {
     public boolean FULLSCREEN;
     public final String TITLE = "Main";
 
-    private String username = "Player";
+    private static String username = "Player";
 
     private static long startTime;
     private static int elapsedTime;
@@ -103,9 +104,12 @@ public class Main implements Runnable {
             HEIGHT = 1080;
         }
         FULLSCREEN = box.isSelected();
-        username = usr.getText().substring(0, Math.min(username.length(), 64));
+        username = usr.getText();
         if (username.equals("")) {
             username = "ThisPersonDoesntCare";
+        }
+        if (username.length() > 32) {
+            username = username.substring(0, 32);
         }
 
         PlayerMovement.setPlayerMovement(new PlayerMovement());
@@ -114,6 +118,7 @@ public class Main implements Runnable {
         Viewmodel.setViewmodel(new Viewmodel());
         UserInterface.setUi(new UserInterface(WIDTH, HEIGHT));
         Global.init();
+        ClientHandler.init();
         game = new Thread(this,"game");
         game.start();
     }
@@ -166,6 +171,8 @@ public class Main implements Runnable {
         System.out.println("[INFO] Audio initialized!");
 
         MaterialLoader.initLoading();
+
+        ClientHandler.connect("127.0.0.1");
 
         System.out.println("[INFO] Initialization completed!");
 
@@ -223,6 +230,7 @@ public class Main implements Runnable {
 
         if (fixedUpdate) {
             UserInterface.getUi().fixedUpdate();
+            ClientHandler.fixedUpdate();
             lastFixedUpdate = System.currentTimeMillis();
         }
 
@@ -292,5 +300,9 @@ public class Main implements Runnable {
 
     public static float getFrameTime() {
         return (1000.0f / 60.0f) / deltaTime;
+    }
+
+    public static String getUsername() {
+        return username;
     }
 }

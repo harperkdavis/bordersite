@@ -21,6 +21,8 @@ uniform mat4 view;
 
 void main() {
 
+    fragColor = vec4(1);
+    /*
     vec3 vertexNormal = texture(gNormal, vertexUV).rgb;
 
     if (vertexNormal != vec3(0.0)) {
@@ -54,4 +56,5 @@ void main() {
     } else {
         fragColor = vec4(1);
     }
+    */
 }

@@ -2,6 +2,7 @@ package engine.io;
 
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
+import engine.objects.Camera;
 import main.Main;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -38,8 +39,6 @@ public class Window {
     private static Matrix4f projection;
     private static Matrix4f ortho;
 
-    private float fov = 80.0f;
-
     private final int[] windowPosX = new int[1];
     private final int[] windowPosY = new int[1];
 
@@ -49,7 +48,7 @@ public class Window {
         this.title = title;
         this.fullscreen = fullscreen;
 
-        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.01f, 10000.0f);
+        projection = Matrix4f.projection(Camera.getFov(), (float) width / (float) height, 0.01f, 10000.0f);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
     }
 
@@ -146,7 +145,7 @@ public class Window {
 
     public void update() {
 
-        projection = Matrix4f.projection(fov, (float) width / (float) height, 0.01f, 10000.0f);
+        projection = Matrix4f.projection(Camera.getFov(), (float) width / (float) height, 0.01f, 10000.0f);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
 
         if (isResized) {
@@ -238,14 +237,6 @@ public class Window {
 
     public float getPixelHeight(float amount) {
         return (4f / height) * amount;
-    }
-
-    public float getFov() {
-        return fov;
-    }
-
-    public void setFov(float fov) {
-        this.fov = fov;
     }
 
     public static Window getGameWindow() {

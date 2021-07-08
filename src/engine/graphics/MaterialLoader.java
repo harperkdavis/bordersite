@@ -69,7 +69,7 @@ public class MaterialLoader {
             Material material = Material.DEFAULT;
             if (textures.size() != 0) {
                 if (textures.size() <= 2) {
-                    material = new Material(prefix + textures.get(0));
+                    material = new Material(prefix + textures.get(0), "/textures/default_normal.png", "/textures/default_specular.png");
                 } else {
                     material = new Material(prefix + textures.get(0), prefix + textures.get(1),prefix + textures.get(2));
                 }

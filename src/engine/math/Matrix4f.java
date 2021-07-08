@@ -75,7 +75,7 @@ public class Matrix4f {
 
     public static Matrix4f transform(Vector3f position, Vector3f rotation, Vector3f scale) {
 
-        Matrix4f translationMatrix = Matrix4f.translate(new Vector3f(position).divide(scale));
+        Matrix4f translationMatrix = Matrix4f.translate(position.over(scale));
         Matrix4f rotationMatrix = Matrix4f.rotation(rotation);
         Matrix4f scaleMatrix = Matrix4f.scale(scale);
 

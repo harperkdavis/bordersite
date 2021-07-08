@@ -7,7 +7,6 @@ public class Vector3f {
     private float x, y, z;
 
     public static Vector3f zero() { return new Vector3f(0, 0, 0); }
-    public static Vector3f uirzero() { return new Vector3f(90, 0, 0); }
     public static Vector3f one() { return new Vector3f(1, 1, 1); }
     public static Vector3f oneX() { return new Vector3f(1, 0, 0); }
     public static Vector3f oneY() { return new Vector3f(0, 1, 0); }
@@ -51,6 +50,14 @@ public class Vector3f {
         return this;
     }
 
+    public Vector3f plus(Vector3f a) {
+        return new Vector3f(x + a.x, y + a.y, z + a.z);
+    }
+
+    public Vector3f plus(float x, float y, float z) {
+        return new Vector3f(this.x + x, this.y + y, this.z + z);
+    }
+
     public static Vector3f add(Vector3f a, Vector3f b) {
         return new Vector3f(a.x + b.x, a.y + b.y, a.z + b.z);
     }
@@ -67,6 +74,14 @@ public class Vector3f {
         this.y -= y;
         this.z -= z;
         return this;
+    }
+
+    public Vector3f minus(Vector3f a) {
+        return new Vector3f(x - a.x, y - a.y, z - a.z);
+    }
+
+    public Vector3f minus(float x, float y, float z) {
+        return new Vector3f(this.x - x, this.y - y, this.z - z);
     }
 
     public static Vector3f subtract(Vector3f a, Vector3f b) {
@@ -94,6 +109,18 @@ public class Vector3f {
         return this;
     }
 
+    public Vector3f times(Vector3f a) {
+        return new Vector3f(x * a.x, y * a.y, z * a.z);
+    }
+
+    public Vector3f times(float x, float y, float z) {
+        return new Vector3f(this.x * x, this.y * y, this.z * z);
+    }
+
+    public Vector3f times(float a) {
+        return new Vector3f(this.x * a, this.y * a, this.z * a);
+    }
+
     public static Vector3f multiply(Vector3f a, Vector3f b) {
         return new Vector3f(a.x * b.x, a.y * b.y, a.z * b.z);
     }
@@ -117,6 +144,18 @@ public class Vector3f {
         this.y /= a;
         this.z /= a;
         return this;
+    }
+
+    public Vector3f over(Vector3f a) {
+        return new Vector3f(x / a.x, y / a.y, z / a.z);
+    }
+
+    public Vector3f over(float x, float y, float z) {
+        return new Vector3f(this.x / x, this.y / y, this.z / z);
+    }
+
+    public Vector3f over(float a) {
+        return new Vector3f(this.x / a, this.y / a, this.z / a);
     }
 
     public static Vector3f divide(Vector3f a, Vector3f b) {
@@ -154,6 +193,10 @@ public class Vector3f {
 
     public static Vector3f lerpdt(Vector3f a, Vector3f b, float c) {
         return new Vector3f(Mathf.lerpdt(a.getX(), b.getX(), c), Mathf.lerpdt(a.getY(), b.getY(), c), Mathf.lerpdt(a.getZ(), b.getZ(), c));
+    }
+
+    public Vector3f copy() {
+        return new Vector3f(x, y, z);
     }
 
     @Override

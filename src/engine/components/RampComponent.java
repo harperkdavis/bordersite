@@ -66,10 +66,10 @@ public class RampComponent implements Component {
         this.direction = direction;
         this.material = material;
 
-        this.ntl = new Vector3f(stl).add(0, (direction == 0 || direction == 3) ? height : 0, 0);
-        this.ntr = new Vector3f(str).add(0, (direction == 1 || direction == 0) ? height : 0, 0);
-        this.nbr = new Vector3f(sbr).add(0, (direction == 2 || direction == 1) ? height : 0, 0);
-        this.nbl = new Vector3f(sbl).add(0, (direction == 3 || direction == 2) ? height : 0, 0);
+        this.ntl = stl.plus(0, (direction == 0 || direction == 3) ? height : 0, 0);
+        this.ntr = str.plus(0, (direction == 1 || direction == 0) ? height : 0, 0);
+        this.nbr = sbr.plus(0, (direction == 2 || direction == 1) ? height : 0, 0);
+        this.nbl = sbl.plus(0, (direction == 3 || direction == 2) ? height : 0, 0);
 
         tl = new Vector2f(stl.getX(), stl.getZ());
         tr = new Vector2f(str.getX(), str.getZ());
@@ -183,14 +183,14 @@ public class RampComponent implements Component {
     private void calculateSideNormals() {
         Vector3f nsnor = getSideNormal(stl, str);
         Vector3f lrnor = getSideNormal(str, sbr);
-        tnor = new Vector3f(nsnor).multiply(-1);
-        bnor = new Vector3f(nsnor);
-        rnor = new Vector3f(lrnor).multiply(-1);
-        lnor = new Vector3f(lrnor);
+        tnor = nsnor.times(-1);
+        bnor = nsnor;
+        rnor = lrnor.times(-1);
+        lnor = lrnor;
     }
 
     private void calculateTopNormal() {
-        nnor = getTopNormal(ntl, ntr, nbr).normalize();
+        nnor = getTopNormal(ntl, ntr, nbl).normalize();
     }
 
     private Vector3f getTopNormal(Vector3f a, Vector3f b, Vector3f c) {
@@ -252,10 +252,10 @@ public class RampComponent implements Component {
                 new Vertex(new Vector3f(fbr.getX(), fbr.getY(), fbr.getZ()), frontnormal, new Vector2f(lrScale / tiling, 0)),
                 new Vertex(new Vector3f(fur.getX(), fur.getY(), fur.getZ()), frontnormal, new Vector2f(lrScale / tiling, yScale / tiling)),
 
-                new Vertex(new Vector3f(ful.getX(), ful.getY(), ful.getZ()), Vector3f.oneY(), new Vector2f(0, 0)),
-                new Vertex(new Vector3f(bbl.getX(), bbl.getY(), bbl.getZ()), Vector3f.oneY(), new Vector2f(0, udScale / tiling)),
-                new Vertex(new Vector3f(bbr.getX(), bbr.getY(), bbr.getZ()), Vector3f.oneY(), new Vector2f(lrScale / tiling, udScale / tiling)),
-                new Vertex(new Vector3f(fur.getX(), fur.getY(), fur.getZ()), Vector3f.oneY(), new Vector2f(lrScale / tiling, 0)),
+                new Vertex(new Vector3f(ful.getX(), ful.getY(), ful.getZ()), nnor, new Vector2f(0, 0)),
+                new Vertex(new Vector3f(bbl.getX(), bbl.getY(), bbl.getZ()), nnor, new Vector2f(0, udScale / tiling)),
+                new Vertex(new Vector3f(bbr.getX(), bbr.getY(), bbr.getZ()), nnor, new Vector2f(lrScale / tiling, udScale / tiling)),
+                new Vertex(new Vector3f(fur.getX(), fur.getY(), fur.getZ()), nnor, new Vector2f(lrScale / tiling, 0)),
 
                 new Vertex(new Vector3f(fbl.getX(), fbl.getY(), fbl.getZ()), new Vector3f(0, -1, 0), new Vector2f(0, udScale / tiling)),
                 new Vertex(new Vector3f(bbl.getX(), bbl.getY(), bbl.getZ()), new Vector3f(0, -1, 0), new Vector2f(0, 0)),

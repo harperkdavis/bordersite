@@ -60,10 +60,10 @@ public class BlockComponent implements Component {
         this.height = height;
         this.material = material;
 
-        this.ntl = new Vector3f(stl).add(0, height, 0);
-        this.ntr = new Vector3f(str).add(0, height, 0);
-        this.nbl = new Vector3f(sbl).add(0, height, 0);
-        this.nbr = new Vector3f(sbr).add(0, height, 0);
+        this.ntl = stl.plus(0, height, 0);
+        this.ntr = str.plus(0, height, 0);
+        this.nbl = sbl.plus(0, height, 0);
+        this.nbr = sbr.plus(0, height, 0);
 
         tl = new Vector2f(stl.getX(), stl.getZ());
         tr = new Vector2f(str.getX(), str.getZ());
@@ -104,10 +104,10 @@ public class BlockComponent implements Component {
     private void calculateNormals() {
         Vector3f nsnor = getSideNormal(stl, str);
         Vector3f lrnor = getSideNormal(str, sbr);
-        tnor = new Vector3f(nsnor).multiply(-1);
-        bnor = new Vector3f(nsnor);
-        rnor = new Vector3f(lrnor).multiply(-1);
-        lnor = new Vector3f(lrnor);
+        tnor = nsnor.times(-1);
+        bnor = nsnor;
+        rnor = lrnor.times(-1);
+        lnor = lrnor;
     }
 
     private Vector3f getSideNormal(Vector3f a, Vector3f b) {

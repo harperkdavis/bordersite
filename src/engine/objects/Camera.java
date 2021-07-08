@@ -5,6 +5,7 @@ import engine.math.Vector3f;
 public class Camera {
 
     private Vector3f position, rotation;
+    private static float fov = 80.0f;
 
     private static final Camera mainCamera = new Camera(new Vector3f(0, 0, 0), Vector3f.zero());
 
@@ -57,5 +58,12 @@ public class Camera {
         mainCamera.setRotation(Vector3f.add(mainCamera.getRotation(), rotation));
     }
 
+    public static float getFov() {
+        return fov;
+    }
+
+    public static void setFov(float fov) {
+        Camera.fov = fov;
+    }
 
 }

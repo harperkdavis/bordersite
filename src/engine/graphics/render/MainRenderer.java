@@ -29,7 +29,7 @@ public class MainRenderer extends Renderer {
     private final Vector3f ambientLight;
     private final Fog fog;
 
-    private static float exposure = 1.8f;
+    private static float exposure = 1.4f;
 
     private final Shader gShader, depthShader, ssaoShader, ssaoBlurShader, blurShader, postShader, unlitShader;
     protected int depthMapFramebuffer, depthMapTexture;
@@ -44,7 +44,6 @@ public class MainRenderer extends Renderer {
     private int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
 
     private final int SSAO_KERNEL_SIZE = 4;
-    private final int MSAA_SAMPLES = 4;
 
     private Vector3f[] ssaoKernel = new Vector3f[SSAO_KERNEL_SIZE];
     private float[] ssaoNoise = new float[48];
@@ -66,7 +65,7 @@ public class MainRenderer extends Renderer {
         this.postShader = postShader;
         this.unlitShader = unlitShader;
 
-        ambientLight = new Vector3f(0.2f, 0.2f, 0.205f);
+        ambientLight = new Vector3f(0.3f, 0.3f, 0.305f);
         fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.002f);
 
     }

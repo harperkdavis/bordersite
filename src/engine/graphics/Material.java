@@ -19,6 +19,7 @@ public class Material {
     private Texture diffuseTexture, specularTexture, normalTexture;
     private int diffuseID, specularID, normalID;
     private float width, height;
+    private boolean nSpec;
 
     protected static List<Material> materials = new ArrayList<>();
     protected static Map<String, Material> mapMaterials = new HashMap<>();
@@ -64,6 +65,7 @@ public class Material {
         diffusePath = diffuse;
         normalPath = normal;
         specularPath = specular;
+        nSpec = true;
     }
 
 
@@ -71,6 +73,7 @@ public class Material {
         materials.add(this);
 
         diffusePath = diffuse;
+        this.nSpec = nSpec;
         if (nSpec) {
             normalPath = diffuse.split("[.]")[0] + "_normal." + diffuse.split("[.]")[1];
             specularPath = diffuse.split("[.]")[0] + "_specular." + diffuse.split("[.]")[1];

@@ -52,6 +52,14 @@ public class Vector2f {
         return this;
     }
 
+    public Vector2f plus(Vector2f a) {
+        return new Vector2f(x + a.x, y + a.y);
+    }
+
+    public Vector2f plus(float x, float y) {
+        return new Vector2f(this.x + x, this.y + y);
+    }
+
     public static Vector2f add(Vector2f a, Vector2f b) {
         return new Vector2f(a.x + b.x, a.y + b.y);
     }
@@ -66,6 +74,14 @@ public class Vector2f {
         this.x -= x;
         this.y -= y;
         return this;
+    }
+
+    public Vector2f minus(Vector2f a) {
+        return new Vector2f(x - a.x, y - a.y);
+    }
+
+    public Vector2f minus(float x, float y) {
+        return new Vector2f(this.x - x, this.y - y);
     }
 
     public static Vector2f subtract(Vector2f a, Vector2f b) {
@@ -90,6 +106,18 @@ public class Vector2f {
         return this;
     }
 
+    public Vector2f times(Vector2f a) {
+        return new Vector2f(x * a.x, y * a.y);
+    }
+
+    public Vector2f times(float x, float y) {
+        return new Vector2f(this.x * x, this.y * y);
+    }
+
+    public Vector2f times(float a) {
+        return new Vector2f(this.x * a, this.y * a);
+    }
+
     public static Vector2f multiply(Vector2f a, Vector2f b) {
         return new Vector2f(a.x * b.x, a.y * b.y);
     }
@@ -110,6 +138,18 @@ public class Vector2f {
         this.x /= a;
         this.y /= a;
         return this;
+    }
+
+    public Vector2f over(Vector2f a) {
+        return new Vector2f(x / a.x, y / a.y);
+    }
+
+    public Vector2f over(float x, float y) {
+        return new Vector2f(this.x / x, this.y / y);
+    }
+
+    public Vector2f over(float a) {
+        return new Vector2f(this.x / a, this.y / a);
     }
 
     public static Vector2f divide(Vector2f a, Vector2f b) {

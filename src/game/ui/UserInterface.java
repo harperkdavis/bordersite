@@ -59,6 +59,8 @@ public class UserInterface implements GamePlane {
     @Override
     public void load() {
 
+
+
         for (GameObject o : objects) {
             o.load();
         }

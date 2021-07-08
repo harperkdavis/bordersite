@@ -252,6 +252,12 @@ public class PlayerMovement {
 
         cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1f : 1.5f, 0.01f) + bobbing * bobbingMultiplier * (isSprinting ? 2.5f : (isCrouching ? 1.5f : 1.0f)) * 0.01f;
 
+        if (isAiming) {
+            Camera.setFov(Mathf.lerpdt(Camera.getFov(), 65.0f, 0.01f));
+        } else {
+            Camera.setFov(Mathf.lerpdt(Camera.getFov(), 80.0f, 0.01f));
+        }
+
     }
 
     public void flyingMovement() {
