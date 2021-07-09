@@ -11,9 +11,6 @@ import static game.ui.UserInterface.p;
 
 public class UiText extends GameObject {
 
-    private static final Material syneMaterial = Material.FONT_SYNE;
-    private static final Material kremlinMaterial = Material.FONT_KREMLIN;
-
     private Vector3f position;
     private String text;
     private float characterHeight;
@@ -31,6 +28,10 @@ public class UiText extends GameObject {
 
     public UiText(Vector3f position, String text) {
         this(position, text, p(16), 0, 0, 0);
+    }
+
+    public UiText(Vector3f position, String text, int font) {
+        this(position, text, font == 0 ? p(16) : p(32), font, 0, 0);
     }
 
     private void updateMesh() {
@@ -83,7 +84,7 @@ public class UiText extends GameObject {
             }
         }
 
-        return new Mesh(vertices, tris, syneMaterial);
+        return new Mesh(vertices, tris, (font == 0 ? Material.FONT_SYNE_SMALL : Material.FONT_SYNE_BIG));
     }
 
 }

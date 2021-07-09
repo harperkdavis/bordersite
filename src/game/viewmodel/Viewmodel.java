@@ -22,12 +22,6 @@ public class Viewmodel implements GamePlane {
         // gunObject = addObject(new GameObject(new Vector3f(0, 0, -1.5f), new Vector3f(45, 0, 0), Vector3f.one(), MeshBuilder.Cube(1.0f, Material.DEFAULT)));
     }
 
-    @Override
-    public void load() {
-        for (GameObject go : objects) {
-            go.load();
-        }
-    }
 
     @Override
     public void fixedUpdate() {
@@ -59,9 +53,6 @@ public class Viewmodel implements GamePlane {
 
     public GameObject addObject(GameObject object, boolean load) {
         objects.add(object);
-        if (load) {
-            object.load();
-        }
         return object;
     }
 

@@ -275,12 +275,6 @@ public class MainRenderer extends Renderer {
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
 
-        if (Input.isKey(GLFW.GLFW_KEY_P)) {
-            exposure += 0.01f;
-        } else if (Input.isKey(GLFW.GLFW_KEY_L)) {
-            exposure -= 0.01f;
-        }
-
         // 1: GEOMETRY
 
         if (Global.RENDER_WIREFRAME) {

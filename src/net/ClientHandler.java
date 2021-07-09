@@ -7,7 +7,9 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
 import main.Main;
 import net.packets.Packet;
+import net.packets.client.ChatRequestPacket;
 import net.packets.client.ConnectPacket;
+import net.packets.server.ChatPacket;
 import net.packets.server.ConnectionReceivedPacket;
 
 import java.io.IOException;
@@ -30,11 +32,14 @@ public class ClientHandler {
         kryo.register(ConnectPacket.class);
         kryo.register(ConnectionReceivedPacket.class);
 
+        kryo.register(ChatRequestPacket.class);
+        kryo.register(ChatPacket.class);
+
     }
 
     public static void connect(String ip) {
         try {
-            client.connect(5000, ip, 54555, 54777);
+            client.connect(5000, ip, 27555, 27777);
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -64,5 +69,8 @@ public class ClientHandler {
         return playerId;
     }
 
+    public static void sendChatPacket(String message) {
+        client.sendTCP(new ChatRequestPacket(message));
+    }
 
 }

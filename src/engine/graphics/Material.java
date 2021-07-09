@@ -32,7 +32,8 @@ public class Material {
     // FONT
 
     public static final Material FONT_KREMLIN = new Material("/textures/font/kremlin_font.png");
-    public static final Material FONT_SYNE = new Material("/textures/font/syne_font.png");
+    public static final Material FONT_SYNE_SMALL = new Material("/textures/font/syne_font_small.png");
+    public static final Material FONT_SYNE_BIG = new Material("/textures/font/syne_font_big.png");
 
     // ENVIRONMENT
 

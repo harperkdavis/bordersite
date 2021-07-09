@@ -16,7 +16,6 @@ public abstract class Menu {
     }
 
     public abstract void init();
-    public abstract void load();
     public abstract void update();
 
     public void render() {
@@ -33,12 +32,6 @@ public abstract class Menu {
     }
 
     public GameObject addObject(GameObject object) {
-        objects.add(object);
-        object.load();
-        return object;
-    }
-
-    public GameObject addObjectWithoutLoading(GameObject object) {
         objects.add(object);
         return object;
     }

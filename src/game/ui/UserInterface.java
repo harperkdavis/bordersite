@@ -29,10 +29,10 @@ public class UserInterface implements GamePlane {
 
     private boolean inMapMenu = false;
 
-    private final MainMenu mainMenu;
-    private final MapLoadingMenu mapLoadingMenu;
-    private final InGameMenu inGameMenu;
-    private final MapMenu mapMenu;
+    protected static MainMenu mainMenu;
+    protected static MapLoadingMenu mapLoadingMenu;
+    protected static InGameMenu inGameMenu;
+    protected static MapMenu mapMenu;
 
     public static boolean mouseLock = true;
 
@@ -54,21 +54,6 @@ public class UserInterface implements GamePlane {
         loadingText = addObject(new UiText(screen(0 - p(8), 0 + p(32), 1), "LOADING..."));
         loadingProgress = (UiText) addObject(new UiText(screen(0 + p(2), 0 + p(46), 1), "0% / loaded"));
         loadingMaterial = addObject(new GameObject(screen(0 + p(4), 0 + p(60), 1), UiBuilder.UIRect(p(1),  Material.DEFAULT)));
-    }
-
-    @Override
-    public void load() {
-
-
-
-        for (GameObject o : objects) {
-            o.load();
-        }
-
-        mainMenu.load();
-        mapLoadingMenu.load();
-        inGameMenu.load();
-        mapMenu.load();
     }
 
     @Override
@@ -168,14 +153,7 @@ public class UserInterface implements GamePlane {
     }
 
     public GameObject addObject(GameObject object) {
-        return addObject(object, false);
-    }
-
-    public GameObject addObject(GameObject object, boolean load) {
         objects.add(object);
-        if (load) {
-            object.load();
-        }
         return object;
     }
 

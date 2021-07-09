@@ -18,16 +18,9 @@ public class MapLoadingMenu extends Menu {
 
     @Override
     public void init() {
-        GameObject ld_blackBackground = addObjectWithoutLoading(new GameObject(screen(1.0f, 1.0f, 3), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4.0f, Material.DEFAULT), new Vector4f(0, 0, 0, 1)));
-        ld_loadingTitle = addObjectWithoutLoading(new GameObject(screen(1, 0.5f, 2), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(512.0f), Material.UI_LOADING_LOGO)));
-        ld_loadingText = (UiText) addObjectWithoutLoading(new UiText(screen(1.0f, 1.0f, 2), "LOADING MAP"));
-    }
-
-    @Override
-    public void load() {
-        for (GameObject object : objects) {
-            object.load();
-        }
+        GameObject ld_blackBackground = addObject(new GameObject(screen(1.0f, 1.0f, 3), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(4.0f, Material.DEFAULT), new Vector4f(0, 0, 0, 1)));
+        ld_loadingTitle = addObject(new GameObject(screen(1, 0.5f, 2), Vector3f.zero(), Vector3f.one(), UiBuilder.UICenter(p(512.0f), Material.UI_LOADING_LOGO)));
+        ld_loadingText = (UiText) addObject(new UiText(screen(1.0f, 1.0f, 2), "LOADING MAP"));
     }
 
     @Override

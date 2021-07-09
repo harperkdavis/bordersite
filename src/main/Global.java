@@ -11,8 +11,22 @@ public class Global {
     public static boolean RENDER_WIREFRAME = false;
 
     public final static Map<String, Integer> bindNames = new HashMap<>();
+    public final static Map<Integer, String> typeLowercase = new HashMap<>(), typeUppercase = new HashMap<>();
+    public final static Map<String, String> keybinds = new HashMap<>();
 
     public static void init() {
+
+        keybinds.put("move_forward", "w");
+        keybinds.put("move_backward", "s");
+        keybinds.put("move_left", "a");
+        keybinds.put("move_right", "d");
+
+        keybinds.put("jump", "space");
+
+        keybinds.put("shoot", "mouse0");
+        keybinds.put("aim", "mouse1");
+
+        keybinds.put("chat", "y");
 
         bindNames.put("a", GLFW.GLFW_KEY_A);
         bindNames.put("b", GLFW.GLFW_KEY_B);
@@ -96,6 +110,104 @@ public class Global {
         bindNames.put("mouse5", 1005);
         bindNames.put("mouse_wheel_up", 1006);
         bindNames.put("mouse_wheel_down", 1007);
+
+        typeLowercase.put(GLFW.GLFW_KEY_A, "a");
+        typeLowercase.put(GLFW.GLFW_KEY_B, "b");
+        typeLowercase.put(GLFW.GLFW_KEY_C, "c");
+        typeLowercase.put(GLFW.GLFW_KEY_D, "d");
+        typeLowercase.put(GLFW.GLFW_KEY_E, "e");
+        typeLowercase.put(GLFW.GLFW_KEY_F, "f");
+        typeLowercase.put(GLFW.GLFW_KEY_G, "g");
+        typeLowercase.put(GLFW.GLFW_KEY_H, "h");
+        typeLowercase.put(GLFW.GLFW_KEY_I, "i");
+        typeLowercase.put(GLFW.GLFW_KEY_J, "j");
+        typeLowercase.put(GLFW.GLFW_KEY_K, "k");
+        typeLowercase.put(GLFW.GLFW_KEY_L, "l");
+        typeLowercase.put(GLFW.GLFW_KEY_M, "m");
+        typeLowercase.put(GLFW.GLFW_KEY_N, "n");
+        typeLowercase.put(GLFW.GLFW_KEY_O, "o");
+        typeLowercase.put(GLFW.GLFW_KEY_P, "p");
+        typeLowercase.put(GLFW.GLFW_KEY_Q, "q");
+        typeLowercase.put(GLFW.GLFW_KEY_R, "r");
+        typeLowercase.put(GLFW.GLFW_KEY_S, "s");
+        typeLowercase.put(GLFW.GLFW_KEY_T, "t");
+        typeLowercase.put(GLFW.GLFW_KEY_U, "u");
+        typeLowercase.put(GLFW.GLFW_KEY_V, "v");
+        typeLowercase.put(GLFW.GLFW_KEY_W, "w");
+        typeLowercase.put(GLFW.GLFW_KEY_X, "x");
+        typeLowercase.put(GLFW.GLFW_KEY_Y, "y");
+        typeLowercase.put(GLFW.GLFW_KEY_Z, "z");
+        typeLowercase.put(GLFW.GLFW_KEY_SPACE, " ");
+        typeLowercase.put(GLFW.GLFW_KEY_MINUS, "-");
+        typeLowercase.put(GLFW.GLFW_KEY_EQUAL, "=");
+        typeLowercase.put(GLFW.GLFW_KEY_LEFT_BRACKET, "[");
+        typeLowercase.put(GLFW.GLFW_KEY_RIGHT_BRACKET, "]");
+        typeLowercase.put(GLFW.GLFW_KEY_COMMA, ",");
+        typeLowercase.put(GLFW.GLFW_KEY_PERIOD, ".");
+        typeLowercase.put(GLFW.GLFW_KEY_SEMICOLON, ";");
+        typeLowercase.put(GLFW.GLFW_KEY_APOSTROPHE, "'");
+        typeLowercase.put(GLFW.GLFW_KEY_SLASH, "/");
+        typeLowercase.put(GLFW.GLFW_KEY_BACKSLASH, "\\");
+        typeLowercase.put(GLFW.GLFW_KEY_GRAVE_ACCENT, "`");
+        typeLowercase.put(GLFW.GLFW_KEY_1, "1");
+        typeLowercase.put(GLFW.GLFW_KEY_2, "2");
+        typeLowercase.put(GLFW.GLFW_KEY_3, "3");
+        typeLowercase.put(GLFW.GLFW_KEY_4, "4");
+        typeLowercase.put(GLFW.GLFW_KEY_5, "5");
+        typeLowercase.put(GLFW.GLFW_KEY_6, "6");
+        typeLowercase.put(GLFW.GLFW_KEY_7, "7");
+        typeLowercase.put(GLFW.GLFW_KEY_8, "8");
+        typeLowercase.put(GLFW.GLFW_KEY_9, "9");
+        typeLowercase.put(GLFW.GLFW_KEY_0, "0");
+
+        typeUppercase.put(GLFW.GLFW_KEY_A, "A");
+        typeUppercase.put(GLFW.GLFW_KEY_B, "B");
+        typeUppercase.put(GLFW.GLFW_KEY_C, "C");
+        typeUppercase.put(GLFW.GLFW_KEY_D, "D");
+        typeUppercase.put(GLFW.GLFW_KEY_E, "E");
+        typeUppercase.put(GLFW.GLFW_KEY_F, "F");
+        typeUppercase.put(GLFW.GLFW_KEY_G, "G");
+        typeUppercase.put(GLFW.GLFW_KEY_H, "H");
+        typeUppercase.put(GLFW.GLFW_KEY_I, "I");
+        typeUppercase.put(GLFW.GLFW_KEY_J, "J");
+        typeUppercase.put(GLFW.GLFW_KEY_K, "K");
+        typeUppercase.put(GLFW.GLFW_KEY_L, "L");
+        typeUppercase.put(GLFW.GLFW_KEY_M, "M");
+        typeUppercase.put(GLFW.GLFW_KEY_N, "N");
+        typeUppercase.put(GLFW.GLFW_KEY_O, "O");
+        typeUppercase.put(GLFW.GLFW_KEY_P, "P");
+        typeUppercase.put(GLFW.GLFW_KEY_Q, "Q");
+        typeUppercase.put(GLFW.GLFW_KEY_R, "R");
+        typeUppercase.put(GLFW.GLFW_KEY_S, "S");
+        typeUppercase.put(GLFW.GLFW_KEY_T, "T");
+        typeUppercase.put(GLFW.GLFW_KEY_U, "U");
+        typeUppercase.put(GLFW.GLFW_KEY_V, "V");
+        typeUppercase.put(GLFW.GLFW_KEY_W, "W");
+        typeUppercase.put(GLFW.GLFW_KEY_X, "X");
+        typeUppercase.put(GLFW.GLFW_KEY_Y, "Y");
+        typeUppercase.put(GLFW.GLFW_KEY_Z, "Z");
+        typeUppercase.put(GLFW.GLFW_KEY_SPACE, " ");
+        typeUppercase.put(GLFW.GLFW_KEY_MINUS, "_");
+        typeUppercase.put(GLFW.GLFW_KEY_EQUAL, "+");
+        typeUppercase.put(GLFW.GLFW_KEY_LEFT_BRACKET, "{");
+        typeUppercase.put(GLFW.GLFW_KEY_RIGHT_BRACKET, "}");
+        typeUppercase.put(GLFW.GLFW_KEY_COMMA, "<");
+        typeUppercase.put(GLFW.GLFW_KEY_PERIOD, ">");
+        typeUppercase.put(GLFW.GLFW_KEY_SEMICOLON, ":");
+        typeUppercase.put(GLFW.GLFW_KEY_APOSTROPHE, "\"");
+        typeUppercase.put(GLFW.GLFW_KEY_SLASH, "?");
+        typeUppercase.put(GLFW.GLFW_KEY_BACKSLASH, "|");
+        typeUppercase.put(GLFW.GLFW_KEY_GRAVE_ACCENT, "~");
+        typeUppercase.put(GLFW.GLFW_KEY_1, "!");
+        typeUppercase.put(GLFW.GLFW_KEY_2, "@");
+        typeUppercase.put(GLFW.GLFW_KEY_3, "#");
+        typeUppercase.put(GLFW.GLFW_KEY_4, "$");
+        typeUppercase.put(GLFW.GLFW_KEY_5, "%");
+        typeUppercase.put(GLFW.GLFW_KEY_6, "^");
+        typeUppercase.put(GLFW.GLFW_KEY_7, "&");
+        typeUppercase.put(GLFW.GLFW_KEY_8, "*");
+        typeUppercase.put(GLFW.GLFW_KEY_9, "(");
+        typeUppercase.put(GLFW.GLFW_KEY_0, ")");
 
     }
 

@@ -122,10 +122,6 @@ public class SceneLoader {
                 e.printStackTrace();
             }
 
-            for (GameObject go : Scene.objects) {
-                go.load();
-            }
-
             advanceLoading();
             wait(5);
         } else if (loadingStage == 2) {
@@ -168,7 +164,6 @@ public class SceneLoader {
 
                 String skyboxMat = (String) map.get("skybox");
                 Scene.skybox = new GameObject(Vector3f.zero(), MeshBuilder.Skybox(1000, MaterialLoader.loadMapSkyboxMaterial(MAP, skyboxMat)));
-                Scene.skybox.load();
 
             } catch (Exception e) {
                 e.printStackTrace();

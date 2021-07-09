@@ -28,7 +28,7 @@ public class Main implements Runnable {
 
     public int WIDTH, HEIGHT;
     public boolean FULLSCREEN;
-    public final String TITLE = "Main";
+    public final String TITLE = "Bordersite";
 
     private static String username = "Player";
 
@@ -112,13 +112,6 @@ public class Main implements Runnable {
             username = username.substring(0, 32);
         }
 
-        PlayerMovement.setPlayerMovement(new PlayerMovement());
-
-        Scene.setScene(new Scene());
-        Viewmodel.setViewmodel(new Viewmodel());
-        UserInterface.setUi(new UserInterface(WIDTH, HEIGHT));
-        Global.init();
-        ClientHandler.init();
         game = new Thread(this,"game");
         game.start();
     }
@@ -133,8 +126,15 @@ public class Main implements Runnable {
 
         System.out.println("[INFO] GLFW window created!");
 
+        PlayerMovement.setPlayerMovement(new PlayerMovement());
+
+        Scene.setScene(new Scene());
+        Viewmodel.setViewmodel(new Viewmodel());
+        UserInterface.setUi(new UserInterface(WIDTH, HEIGHT));
+        Global.init();
+        ClientHandler.init();
+
         System.out.println("[INFO] Loading scene...");
-        UserInterface.getUi().load();
 
         System.out.println("[INFO] Loading shader...");
         gShader = loadShader("g");
@@ -187,7 +187,6 @@ public class Main implements Runnable {
     private void connect() {
 
         Scene.getScene().load();
-        Viewmodel.getViewmodel().load();
 
     }
 

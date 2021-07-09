@@ -55,7 +55,6 @@ public class Scene implements GamePlane {
 
     }
 
-    @Override
     public void load() {
 
         loading = true;
@@ -71,7 +70,6 @@ public class Scene implements GamePlane {
 
         for (int i = 0; i < bufferedObjects.size(); i++) {
             GameObject object = bufferedObjects.remove(i);
-            object.load();
             objects.add(object);
         }
 
@@ -122,15 +120,8 @@ public class Scene implements GamePlane {
         PlayerMovement.addCollisionComponent(rampComponent);
     }
 
-    public static GameObject addObject(GameObject object) {
-        return addObject(object, false);
-    }
-
     public static GameObject addObject(GameObject object, boolean load) {
         objects.add(object);
-        if (load) {
-            object.load();
-        }
         return object;
     }
 

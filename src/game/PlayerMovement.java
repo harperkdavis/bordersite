@@ -105,7 +105,7 @@ public class PlayerMovement {
 
         if (isGrounded) {
             velY = 0;
-            if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
+            if (Input.isKeybind("jump")) {
                 velY = 10.0f * Main.getDeltaTime() * 120;
                 position.add(0, 0.1f, 0);
                 AudioMaster.playSound(SoundEffect.JUMP);
@@ -130,10 +130,10 @@ public class PlayerMovement {
 
         boolean isAiming = Input.isMouseButton(1);
 
-        velocityLeft = Mathf.lerpdt(velocityLeft, Input.isKey(GLFW.GLFW_KEY_A) ? 1 : 0, 0.5f);
-        velocityRight = Mathf.lerpdt(velocityRight, Input.isKey(GLFW.GLFW_KEY_D) ? 1 : 0, 0.5f);
-        velocityForward = Mathf.lerpdt(velocityForward, Input.isKey(GLFW.GLFW_KEY_W) ? 1 : 0, 0.5f);
-        velocityBack = Mathf.lerpdt(velocityBack, Input.isKey(GLFW.GLFW_KEY_S) ? 1 : 0, 0.5f);
+        velocityLeft = Mathf.lerpdt(velocityLeft, Input.isKeybind("move_left") ? 1 : 0, 0.5f);
+        velocityRight = Mathf.lerpdt(velocityRight, Input.isKeybind("move_right") ? 1 : 0, 0.5f);
+        velocityForward = Mathf.lerpdt(velocityForward, Input.isKeybind("move_forward") ? 1 : 0, 0.5f);
+        velocityBack = Mathf.lerpdt(velocityBack, Input.isKeybind("move_backward") ? 1 : 0, 0.5f);
 
         Vector3f inputVector = new Vector3f(velocityRight - velocityLeft, 0, velocityForward - velocityBack);
 

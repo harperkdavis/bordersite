@@ -22,6 +22,8 @@ public class Input {
     private final GLFWMouseButtonCallback mouse;
     private final GLFWScrollCallback mouseScroll;
 
+    private static boolean typing = false;
+
     public Input() {
         keyboard = new GLFWKeyCallback() {
             @Override
@@ -153,6 +155,40 @@ public class Input {
         return false;
     }
 
+    public static String getTypedCharacter() {
+        for (int i : Global.typeLowercase.keySet()) {
+            if (Input.isKeyDown(i)) {
+                if (Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT) || Input.isKey(GLFW.GLFW_KEY_RIGHT_SHIFT)) {
+                    return Global.typeUppercase.get(i);
+                } else {
+                    return Global.typeLowercase.get(i);
+                }
+            }
+        }
+        return "";
+    }
+
+    public static boolean isKeybind(String keybind) {
+        if (typing) {
+            return false;
+        }
+        return isBind(Global.keybinds.getOrDefault(keybind, ""));
+    }
+
+    public static boolean isKeybindDown(String keybind) {
+        if (typing) {
+            return false;
+        }
+        return isBindDown(Global.keybinds.getOrDefault(keybind, ""));
+    }
+
+    public static boolean isKeybindUp(String keybind) {
+        if (typing) {
+            return false;
+        }
+        return isBindUp(Global.keybinds.getOrDefault(keybind, ""));
+    }
+
     public void destroy() {
         keyboard.free();
         mousePos.free();
@@ -186,6 +222,14 @@ public class Input {
 
     public GLFWScrollCallback getMouseScrollCallback() {
         return mouseScroll;
+    }
+
+    public static boolean isTyping() {
+        return typing;
+    }
+
+    public static void setTyping(boolean isTyping) {
+        Input.typing = isTyping;
     }
 
 }

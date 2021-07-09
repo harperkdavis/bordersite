@@ -31,6 +31,7 @@ public class GameObject {
         this.color = color;
         this.parent = null;
         this.children = new ArrayList<>();
+        load();
     }
 
     public GameObject(Vector3f position, Mesh mesh) {
@@ -169,6 +170,10 @@ public class GameObject {
 
     public void setColor(Vector4f color) {
         this.color = color;
+    }
+
+    public void setColor(float r, float g, float b, float a) {
+        this.color = new Vector4f(r, g, b, a);
     }
 
     public boolean isVisible() {
