@@ -1,6 +1,6 @@
 {
   "directional_light": {
-    "direction" : [0.8, 1.0, 0.4],
+    "direction" : [0.2, 1.0, 0.1],
     "color" : [1.0, 1.0, 1.0],
     "intensity" : 1.0
   },

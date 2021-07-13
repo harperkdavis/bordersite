@@ -8,7 +8,7 @@ public class Input {
     private static final boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
     private static final boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
     private static boolean[] prevKeys = new boolean[GLFW.GLFW_KEY_LAST];
-    private static final boolean[] prevButtons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static boolean[] prevButtons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
     private static final boolean[] keysDown = new boolean[GLFW.GLFW_KEY_LAST];
     private static final boolean[] buttonsDown = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
     private static final boolean[] keysUp = new boolean[GLFW.GLFW_KEY_LAST];
@@ -17,14 +17,14 @@ public class Input {
     private static double mouseX, mouseY;
     private static double scrollState, pScrollState, scrollY;
 
-    private final GLFWKeyCallback keyboard;
-    private final GLFWCursorPosCallback mousePos;
-    private final GLFWMouseButtonCallback mouse;
-    private final GLFWScrollCallback mouseScroll;
+    private static GLFWKeyCallback keyboard;
+    private static GLFWCursorPosCallback mousePos;
+    private static GLFWMouseButtonCallback mouse;
+    private static GLFWScrollCallback mouseScroll;
 
     private static boolean typing = false;
 
-    public Input() {
+    public static void createCallbacks() {
         keyboard = new GLFWKeyCallback() {
             @Override
             public void invoke(long window, int key, int scancode, int action, int mods) {
@@ -91,6 +91,7 @@ public class Input {
         scrollY = scrollState;
 
         prevKeys = keys.clone();
+        prevButtons = buttons.clone();
         scrollState = 0;
 
     }
@@ -189,7 +190,7 @@ public class Input {
         return isBindUp(Global.keybinds.getOrDefault(keybind, ""));
     }
 
-    public void destroy() {
+    public static void destroy() {
         keyboard.free();
         mousePos.free();
         mouse.free();
@@ -208,19 +209,19 @@ public class Input {
         return scrollY;
     }
 
-    public GLFWKeyCallback getKeyCallback() {
+    public static GLFWKeyCallback getKeyCallback() {
         return keyboard;
     }
 
-    public GLFWCursorPosCallback getMousePosCallback() {
+    public static GLFWCursorPosCallback getMousePosCallback() {
         return mousePos;
     }
 
-    public GLFWMouseButtonCallback getMouseButtonCallback() {
+    public static GLFWMouseButtonCallback getMouseButtonCallback() {
         return mouse;
     }
 
-    public GLFWScrollCallback getMouseScrollCallback() {
+    public static GLFWScrollCallback getMouseScrollCallback() {
         return mouseScroll;
     }
 

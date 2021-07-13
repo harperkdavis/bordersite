@@ -43,7 +43,7 @@ public class MainRenderer extends Renderer {
     private int hdrFBO, brightBlurFBO;
     private int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
 
-    private final int SSAO_KERNEL_SIZE = 4;
+    private final int SSAO_KERNEL_SIZE = 1;
 
     private Vector3f[] ssaoKernel = new Vector3f[SSAO_KERNEL_SIZE];
     private float[] ssaoNoise = new float[48];

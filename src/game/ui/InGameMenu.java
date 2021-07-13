@@ -16,6 +16,8 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjglx.test.spaceinvaders.Game;
 
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static game.ui.UserInterface.p;
 import static game.ui.UserInterface.screen;
@@ -26,26 +28,26 @@ public class InGameMenu extends Menu {
 
     private UiText chatInput;
     private GameObject chatPanel;
-    private static List<ChatMessage> messages = new ArrayList<>();
+    private static List<ChatMessage> messages = Collections.synchronizedList(new ArrayList<>());
     private boolean isTyping = false;
     private String typedMessage = "";
 
-    private List<MessageData> bufferedChatMessages = Collections.synchronizedList(new ArrayList<>());
+    private Queue<MessageData> bufferedChatMessages = new ConcurrentLinkedQueue<>();
 
     @Override
     public void init() {
         crosshair = addObject(new GameObject(screen(1, 1, 1), UiBuilder.UICenter(p(32), Material.UI_CROSSHAIR)));
-        chatPanel = addObject(new UiPanel(0, 2 - p(20), 0.5f, 2, 12, 0.2f));
+        chatPanel = addObject(new UiPanel(0, 2 - p(20), 1, 2, 12, 0.2f));
         chatInput = (UiText) addObject(new UiText(screen(p(2), 2 - p(18), 9), "> "));
         chatInput.setColor(0.9f, 0.9f, 0.9f, 1.0f);
     }
 
     @Override
     public void update() {
-        for (MessageData m : bufferedChatMessages) {
+        if (bufferedChatMessages.size() > 0) {
+            MessageData m = bufferedChatMessages.poll();
             messages.add((ChatMessage) addObject(new ChatMessage(m.message, m.red, m.green, m.blue)));
         }
-        bufferedChatMessages.clear();
         for (ChatMessage message : messages) {
             message.update(Main.getDeltaTime());
         }
@@ -80,7 +82,7 @@ public class InGameMenu extends Menu {
                 typedMessage += input;
                 chatInput.setText("> " + typedMessage);
             }
-            if (Input.isKeyDown(GLFW.GLFW_KEY_BACKSPACE)) {
+            if (Input.isKeyDown(GLFW.GLFW_KEY_BACKSPACE) && typedMessage.length() > 0) {
                 typedMessage = typedMessage.substring(0, typedMessage.length() - 1);
                 chatInput.setText("> " + typedMessage);
             }
@@ -95,7 +97,6 @@ public class InGameMenu extends Menu {
 
     public void addBufferedChatMessage(String text, float r, float g, float b) {
         bufferedChatMessages.add(new MessageData(text, r, g, b));
-        System.out.println("[chat] " + text);
     }
 
     public static void displayChatMessage(String text, float r, float g, float b) {

@@ -14,5 +14,5 @@ void main() {
             result += texture(ssaoTexture, vertexUV + offset).r;
         }
     }
-    fragColor = vec4(vec3(result / 16.0), 1);
+    fragColor = vec4(vec3(texture(ssaoTexture, vertexUV).r), 1);
 }

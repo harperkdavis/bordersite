@@ -7,7 +7,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D ssaoNoise;
 
-const int KERNEL_SIZE = 4;
+const int KERNEL_SIZE = 1;
 
 uniform vec3 samples[KERNEL_SIZE];
 
@@ -21,8 +21,8 @@ uniform mat4 view;
 
 void main() {
 
-    fragColor = vec4(1);
     /*
+
     vec3 vertexNormal = texture(gNormal, vertexUV).rgb;
 
     if (vertexNormal != vec3(0.0)) {
@@ -52,9 +52,11 @@ void main() {
         }
         occlusion = 1.0 - (occlusion / KERNEL_SIZE);
 
-        fragColor = vec4(vec3(occlusion), 1);
+        fragColor = vec4(vec3(occlusion * occlusion), 1);
     } else {
         fragColor = vec4(1);
     }
     */
+
+    fragColor = vec4(1);
 }

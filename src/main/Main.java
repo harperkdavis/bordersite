@@ -7,6 +7,7 @@ import engine.graphics.render.Renderer;
 import engine.graphics.render.UiRenderer;
 import engine.graphics.render.ViewmodelRenderer;
 import engine.io.Input;
+import engine.io.Printer;
 import engine.io.Window;
 import engine.math.Vector3f;
 import game.PlayerMovement;
@@ -117,14 +118,13 @@ public class Main implements Runnable {
     }
 
     public void init() {
-        System.out.println("[INFO] Initializing game...");
-        System.out.println("[INFO] Creating GLFW window..");
 
-        Window.setGameWindow(new Window(WIDTH, HEIGHT, FULLSCREEN, TITLE));
-        Window.getGameWindow().create();
-        Window.getGameWindow().setFullscreen(FULLSCREEN);
+        Printer.println("Initializing game...");
+        Printer.println("Creating GLFW window..");
 
-        System.out.println("[INFO] GLFW window created!");
+        Window.create(WIDTH, HEIGHT, FULLSCREEN, TITLE);
+
+        Printer.println("GLFW window created!");
 
         PlayerMovement.setPlayerMovement(new PlayerMovement());
 
@@ -134,9 +134,9 @@ public class Main implements Runnable {
         Global.init();
         ClientHandler.init();
 
-        System.out.println("[INFO] Loading scene...");
+        Printer.println("Loading scene...");
 
-        System.out.println("[INFO] Loading shader...");
+        Printer.println("Loading shader...");
         gShader = loadShader("g");
 
         ssaoShader = loadShader("ssao");
@@ -159,7 +159,7 @@ public class Main implements Runnable {
         Renderer.setUi(new UiRenderer(uiShader));
         Renderer.setViewmodel(new ViewmodelRenderer(viewmodelShader));
         System.out.println("[INFO] Renderer initialized!");
-        Window.getGameWindow().setBackgroundColor(new Vector3f(0f, 0f, 0f));
+        Window.setBackgroundColor(new Vector3f(0f, 0f, 0f));
 
         System.out.println("[INFO] Initializing audio...");
         AudioMaster.load();
@@ -195,7 +195,7 @@ public class Main implements Runnable {
 
     public void run() {
         init();
-        while (!Window.getGameWindow().shouldClose()) {
+        while (!Window.shouldClose()) {
             elapsedTime = (int) (System.currentTimeMillis() - startTime);
             long cycleBegin = System.nanoTime();
             update();
@@ -203,15 +203,15 @@ public class Main implements Runnable {
             if (Input.isKey(GLFW.GLFW_KEY_ESCAPE) && Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT)) { break; }
             deltaTime = ((System.nanoTime() - cycleBegin) / 1000000.0f);
 
-            if (Input.isKeyDown(GLFW.GLFW_KEY_G)) {
-                int i = 0;
+            if (Input.isKeyDown(GLFW.GLFW_KEY_F11)) {
+                Window.flipFullscreen();
             }
         }
         close();
     }
 
     private void update() {
-        Window.getGameWindow().update();
+        Window.update();
         Input.update();
         UserInterface.getUi().update();
 
@@ -253,14 +253,14 @@ public class Main implements Runnable {
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
         UserInterface.getUi().render();
 
-        Window.getGameWindow().swapBuffers();
+        Window.swapBuffers();
     }
 
     private void close() {
         System.out.println("[INFO] Closing game...");
         disconnect();
         System.out.println("[INFO] Disconnected from server");
-        Window.getGameWindow().destroy();
+        Window.destroy();
 
         Scene.getScene().unload();
         Viewmodel.getViewmodel().unload();

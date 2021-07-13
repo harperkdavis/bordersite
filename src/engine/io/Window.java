@@ -11,73 +11,60 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
+import org.lwjglx.opengl.Display;
 
 public class Window {
 
-    private static Window gameWindow;
-
     private static int width, height;
-    private boolean fullscreen;
-    private final String title;
+    private static boolean fullscreen;
+    private static String title;
     private static long window;
 
-    private long fpsTime;
+    private static long fpsTime;
 
-    private float frameRate = 60;
-    private final float averageFPS = 60;
-    private final float deltaTime = 0;
+    private static float frameRate = 60;
 
-    private boolean mouseLocked = false;
+    private static boolean mouseLocked = false;
 
-    public Input input;
+    private static Vector3f background;
 
-    private Vector3f background;
-
-    private GLFWWindowSizeCallback sizeCallback;
-    private boolean isResized;
+    private static GLFWWindowSizeCallback sizeCallback;
+    private static boolean isResized;
 
     private static Matrix4f projection;
     private static Matrix4f ortho;
 
-    private final int[] windowPosX = new int[1];
-    private final int[] windowPosY = new int[1];
+    private static final int[] windowPosX = new int[1];
+    private static final int[] windowPosY = new int[1];
 
-    public Window(int width, int height, boolean fullscreen, String title) {
+    public static void create(int width, int height, boolean fullscreen, String title) {
+
+
         Window.width = width;
         Window.height = height;
-        this.title = title;
-        this.fullscreen = fullscreen;
+        Window.title = title;
+        Window.fullscreen = fullscreen;
 
         projection = Matrix4f.projection(Camera.getFov(), (float) width / (float) height, 0.01f, 10000.0f);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
-    }
 
-    public void create() {
-
-        System.out.println("    [INFO] Initializing GLFW...");
         if (!GLFW.glfwInit()) {
-            System.err.println("[ERROR] GLFW wasn't initialized.");
+            Printer.println(0, "GLFW wasn't initialized.");
             return;
         }
-        System.out.println("    [INFO] GLFW Initialized!");
 
-        System.out.println("    [INFO] Creating input class...");
-        input = new Input();
-        System.out.println("    [INFO] Input class created!");
+        Input.createCallbacks();
 
-        System.out.println("    [INFO] Creating window...");
         window = GLFW.glfwCreateWindow(width, height, title, 0,0);
 
         if (window == 0) {
-            System.err.println("[ERROR] Window wasn't created.");
+            Printer.println(0, "Window wasn't created.");
             return;
         }
-        System.out.println("    [INFO] Window created!");
 
-        System.out.println("    [INFO] Setting video mode and hints...");
         GLFWVidMode videoMode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
 
-        GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, 10);
+        GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, 0);
         GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 4);
 
@@ -89,14 +76,10 @@ public class Window {
         windowPosX[0] = (videoMode.width() - width) / 2;
         windowPosY[0] = (videoMode.height() - height) / 2;
         GLFW.glfwSetWindowPos(window, windowPosX[0], windowPosY[0]);
-        System.out.println("    [INFO] Video mode and hints set!");
-
-        System.out.println("    [INFO] Creating capabilities...");
         GLFW.glfwMakeContextCurrent(window);
-        GL.createCapabilities();
-        System.out.println("    [INFO] Capabilities created!");
 
-        System.out.println("    [INFO] Creating callbacks");
+        GL.createCapabilities();
+
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
 
@@ -104,15 +87,13 @@ public class Window {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL14.GL_REPEAT);
 
         createCallbacks();
-        System.out.println("    [INFO] Callbacks created!");
 
-        System.out.println("    [INFO] Finalizing window...");
         GLFW.glfwShowWindow(window);
 
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
+        GL11.glAlphaFunc(GL11.GL_GREATER, 2 / 255.0f);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
         fpsTime = System.currentTimeMillis();
@@ -123,10 +104,11 @@ public class Window {
             e.printStackTrace();
         }
 
-        System.out.println("    [INFO] Window process completed.");
+        setFullscreen(fullscreen);
+
     }
 
-    private void createCallbacks() {
+    private static void createCallbacks() {
         sizeCallback = new GLFWWindowSizeCallback() {
             @Override
             public void invoke(long window, int w, int h) {
@@ -136,14 +118,14 @@ public class Window {
             }
         };
 
-        GLFW.glfwSetKeyCallback(window, input.getKeyCallback());
-        GLFW.glfwSetCursorPosCallback(window, input.getMousePosCallback());
-        GLFW.glfwSetMouseButtonCallback(window, input.getMouseButtonCallback());
-        GLFW.glfwSetScrollCallback(window, input.getMouseScrollCallback());
+        GLFW.glfwSetKeyCallback(window, Input.getKeyCallback());
+        GLFW.glfwSetCursorPosCallback(window, Input.getMousePosCallback());
+        GLFW.glfwSetMouseButtonCallback(window, Input.getMouseButtonCallback());
+        GLFW.glfwSetScrollCallback(window, Input.getMouseScrollCallback());
         GLFW.glfwSetWindowSizeCallback(window, sizeCallback);
     }
 
-    public void update() {
+    public static void update() {
 
         projection = Matrix4f.projection(Camera.getFov(), (float) width / (float) height, 0.01f, 10000.0f);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
@@ -167,8 +149,12 @@ public class Window {
 
     }
 
-    public void setFullscreen(boolean fullscreen) {
-        this.fullscreen = fullscreen;
+    public static void flipFullscreen() {
+        setFullscreen(!fullscreen);
+    }
+
+    public static void setFullscreen(boolean fullscreen) {
+        Window.fullscreen = fullscreen;
         isResized = true;
         if (fullscreen) {
             GLFW.glfwGetWindowPos(window, windowPosX, windowPosY);
@@ -178,32 +164,32 @@ public class Window {
         }
     }
 
-    public void swapBuffers() {
+    public static void swapBuffers() {
         GLFW.glfwSwapBuffers(window);
     }
 
-    public boolean shouldClose() {
+    public static boolean shouldClose() {
         return GLFW.glfwWindowShouldClose(window);
     }
 
-    public void destroy() {
-        input.destroy();
+    public static void destroy() {
+        Input.destroy();
         sizeCallback.free();
         GLFW.glfwWindowShouldClose(window);
         GLFW.glfwDestroyWindow(window);
         GLFW.glfwTerminate();
     }
 
-    public void setBackgroundColor(Vector3f color) {
+    public static void setBackgroundColor(Vector3f color) {
         background = color;
     }
 
-    public void mouseState(boolean lock) {
+    public static void mouseState(boolean lock) {
         mouseLocked = lock;
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, lock ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL);
     }
 
-    public boolean isMouseLocked() {
+    public static boolean isMouseLocked() {
         return mouseLocked;
     }
 
@@ -215,7 +201,7 @@ public class Window {
         return height;
     }
 
-    public String getTitle() {
+    public static String getTitle() {
         return title;
     }
 
@@ -231,27 +217,15 @@ public class Window {
         return ortho;
     }
 
-    public float getPixelHeight() {
+    public static float getPixelHeight() {
         return 4f / height;
     }
 
-    public float getPixelHeight(float amount) {
+    public static float getPixelHeight(float amount) {
         return (4f / height) * amount;
     }
 
-    public static Window getGameWindow() {
-        return gameWindow;
-    }
-
-    public static void setGameWindow(Window gameWindow) {
-        Window.gameWindow = gameWindow;
-    }
-
-    public static float getDeltaTime() {
-        return Window.getGameWindow().deltaTime;
-    }
-
-    public float getFPS() {
+    public static float getFPS() {
         return frameRate;
     }
 

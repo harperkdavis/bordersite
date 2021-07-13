@@ -74,7 +74,7 @@ public class UserInterface implements GamePlane {
             if (inMainMenu) {
                 mainMenu.setVisible(true);
                 mainMenu.update();
-                Window.getGameWindow().mouseState(false);
+                Window.mouseState(false);
             } else {
                 mainMenu.setVisible(false);
             }
@@ -82,7 +82,7 @@ public class UserInterface implements GamePlane {
             if (Scene.isLoading()) {
                 mapLoadingMenu.setVisible(true);
                 mapLoadingMenu.update();
-                Window.getGameWindow().mouseState(false);
+                Window.mouseState(false);
             } else {
                 mapLoadingMenu.setVisible(false);
             }
@@ -94,7 +94,7 @@ public class UserInterface implements GamePlane {
                 inGameMenu.setVisible(false);
             }
 
-            Window.getGameWindow().mouseState(mouseLock);
+            Window.mouseState(mouseLock);
 
             if (Input.isBindDown("esc")) {
                 mouseLock = !mouseLock;

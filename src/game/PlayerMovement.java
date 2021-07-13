@@ -64,7 +64,7 @@ public class PlayerMovement {
     // Crouching -0.2
 
     public PlayerMovement() {
-        position = new Vector3f(0, 4, 0);
+        position = new Vector3f(0, 20, 0);
         cameraRotation = new Vector3f(0, 0, 0);
         Vector3f lockedRotation = new Vector3f(0, 0, 0);
 
@@ -75,7 +75,7 @@ public class PlayerMovement {
         float mouseX = (float) Input.getMouseX();
         float mouseY = (float) Input.getMouseY();
 
-        if (hasCameraControl && Window.getGameWindow().isMouseLocked()) {
+        if (hasCameraControl && Window.isMouseLocked()) {
 
             float accX = mouseX - preMouseX;
             float accY = mouseY - preMouseY;
@@ -212,12 +212,6 @@ public class PlayerMovement {
                 }
             }
         }
-
-        if (position.getY() < -1) {
-            position.setY(-1);
-            isGrounded = true;
-        }
-
 
         hasLanded = !hasLanded && isGrounded;
         if (hasLanded) {
