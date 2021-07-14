@@ -190,7 +190,7 @@ public class RampComponent implements Component {
     }
 
     private void calculateTopNormal() {
-        nnor = getTopNormal(ntl, ntr, nbl).normalize();
+        nnor = getTopNormal(ntl, nbl, nbr).normalize();
     }
 
     private Vector3f getTopNormal(Vector3f a, Vector3f b, Vector3f c) {

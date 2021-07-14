@@ -38,7 +38,6 @@ vec3 viewDir;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
-uniform sampler2D ssao;
 uniform sampler2D shadowMap;
 
 uniform DirectionalLight directionalLight;
@@ -93,7 +92,7 @@ float calcShadow(vec4 position) {
     for(int x = -1; x <= 1; ++x) {
         for(int y = -1; y <= 1; ++y) {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - 0.0007 > pcfDepth ? 1.0 : 0.0;
+            shadow += currentDepth - 0.001 > pcfDepth ? 1.0 : 0.0;
         }
     }
     shadow /= 9.0;
@@ -110,7 +109,6 @@ void main() {
     vertexNormal = texture(gNormal, vertexUV).xyz;
     diffuse = texture(gAlbedoSpec, vertexUV).rgb;
     specular = texture(gAlbedoSpec, vertexUV).a;
-    float ao = texture(ssao, vertexUV).r;
 
     viewDir = normalize(viewPos - vertexPos);
     vec3 cameraDir = normalize((vec4(0, 0, 1, 1) * view).xyz);
@@ -148,7 +146,7 @@ void main() {
             }
         }
 
-        fragColor = vec4((ambient + lighting) * ao, 1.0);
+        fragColor = vec4((ambient + lighting), 1.0);
         fragColor = calcFog(vertexPos, fragColor, fog, ambientLight, directionalLight);
 
     } else { // Sky pixel

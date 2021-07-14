@@ -35,10 +35,7 @@ public class MainRenderer extends Renderer {
     protected int depthMapFramebuffer, depthMapTexture;
 
     private int gBuffer, rboDepth;
-    private int gPosition, gViewPosition, gNormal, gAlbedoSpec;
-
-    private int ssaoColorBuffer, ssaoBlurBuffer, ssaoNoiseTexture;
-    private int ssaoFBO, ssaoBlurFBO;
+    private int gPosition, gNormal, gAlbedoSpec;
 
     private int hdrFBO, brightBlurFBO;
     private int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
@@ -73,38 +70,34 @@ public class MainRenderer extends Renderer {
     public void createBuffers() {
         // Deffered Framebuffer
 
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+
         gBuffer = GL30.glGenFramebuffers();
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, gBuffer);
 
         gPosition = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, gPosition);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGB16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGB, GL11.GL_FLOAT, (ByteBuffer) null);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, gPosition, 0);
 
-        gViewPosition = GL11.glGenTextures();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, gViewPosition);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT1, GL11.GL_TEXTURE_2D, gViewPosition, 0);
-
         gNormal = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, gNormal);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGB16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGB, GL11.GL_FLOAT, (ByteBuffer) null);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT2, GL11.GL_TEXTURE_2D, gNormal, 0);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT1, GL11.GL_TEXTURE_2D, gNormal, 0);
 
         gAlbedoSpec = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, gAlbedoSpec);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT3, GL11.GL_TEXTURE_2D, gAlbedoSpec, 0);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT2, GL11.GL_TEXTURE_2D, gAlbedoSpec, 0);
 
-        int[] gbuffers = new int[] {GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3};
+        int[] gbuffers = new int[] {GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2};
         IntBuffer drawBuffers = BufferUtils.createIntBuffer(gbuffers.length);
         for(int elem : gbuffers) {
             drawBuffers.put(elem);
@@ -112,6 +105,8 @@ public class MainRenderer extends Renderer {
         drawBuffers.flip();
 
         GL20.glDrawBuffers(drawBuffers);
+
+        // Depth
 
         rboDepth = GL30.glGenRenderbuffers();
         GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, rboDepth);
@@ -122,60 +117,6 @@ public class MainRenderer extends Renderer {
             System.err.println("[ERROR] Deffered framebuffer not complete!");
         }
 
-
-        // SSAO
-
-
-        ssaoFBO = GL30.glGenFramebuffers();
-        ssaoBlurFBO = GL30.glGenFramebuffers();
-
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ssaoFBO);
-        ssaoColorBuffer = GL11.glGenTextures();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, ssaoColorBuffer);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, ssaoColorBuffer, 0);
-        if (GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE) {
-            System.err.println("[ERROR] SSAO Framebuffer not complete!");
-        }
-
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ssaoBlurFBO);
-        ssaoBlurBuffer = GL11.glGenTextures();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, ssaoBlurBuffer);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, ssaoBlurBuffer, 0);
-        if (GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE) {
-            System.err.println("[ERROR] SSAO Blur Framebuffer not complete!");
-        }
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-
-        Random randomSample = new Random();
-
-        for (int i = 0; i < SSAO_KERNEL_SIZE; i++) {
-            Vector3f sample = new Vector3f(randomSample.nextFloat() * 2.0f - 1.0f, randomSample.nextFloat() * 2.0f - 1.0f, randomSample.nextFloat()).normalize();
-            sample.multiply(randomSample.nextFloat());
-
-            float scale = Mathf.lerp(0.1f, 1.0f, (i / (float) SSAO_KERNEL_SIZE) * (i / (float) SSAO_KERNEL_SIZE));
-            sample.multiply(scale);
-            ssaoKernel[i] = sample;
-        }
-
-        for (int i = 0; i < 16; i++) {
-            ssaoNoise[i * 3] = randomSample.nextFloat() * 2.0f - 1.0f;
-            ssaoNoise[i * 3 + 1] = randomSample.nextFloat() * 2.0f - 1.0f;
-            ssaoNoise[i * 3 + 2] = 0;
-        }
-
-        ssaoNoiseTexture = GL11.glGenTextures();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, ssaoNoiseTexture);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGB32F, 4, 4, 0, GL11.GL_RGB, GL11.GL_FLOAT, ssaoNoise);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 
         // Render Quad
 
@@ -222,7 +163,7 @@ public class MainRenderer extends Renderer {
 
         hdrBuffer = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrBuffer);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA32F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL15.GL_CLAMP_TO_EDGE);
@@ -231,7 +172,7 @@ public class MainRenderer extends Renderer {
 
         hdrBrightBuffer = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, hdrBrightBuffer);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA32F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL15.GL_CLAMP_TO_EDGE);
@@ -268,6 +209,9 @@ public class MainRenderer extends Renderer {
         }
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
     }
 
     public void renderScene() {
@@ -316,47 +260,7 @@ public class MainRenderer extends Renderer {
 
         GL11.glViewport(0, 0, Window.getWidth(), Window.getHeight());
 
-        // 2: SSAO TEXTURE
-
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ssaoFBO);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-        ssaoShader.bind();
-        for (int i = 0; i < SSAO_KERNEL_SIZE; i++) {
-            ssaoShader.setUniform("samples[" + i + "]", ssaoKernel[i]);
-        }
-
-        ssaoShader.setUniform("gPosition", 0);
-        ssaoShader.setUniform("gNormal", 1);
-        ssaoShader.setUniform("ssaoNoise", 2);
-
-        ssaoShader.setUniform("noiseScale", new Vector2f(Window.getWidth() / 4.0f, Window.getHeight() / 4.0f));
-        ssaoShader.setUniform("view", view);
-        ssaoShader.setUniform("projection", projection);
-
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, gViewPosition);
-        GL13.glActiveTexture(GL13.GL_TEXTURE1);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, gNormal);
-        GL13.glActiveTexture(GL13.GL_TEXTURE2);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, ssaoNoiseTexture);
-        renderQuad();
-
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        ssaoShader.unbind();
-
-        // 2.5: SSAO BLUR
-
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ssaoBlurFBO);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-        ssaoBlurShader.bind();
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, ssaoColorBuffer);
-        renderQuad();
-
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        ssaoBlurShader.unbind();
-
-        // 3: LIGHTING
+        // 2: LIGHTING
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, hdrFBO);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -365,8 +269,7 @@ public class MainRenderer extends Renderer {
         shader.setUniform("gPosition", 0);
         shader.setUniform("gNormal", 1);
         shader.setUniform("gAlbedoSpec", 2);
-        shader.setUniform("ssao", 3);
-        shader.setUniform("shadowMap", 4);
+        shader.setUniform("shadowMap", 3);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL13.glBindTexture(GL11.GL_TEXTURE_2D, gPosition);
@@ -375,8 +278,6 @@ public class MainRenderer extends Renderer {
         GL13.glActiveTexture(GL13.GL_TEXTURE2);
         GL13.glBindTexture(GL11.GL_TEXTURE_2D, gAlbedoSpec);
         GL13.glActiveTexture(GL13.GL_TEXTURE3);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, ssaoBlurBuffer);
-        GL13.glActiveTexture(GL13.GL_TEXTURE4);
         GL13.glBindTexture(GL11.GL_TEXTURE_2D, depthMapTexture);
 
         shader.setUniform("lightSpaceMatrix", getLightSpaceMatrix());
@@ -395,7 +296,7 @@ public class MainRenderer extends Renderer {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         shader.unbind();
 
-        // 3.5: BLOOM BLUR
+        // 3: BLOOM BLUR
 
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         blurShader.bind();
@@ -422,6 +323,7 @@ public class MainRenderer extends Renderer {
         postShader.setUniform("hdrBuffer", 0);
         postShader.setUniform("brightBuffer", 1);
         postShader.setUniform("exposure", exposure);
+        postShader.setUniform("resolution", new Vector2f(Window.getWidth(), Window.getHeight()));
 
         renderQuad();
         postShader.unbind();
@@ -490,16 +392,16 @@ public class MainRenderer extends Renderer {
     }
 
     private Matrix4f getLightSpaceMatrix() {
-        Matrix4f lightOrtho = Matrix4f.ortho(-100, 100, -100, 100, 1.0f, 320.0f);
+        Matrix4f lightOrtho = Matrix4f.ortho(-50, 50, -50, 50, 1.0f, 320.0f);
         Vector3f lightDir = new Vector3f(Scene.directionalLight.getDirection());
-        Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 20, lightDir.getY() * 20, -lightDir.getZ() * 20), Vector3f.zero(), Vector3f.oneY());
+        Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 40, lightDir.getY() * 40, -lightDir.getZ() * 40), Vector3f.zero(), Vector3f.oneY());
         return Matrix4f.multiply(lightView, lightOrtho);
     }
 
     private void renderWorldDepthMap() {
 
         depthShader.bind();
-        GL11.glCullFace(GL11.GL_FRONT);
+        GL11.glCullFace(GL11.GL_BACK);
 
         depthShader.setUniform("lightSpaceMatrix", getLightSpaceMatrix());
 

@@ -9,7 +9,6 @@ public abstract class Renderer {
 
     private static MainRenderer main;
     private static UiRenderer ui;
-    private static ViewmodelRenderer viewmodel;
 
     public Renderer(Shader shader) {
         this.shader = shader;
@@ -33,11 +32,4 @@ public abstract class Renderer {
         Renderer.ui = ui;
     }
 
-    public static ViewmodelRenderer getViewmodel() {
-        return viewmodel;
-    }
-
-    public static void setViewmodel(ViewmodelRenderer viewmodel) {
-        Renderer.viewmodel = viewmodel;
-    }
 }

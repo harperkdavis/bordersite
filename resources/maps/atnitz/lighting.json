@@ -6,8 +6,8 @@
   },
   "lights" : [
     {
-      "position" : [0.0, 1.0, 0.0],
-      "color" : [1.0, 1.0, 1.0]
+      "position" : [0.0, 10.0, 0.0],
+      "color" : [1.0, 0.0, 1.0]
     }
   ],
   "skybox": "materials/skybox_overcast.png"

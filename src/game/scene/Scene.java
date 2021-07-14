@@ -6,16 +6,15 @@ import engine.components.RampComponent;
 import engine.graphics.Material;
 import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.PointLight;
-import engine.graphics.mesh.MeshBuilder;
+import engine.io.MeshLoader;
 import engine.math.*;
 import engine.objects.Camera;
 import engine.objects.GameObject;
-import game.GamePlane;
 import game.PlayerMovement;
 
 import java.util.*;
 
-public class Scene implements GamePlane {
+public class Scene {
 
     protected static Scene scene;
     protected static float[][] heightMap;
@@ -57,11 +56,12 @@ public class Scene implements GamePlane {
 
     public void load() {
 
+        addObject(new GameObject(new Vector3f(0, 6, 0), MeshLoader.loadModel("models/sphere.obj", Material.ENV_STONE)));
+
         loading = true;
         loaded = false;
     }
 
-    @Override
     public void update() {
         if (loading) {
             loader.run();
@@ -77,16 +77,14 @@ public class Scene implements GamePlane {
 
     }
 
-    @Override
     public void render() {
 
     }
-    @Override
+
     public void fixedUpdate() {
 
     }
 
-    @Override
     public void unload() {
         for (GameObject go : objects) {
                 go.unload();
@@ -94,33 +92,33 @@ public class Scene implements GamePlane {
     }
 
     public static void addComponent(Component c) {
-        addObject(c.getObject(), false);
+        addObject(c.getObject());
         PlayerMovement.addCollisionComponent(c);
     }
 
     public static void addBlock(BlockComponent block) {
-        addObject(block.getObject(), false);
+        addObject(block.getObject());
         PlayerMovement.addCollisionComponent(block);
     }
 
     public static void addRamp(RampComponent ramp) {
-        addObject(ramp.getObject(), false);
+        addObject(ramp.getObject());
         PlayerMovement.addCollisionComponent(ramp);
     }
 
     public static void addBlock(Vector3f a, Vector3f b, Vector3f c, float height, Material material) {
         BlockComponent blockComponent = new BlockComponent(a, b, c, height, material);
-        addObject(blockComponent.getObject(), false);
+        addObject(blockComponent.getObject());
         PlayerMovement.addCollisionComponent(blockComponent);
     }
 
     public static void addRamp(Vector3f a, Vector3f b, Vector3f c, float height, int direction, Material material) {
         RampComponent rampComponent = new RampComponent(a, b, c, height, direction, material);
-        addObject(rampComponent.getObject(), false);
+        addObject(rampComponent.getObject());
         PlayerMovement.addCollisionComponent(rampComponent);
     }
 
-    public static GameObject addObject(GameObject object, boolean load) {
+    public static GameObject addObject(GameObject object) {
         objects.add(object);
         return object;
     }

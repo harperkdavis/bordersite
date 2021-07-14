@@ -12,22 +12,19 @@ import engine.io.Window;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
-import game.GamePlane;
 import game.scene.Scene;
 import main.Main;
 import org.lwjgl.glfw.GLFW;
 
-public class UserInterface implements GamePlane {
+public class UserInterface {
 
-    private static UserInterface ui;
-
-    private static float PIXEL = 0.0025f;
+    private static float PIXEL;
     private static int width;
     private static int height;
 
     private static final List<GameObject> objects = new ArrayList<>();
 
-    private boolean inMapMenu = false;
+    private static boolean inMapMenu = false;
 
     protected static MainMenu mainMenu;
     protected static MapLoadingMenu mapLoadingMenu;
@@ -36,10 +33,10 @@ public class UserInterface implements GamePlane {
 
     public static boolean mouseLock = true;
 
-    private GameObject loadingBackground, loadingText, loadingMaterial;
-    private UiText loadingProgress;
+    private static GameObject loadingBackground, loadingText, loadingMaterial;
+    private static UiText loadingProgress;
 
-    public UserInterface(int width, int height) {
+    public static void init(int width, int height) {
         UserInterface.width = width;
         UserInterface.height = height;
 
@@ -56,8 +53,7 @@ public class UserInterface implements GamePlane {
         loadingMaterial = addObject(new GameObject(screen(0 + p(4), 0 + p(60), 1), UiBuilder.UIRect(p(1),  Material.DEFAULT)));
     }
 
-    @Override
-    public void update() {
+    public static void update() {
 
         if (Main.areMaterialsLoaded()) {
 
@@ -124,12 +120,10 @@ public class UserInterface implements GamePlane {
         }
     }
 
-    @Override
-    public void fixedUpdate() {
+    public static void fixedUpdate() {
     }
 
-    @Override
-    public void render() {
+    public static void render() {
 
         for (GameObject o : objects) {
             Renderer.getUi().render(o);
@@ -140,8 +134,7 @@ public class UserInterface implements GamePlane {
         mapMenu.render();
     }
 
-    @Override
-    public void unload() {
+    public static void unload() {
         for (GameObject o : objects) {
             o.unload();
         }
@@ -152,22 +145,19 @@ public class UserInterface implements GamePlane {
         mapMenu.unload();
     }
 
-    public GameObject addObject(GameObject object) {
+    public static GameObject addObject(GameObject object) {
         objects.add(object);
         return object;
     }
 
-    public void removeObject(GameObject object) {
+    public static void removeObject(GameObject object) {
         objects.remove(object);
         object.unload();
     }
 
-    public static UserInterface getUi() {
-        return ui;
-    }
-
-    public static void setUi(UserInterface ui) {
-        UserInterface.ui = ui;
+    public static void resize(int width, int height) {
+        UserInterface.width = width;
+        UserInterface.height = height;
     }
 
     public static Vector2f screen(float posX, float posY) {

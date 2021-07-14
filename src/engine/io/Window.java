@@ -3,6 +3,7 @@ package engine.io;
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
 import engine.objects.Camera;
+import game.ui.UserInterface;
 import main.Main;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -132,6 +133,7 @@ public class Window {
 
         if (isResized) {
             GL11.glViewport(0, 0, width, height);
+            UserInterface.resize(width, height);
             isResized = false;
         }
         GL11.glClearColor(background.getX(), background.getY(), background.getZ(), 1.0f);

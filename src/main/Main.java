@@ -5,7 +5,6 @@ import engine.graphics.*;
 import engine.graphics.render.MainRenderer;
 import engine.graphics.render.Renderer;
 import engine.graphics.render.UiRenderer;
-import engine.graphics.render.ViewmodelRenderer;
 import engine.io.Input;
 import engine.io.Printer;
 import engine.io.Window;
@@ -13,7 +12,6 @@ import engine.math.Vector3f;
 import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.UserInterface;
-import game.viewmodel.Viewmodel;
 import net.ClientHandler;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
@@ -129,8 +127,7 @@ public class Main implements Runnable {
         PlayerMovement.setPlayerMovement(new PlayerMovement());
 
         Scene.setScene(new Scene());
-        Viewmodel.setViewmodel(new Viewmodel());
-        UserInterface.setUi(new UserInterface(WIDTH, HEIGHT));
+        UserInterface.init(Window.getWidth(), Window.getHeight());
         Global.init();
         ClientHandler.init();
 
@@ -157,7 +154,6 @@ public class Main implements Runnable {
         System.out.println("[INFO] Initializing renderer...");
         Renderer.setMain(new MainRenderer(gShader, ssaoShader, ssaoBlurShader, mainShader, shadowShader, blurShader, postShader, unlitShader));
         Renderer.setUi(new UiRenderer(uiShader));
-        Renderer.setViewmodel(new ViewmodelRenderer(viewmodelShader));
         System.out.println("[INFO] Renderer initialized!");
         Window.setBackgroundColor(new Vector3f(0f, 0f, 0f));
 
@@ -213,7 +209,7 @@ public class Main implements Runnable {
     private void update() {
         Window.update();
         Input.update();
-        UserInterface.getUi().update();
+        UserInterface.update();
 
         boolean fixedUpdate = System.currentTimeMillis() - lastFixedUpdate >= 10;
 
@@ -228,7 +224,7 @@ public class Main implements Runnable {
         }
 
         if (fixedUpdate) {
-            UserInterface.getUi().fixedUpdate();
+            UserInterface.fixedUpdate();
             ClientHandler.fixedUpdate();
             lastFixedUpdate = System.currentTimeMillis();
         }
@@ -236,7 +232,6 @@ public class Main implements Runnable {
         Scene.getScene().update();
         if (Scene.isLoaded()) {
             PlayerMovement.getPlayerMovement().update();
-            Viewmodel.getViewmodel().update();
 
         }
 
@@ -247,11 +242,9 @@ public class Main implements Runnable {
 
         if (materialsLoaded && Scene.isLoaded()) {
             Renderer.getMain().renderScene();
-
-            Viewmodel.getViewmodel().render();
         }
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        UserInterface.getUi().render();
+        UserInterface.render();
 
         Window.swapBuffers();
     }
@@ -263,8 +256,7 @@ public class Main implements Runnable {
         Window.destroy();
 
         Scene.getScene().unload();
-        Viewmodel.getViewmodel().unload();
-        UserInterface.getUi().unload();
+        UserInterface.unload();
 
         MaterialLoader.unloadAll();
 
