@@ -10,15 +10,15 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 
-public class UiRenderer extends Renderer {
+public class UiRenderer {
 
-    public UiRenderer(Shader shader) {
-        super(shader);
-        setUi(this);
+    private static Shader shader;
+
+    public static void init() {
+        shader = Shader.loadShader("ui");
     }
 
-    @Override
-    public void render(GameObject object) {
+    public static void render(GameObject object) {
 
         if (!object.isVisible()) {
             return;

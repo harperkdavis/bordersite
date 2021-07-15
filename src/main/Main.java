@@ -3,7 +3,6 @@ package main;
 import engine.audio.*;
 import engine.graphics.*;
 import engine.graphics.render.MainRenderer;
-import engine.graphics.render.Renderer;
 import engine.graphics.render.UiRenderer;
 import engine.io.Input;
 import engine.io.Printer;
@@ -23,7 +22,6 @@ import java.util.Random;
 public class Main implements Runnable {
 
     public Thread game;
-    public Shader gShader, ssaoShader, ssaoBlurShader, shadowShader, mainShader, blurShader, postShader, uiShader, viewmodelShader, unlitShader;
 
     public int WIDTH, HEIGHT;
     public boolean FULLSCREEN;
@@ -134,26 +132,12 @@ public class Main implements Runnable {
         Printer.println("Loading scene...");
 
         Printer.println("Loading shader...");
-        gShader = loadShader("g");
-
-        ssaoShader = loadShader("ssao");
-        ssaoBlurShader = loadShader("ssaoBlur");
-
-        shadowShader = loadShader("shadow");
-        mainShader = loadShader("main");
-        postShader = loadShader("post");
-
-        blurShader = loadShader("blur");
-        uiShader = loadShader("ui");
-        viewmodelShader = loadShader("viewmodel");
-
-        unlitShader = loadShader("unlit");
 
         System.out.println("[INFO] Loading shader complete.");
 
         System.out.println("[INFO] Initializing renderer...");
-        Renderer.setMain(new MainRenderer(gShader, ssaoShader, ssaoBlurShader, mainShader, shadowShader, blurShader, postShader, unlitShader));
-        Renderer.setUi(new UiRenderer(uiShader));
+        MainRenderer.init();
+        UiRenderer.init();
         System.out.println("[INFO] Renderer initialized!");
         Window.setBackgroundColor(new Vector3f(0f, 0f, 0f));
 
@@ -172,12 +156,6 @@ public class Main implements Runnable {
 
         System.out.println("[INFO] Initialization completed!");
 
-    }
-
-    private Shader loadShader(String name) {
-        Shader shader = new Shader("/shaders/" + name + "Vertex.glsl", "/shaders/" + name + "Fragment.glsl");
-        shader.create();
-        return shader;
     }
 
     private void connect() {
@@ -217,7 +195,6 @@ public class Main implements Runnable {
             MaterialLoader.loadNext();
             if (MaterialLoader.isFinished()) {
                 materialsLoaded = true;
-                Renderer.getMain().createBuffers();
                 connect();
             }
             return;
@@ -241,7 +218,7 @@ public class Main implements Runnable {
     private void render() {
 
         if (materialsLoaded && Scene.isLoaded()) {
-            Renderer.getMain().renderScene();
+            MainRenderer.renderActiveScene();
         }
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
         UserInterface.render();
@@ -259,9 +236,7 @@ public class Main implements Runnable {
         UserInterface.unload();
 
         MaterialLoader.unloadAll();
-
-        mainShader.destroy();
-        uiShader.destroy();
+        MainRenderer.unload();
 
         AudioMaster.unload();
 

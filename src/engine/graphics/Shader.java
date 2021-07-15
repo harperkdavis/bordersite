@@ -20,6 +20,12 @@ public class Shader {
     private final String fragmentFile;
     private int vertexID, fragmentID, programID;
 
+    public static Shader loadShader(String name) {
+        Shader shader = new Shader("/shaders/" + name + "Vertex.glsl", "/shaders/" + name + "Fragment.glsl");
+        shader.create();
+        return shader;
+    }
+
     public Shader(String vertexPath, String fragmentPath) {
         vertexFile = Utils.loadAsString(vertexPath);
         fragmentFile = Utils.loadAsString(fragmentPath);

@@ -1,6 +1,6 @@
 package game.ui;
 
-import engine.graphics.render.Renderer;
+import engine.graphics.render.UiRenderer;
 import engine.objects.GameObject;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public abstract class Menu {
 
     public void render() {
         for (GameObject o : objects) {
-            Renderer.getUi().render(o);
+            UiRenderer.render(o);
         }
     }
     public abstract void unload();

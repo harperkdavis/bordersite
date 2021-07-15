@@ -18,7 +18,7 @@ public class RampComponent implements Component {
             etl, etr, ebl, ebr,
             setl, setr, sebl, sebr,
             etopl, etopr, ebtml, ebtmr,
-            topl, topr, btml, btmr,
+            topl, topr, btml, btmr, intopl, intopr,
             stopl, stopr, sbotl, sbotr;
 
     private GameObject baseObject;
@@ -153,6 +153,9 @@ public class RampComponent implements Component {
                 rightnormal = tnor;
             }
         }
+
+        intopl = new Vector2f(etopl.getX() - frontnormal.getX() * radius * 2, etopl.getY() - frontnormal.getZ() * radius * 2);
+        intopr = new Vector2f(etopr.getX() - frontnormal.getX() * radius * 2, etopr.getY() - frontnormal.getZ() * radius * 2);
 
         setl = getExtended(bl, tl, tr, lnor, tnor, radius - 0.1f);
         setr = getExtended(tl, tr, br, tnor, rnor, radius - 0.1f);
@@ -344,10 +347,10 @@ public class RampComponent implements Component {
     }
 
     public float getHeightAt(Vector3f pos) {
-        float distance1 = Mathf.pointLine(pos.getX(), pos.getZ(), topl.getX(), topl.getY(), topr.getX(), topr.getY());
+        float distance1 = Mathf.pointLine(pos.getX(), pos.getZ(), intopl.getX(), intopl.getY(), intopr.getX(), intopr.getY());
         float distance2 = Mathf.pointLine(pos.getX(), pos.getZ(), ebtml.getX(), ebtml.getY(), ebtmr.getX(), ebtmr.getY());
         float distance = ((distance2 / crossMagnitude) + (1 - distance1 / crossMagnitude)) / 2;
-        return Mathf.lerp(stl.getY(), stl.getY() + height * 1.1f + 0.1f, distance);
+    return Math.min(Mathf.lerp(stl.getY(), stl.getY() + height + PlayerMovement.PLAYER_RADIUS, distance), stl.getY() + height + 0.1f);
     }
 
     private Vector3f sideCollision(Vector3f pos, Vector2f a, Vector2f b, Vector2f c, Vector2f d, Vector3f normal, boolean checkHeight) {

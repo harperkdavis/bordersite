@@ -6,7 +6,7 @@ import java.util.List;
 import engine.graphics.Material;
 import engine.graphics.MaterialLoader;
 import engine.graphics.mesh.UiBuilder;
-import engine.graphics.render.Renderer;
+import engine.graphics.render.UiRenderer;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Vector2f;
@@ -126,7 +126,7 @@ public class UserInterface {
     public static void render() {
 
         for (GameObject o : objects) {
-            Renderer.getUi().render(o);
+            UiRenderer.render(o);
         }
         mainMenu.render();
         mapLoadingMenu.render();

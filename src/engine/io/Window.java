@@ -1,5 +1,6 @@
 package engine.io;
 
+import engine.graphics.render.MainRenderer;
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
 import engine.objects.Camera;
@@ -134,6 +135,7 @@ public class Window {
         if (isResized) {
             GL11.glViewport(0, 0, width, height);
             UserInterface.resize(width, height);
+            MainRenderer.resize();
             isResized = false;
         }
         GL11.glClearColor(background.getX(), background.getY(), background.getZ(), 1.0f);

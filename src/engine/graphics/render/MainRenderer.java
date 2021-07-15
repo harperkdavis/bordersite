@@ -19,55 +19,90 @@ import main.Global;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.*;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Random;
 
-public class MainRenderer extends Renderer {
+public class MainRenderer {
 
-    private final Vector3f ambientLight;
-    private final Fog fog;
+    private static Vector3f ambientLight;
+    private static Fog fog;
 
     private static float exposure = 1.4f;
 
-    private final Shader gShader, depthShader, ssaoShader, ssaoBlurShader, blurShader, postShader, unlitShader;
-    protected int depthMapFramebuffer, depthMapTexture;
+    private static Shader shader, gShader, depthShader, blurShader, postShader, unlitShader;
+    protected static int depthMapFramebuffer, depthMapTexture;
 
-    private int gBuffer, rboDepth;
-    private int gPosition, gNormal, gAlbedoSpec;
+    private static int gBuffer, rboDepth;
+    private static int gPosition, gNormal, gAlbedoSpec;
 
-    private int hdrFBO, brightBlurFBO;
-    private int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
+    private static int hdrFBO, brightBlurFBO;
+    private static int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
 
-    private final int SSAO_KERNEL_SIZE = 1;
+    private static final int SSAO_KERNEL_SIZE = 1;
 
-    private Vector3f[] ssaoKernel = new Vector3f[SSAO_KERNEL_SIZE];
-    private float[] ssaoNoise = new float[48];
+    private static Vector3f[] ssaoKernel = new Vector3f[SSAO_KERNEL_SIZE];
+    private static float[] ssaoNoise = new float[48];
 
-    private Mesh renderQuad;
+    private static Mesh renderQuad;
 
     private static final int SHADOW_MAP_WIDTH = 8192, SHADOW_MAP_HEIGHT = 8192;
 
 
-    public MainRenderer(Shader gShader, Shader ssaoShader, Shader ssaoBlurShader, Shader shader, Shader depthShader, Shader blurShader, Shader postShader, Shader unlitShader) {
-        super(shader);
-        Renderer.setMain(this);
-
-        this.gShader = gShader;
-        this.depthShader = depthShader;
-        this.ssaoShader = ssaoShader;
-        this.ssaoBlurShader = ssaoBlurShader;
-        this.blurShader = blurShader;
-        this.postShader = postShader;
-        this.unlitShader = unlitShader;
+    public static void init() {
+        MainRenderer.gShader = Shader.loadShader("g");
+        MainRenderer.depthShader = Shader.loadShader("shadow");
+        MainRenderer.shader = Shader.loadShader("main");
+        MainRenderer.blurShader = Shader.loadShader("blur");
+        MainRenderer.postShader = Shader.loadShader("post");
+        MainRenderer.unlitShader = Shader.loadShader("unlit");
 
         ambientLight = new Vector3f(0.3f, 0.3f, 0.305f);
         fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.002f);
 
+        createBuffers();
     }
 
-    public void createBuffers() {
+    private static void freeFramebuffers() {
+        GL30.glDeleteFramebuffers(gBuffer);
+
+        GL11.glDeleteTextures(gPosition);
+        GL11.glDeleteTextures(gNormal);
+        GL11.glDeleteTextures(gAlbedoSpec);
+
+        GL30.glDeleteRenderbuffers(rboDepth);
+
+        GL30.glDeleteFramebuffers(hdrFBO);
+        GL30.glDeleteFramebuffers(brightBlurFBO);
+
+        GL11.glDeleteTextures(hdrBuffer);
+        GL11.glDeleteTextures(hdrBrightBuffer);
+        GL11.glDeleteTextures(brightBlurBuffer);
+
+    }
+
+    public static void resize() {
+        freeFramebuffers();
+        createBuffers();
+    }
+
+    public static void unload() {
+        freeFramebuffers();
+
+        GL30.glDeleteFramebuffers(depthMapFramebuffer);
+        GL11.glDeleteTextures(depthMapTexture);
+
+        gShader.destroy();
+        shader.destroy();
+        postShader.destroy();
+        unlitShader.destroy();
+        blurShader.destroy();
+        depthShader.destroy();
+    }
+
+    public static void createBuffers() {
         // Deffered Framebuffer
 
         GL11.glDisable(GL11.GL_BLEND);
@@ -214,7 +249,7 @@ public class MainRenderer extends Renderer {
         GL11.glEnable(GL11.GL_ALPHA_TEST);
     }
 
-    public void renderScene() {
+    public static void renderActiveScene() {
 
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
@@ -340,7 +375,7 @@ public class MainRenderer extends Renderer {
 
     }
 
-    private void renderQuad() {
+    private static void renderQuad() {
         GL30.glBindVertexArray(renderQuad.getVAO());
         GL30.glEnableVertexAttribArray(0);
         GL30.glEnableVertexAttribArray(1);
@@ -356,7 +391,7 @@ public class MainRenderer extends Renderer {
         GL30.glBindVertexArray(0);
     }
 
-    public void forwardsRender(Shader shader, GameObject object) {
+    public static void forwardsRender(Shader shader, GameObject object) {
         shader.bind();
 
         Matrix4f view = Matrix4f.view(Camera.getMainCameraPosition(), Camera.getMainCameraRotation(), true);
@@ -391,14 +426,14 @@ public class MainRenderer extends Renderer {
         shader.unbind();
     }
 
-    private Matrix4f getLightSpaceMatrix() {
+    private static Matrix4f getLightSpaceMatrix() {
         Matrix4f lightOrtho = Matrix4f.ortho(-50, 50, -50, 50, 1.0f, 320.0f);
         Vector3f lightDir = new Vector3f(Scene.directionalLight.getDirection());
         Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 40, lightDir.getY() * 40, -lightDir.getZ() * 40), Vector3f.zero(), Vector3f.oneY());
         return Matrix4f.multiply(lightView, lightOrtho);
     }
 
-    private void renderWorldDepthMap() {
+    private static void renderWorldDepthMap() {
 
         depthShader.bind();
         GL11.glCullFace(GL11.GL_BACK);
@@ -420,19 +455,19 @@ public class MainRenderer extends Renderer {
 
     }
 
-    private void enableVertexArrays(int n) {
+    private static void enableVertexArrays(int n) {
         for (int i = 0; i < n; i++) {
             GL30.glEnableVertexAttribArray(i);
         }
     }
 
-    private void disableVertexArrays(int n) {
+    private static void disableVertexArrays(int n) {
         for (int i = 0; i < n; i++) {
             GL30.glDisableVertexAttribArray(i);
         }
     }
 
-    private void gRender(GameObject object) {
+    private static void gRender(GameObject object) {
         if (!object.isVisible()) {
             return;
         }
@@ -455,7 +490,7 @@ public class MainRenderer extends Renderer {
         GL30.glBindVertexArray(0);
     }
 
-    private void renderMinimal(GameObject object) {
+    private static void renderMinimal(GameObject object) {
         if (!object.isVisible()) {
             return;
         }
@@ -478,8 +513,7 @@ public class MainRenderer extends Renderer {
         GL30.glBindVertexArray(0);
     }
 
-    @Override
-    public void render(GameObject gameObject) {
+    public static void render(GameObject gameObject) {
         forwardsRender(unlitShader, gameObject);
     }
 }
