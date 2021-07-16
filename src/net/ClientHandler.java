@@ -5,21 +5,30 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
+import game.Player;
 import main.Main;
 import net.packets.Packet;
 import net.packets.client.ChatRequestPacket;
 import net.packets.client.ConnectPacket;
-import net.packets.server.ChatPacket;
-import net.packets.server.ConnectionReceivedPacket;
+import net.packets.client.TeamSelectPacket;
+import net.packets.server.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ClientHandler {
 
     public static Client client;
     protected static int playerId;
+
     protected static boolean serverRegistered = false;
+    protected static boolean hasRegisteredTeam = false;
+    protected static int team;
+
     private static boolean hasSentConnectedPacket = false;
+
 
     public static void init() {
         Log.set(Log.LEVEL_DEBUG);
@@ -28,12 +37,23 @@ public class ClientHandler {
         client.start();
 
         Kryo kryo = client.getKryo();
+        kryo.register(List.class);
+        kryo.register(ArrayList.class);
+        kryo.register(HashMap.class);
+
+        kryo.register(Player.class);
+
         kryo.register(Packet.class);
         kryo.register(ConnectPacket.class);
         kryo.register(ConnectionReceivedPacket.class);
 
         kryo.register(ChatRequestPacket.class);
         kryo.register(ChatPacket.class);
+
+        kryo.register(TeamSelectPacket.class);
+        kryo.register(PlayerRemovePacket.class);
+        kryo.register(PlayerSpawnPacket.class);
+        kryo.register(WorldSpawnPacket.class);
 
     }
 
@@ -71,6 +91,10 @@ public class ClientHandler {
 
     public static void sendChatPacket(String message) {
         client.sendTCP(new ChatRequestPacket(message));
+    }
+
+    public static boolean hasRegisteredTeam() {
+        return hasRegisteredTeam;
     }
 
 }

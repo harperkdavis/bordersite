@@ -13,7 +13,7 @@ uniform float exposure;
 
 // FXAA Implementation from https://www.shadertoy.com/view/ls3GWS
 
-#define FXAA_SPAN_MAX 16.0
+#define FXAA_SPAN_MAX 8.0
 #define FXAA_REDUCE_MUL   (1.0/FXAA_SPAN_MAX)
 #define FXAA_REDUCE_MIN   (1.0/128.0)
 #define FXAA_SUBPIX_SHIFT (1.0/4.0)

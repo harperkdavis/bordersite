@@ -7,7 +7,8 @@ import engine.components.Component;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.*;
-import engine.objects.Camera;
+import engine.objects.camera.Camera;
+import engine.objects.camera.PerspectiveCamera;
 import game.scene.Scene;
 import main.Main;
 import main.Global;
@@ -21,41 +22,34 @@ import static engine.math.Mathf.*;
 
 public class PlayerMovement {
 
-    private static PlayerMovement playerMovement;
+    private static PerspectiveCamera camera = new PerspectiveCamera(Vector3f.zero(), Vector3f.zero(), 80.0f);
 
-    private static Vector3f position;
+    private static Vector3f position = new Vector3f(0, 20, 0);
+    private static Vector3f cameraRotation = new Vector3f(0, 0, 0);
 
-    private static float velX = 0;
-    private static float velY = 0;
-    private static float velZ = 0;
+    private static float velX = 0, velY = 0, velZ = 0;
 
-    private boolean isCrouching = false;
-    private boolean isSprinting = false;
-    private boolean isGrounded = true;
-    private boolean isMoving;
-    private float sprintModifier = 0.0f;
+    private static boolean isCrouching = false, isSprinting = false, isGrounded = true, isMoving = false;
+    private static float sprintModifier = 0.0f;
 
     private static final boolean isPlayerActive = true;
     private static final boolean hasCameraControl = true;
 
     private static float health = 200, stamina = 200, healthChange = 0, fatigue = 0;
 
-    private float preMouseX = 0, preMouseY = 0;
-    private Vector3f cameraRotation;
-    private float cameraTilt;
+    private static float preMouseX = 0, preMouseY = 0;
 
-    private float velocityForward = 0;
-    private float velocityLeft = 0;
-    private float velocityRight = 0;
-    private float velocityBack = 0;
+    private static float cameraTilt;
 
-    private long movementStarted = System.currentTimeMillis(), lastStep = 0;
+    private static float velocityForward = 0, velocityLeft = 0, velocityRight = 0, velocityBack = 0;
 
-    private float cameraHeight = 2;
+    private static long movementStarted = System.currentTimeMillis(), lastStep = 0;
+
+    private static float cameraHeight = 2;
 
     public static float PLAYER_RADIUS = 0.5f;
 
-    private float bobbingMultiplier = 0;
+    private static float bobbingMultiplier = 0;
     private final static List<Component> colliders = new ArrayList<>();
     // Hipfire 1.0
     // ADS 0.5
@@ -63,14 +57,11 @@ public class PlayerMovement {
     // In-Air +0.5
     // Crouching -0.2
 
-    public PlayerMovement() {
-        position = new Vector3f(0, 20, 0);
-        cameraRotation = new Vector3f(0, 0, 0);
-        Vector3f lockedRotation = new Vector3f(0, 0, 0);
-
+    public static void setCamera() {
+        Camera.setActiveCamera(camera);
     }
 
-    private void updateCamera() {
+    private static void updateCamera() {
 
         float mouseX = (float) Input.getMouseX();
         float mouseY = (float) Input.getMouseY();
@@ -93,7 +84,7 @@ public class PlayerMovement {
 
             cameraRotation.setZ(cameraTilt);
 
-            Camera.setMainCameraRotation(cameraRotation);
+            camera.setRotation(cameraRotation);
 
         }
 
@@ -101,12 +92,12 @@ public class PlayerMovement {
         preMouseY = mouseY;
     }
 
-    public void updateMovement() {
+    public static void updateMovement() {
 
         if (isGrounded) {
             velY = 0;
             if (Input.isKeybind("jump")) {
-                velY = 10.0f * Main.getDeltaTime() * 120;
+                velY = 10.0f / (Main.getDeltaTime() * 120);
                 position.add(0, 0.1f, 0);
                 AudioMaster.playSound(SoundEffect.JUMP);
                 isGrounded = false;
@@ -217,6 +208,12 @@ public class PlayerMovement {
         if (hasLanded) {
             // cameraTilt += 1;
             // AudioMaster.playSound(SoundEffect.JUMP_LAND);
+            if (Input.isKeybind("jump")) {
+                velY = 10.0f / (Main.getDeltaTime() * 120);
+                position.add(0, 0.1f, 0);
+                AudioMaster.playSound(SoundEffect.JUMP);
+                isGrounded = false;
+            }
         }
 
         if (isGrounded) {
@@ -224,8 +221,8 @@ public class PlayerMovement {
             velY /= 8.0f / (Main.getDeltaTime() * 120);
             velZ /= 8.0f / (Main.getDeltaTime() * 120);
         } else {
-            velX /= 1.002f / (Main.getDeltaTime() * 120);
-            velZ /= 1.002f / (Main.getDeltaTime() * 120);
+            // velX /= 1.002f / (Main.getDeltaTime() * 120);
+            // velZ /= 1.002f / (Main.getDeltaTime() * 120);
         }
 
         if (startedMoving) {
@@ -244,17 +241,17 @@ public class PlayerMovement {
         float bobbing = (float) Math.sin(bobbingTime);
         cameraTilt = Mathf.lerpdt(cameraTilt, 0, 0.05f);
 
-        cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1f : 1.5f, 0.01f) + bobbing * bobbingMultiplier * (isSprinting ? 2.5f : (isCrouching ? 1.5f : 1.0f)) * 0.01f;
+        cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1f : 1.5f, 0.01f); //+ bobbing * bobbingMultiplier * (isSprinting ? 2.5f : (isCrouching ? 1.5f : 1.0f)) * 0.01f;
 
         if (isAiming) {
-            Camera.setFov(Mathf.lerpdt(Camera.getFov(), 65.0f, 0.01f));
+            camera.setFov(Mathf.lerpdt(camera.getFov(), 40.0f, 10.0f));
         } else {
-            Camera.setFov(Mathf.lerpdt(Camera.getFov(), 80.0f, 0.01f));
+            camera.setFov(Mathf.lerpdt(camera.getFov(), 80.0f, 0.01f));
         }
 
     }
 
-    public void flyingMovement() {
+    public static void flyingMovement() {
         Vector3f forward = new Vector3f((float) Math.sin(Math.toRadians(cameraRotation.getY()) + Math.PI), 0, (float) Math.cos(Math.toRadians(cameraRotation.getY()) + Math.PI));
         Vector3f right = new Vector3f((float) Math.sin(Math.toRadians(cameraRotation.getY()) + Math.PI / 2), 0, (float) Math.cos(Math.toRadians(cameraRotation.getY()) + Math.PI / 2));
         Vector3f up = new Vector3f(0, 1, 0);
@@ -281,7 +278,7 @@ public class PlayerMovement {
         }
     }
 
-    public void update() {
+    public static void update() {
 
         if (!Scene.isLoaded()) {
             return;
@@ -294,10 +291,10 @@ public class PlayerMovement {
             updateMovement();
         }
 
-        Camera.setMainCameraPosition(Vector3f.add(position, new Vector3f(0, cameraHeight, 0)));
+        camera.setPosition(Vector3f.add(position, new Vector3f(0, cameraHeight, 0)));
     }
 
-    public float getRecoil() {
+    public static float getRecoil() {
         float recoil = 1.0f;
         return recoil;
     }
@@ -314,15 +311,7 @@ public class PlayerMovement {
         return new Vector3f(velX * 4, velY, velZ * 4).magnitude();
     }
 
-    public static PlayerMovement getPlayerMovement() {
-        return playerMovement;
-    }
-
-    public static void setPlayerMovement(PlayerMovement playerMovement) {
-        PlayerMovement.playerMovement = playerMovement;
-    }
-
-    private void playFootstepSound() {
+    private static void playFootstepSound() {
         int footstep = new Random().nextInt(8);
         switch (footstep) {
             case 0 -> AudioMaster.playSound(SoundEffect.FOOTSTEP01);
@@ -366,5 +355,9 @@ public class PlayerMovement {
 
     public static void addCollisionComponent(Component collider) {
         colliders.add(collider);
+    }
+
+    public static PerspectiveCamera getCamera() {
+        return camera;
     }
 }

@@ -44,6 +44,10 @@ public class InGameMenu extends Menu {
 
     @Override
     public void update() {
+        updateChat();
+    }
+
+    public void updateChat() {
         if (bufferedChatMessages.size() > 0) {
             MessageData m = bufferedChatMessages.poll();
             messages.add((ChatMessage) addObject(new ChatMessage(m.message, m.red, m.green, m.blue)));
@@ -87,7 +91,6 @@ public class InGameMenu extends Menu {
                 chatInput.setText("> " + typedMessage);
             }
         }
-
     }
 
     @Override

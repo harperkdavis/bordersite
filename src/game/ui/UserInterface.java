@@ -12,8 +12,10 @@ import engine.io.Window;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
+import engine.objects.camera.Camera;
 import game.scene.Scene;
 import main.Main;
+import net.ClientHandler;
 import org.lwjgl.glfw.GLFW;
 
 public class UserInterface {
@@ -30,6 +32,7 @@ public class UserInterface {
     protected static MapLoadingMenu mapLoadingMenu;
     protected static InGameMenu inGameMenu;
     protected static MapMenu mapMenu;
+    protected static TeamSelectMenu teamSelectMenu;
 
     public static boolean mouseLock = true;
 
@@ -46,6 +49,7 @@ public class UserInterface {
         mapLoadingMenu = new MapLoadingMenu();
         inGameMenu = new InGameMenu();
         mapMenu = new MapMenu();
+        teamSelectMenu = new TeamSelectMenu();
 
         loadingBackground = addObject(new UiPanel(0, 0, 2, 2, 3, 1));
         loadingText = addObject(new UiText(screen(0 - p(8), 0 + p(32), 1), "LOADING..."));
@@ -83,11 +87,21 @@ public class UserInterface {
                 mapLoadingMenu.setVisible(false);
             }
 
-            if (Scene.isLoaded()) {
+            if (Scene.isLoaded() && ClientHandler.hasRegisteredTeam()) {
                 inGameMenu.setVisible(true);
                 inGameMenu.update();
+                mouseLock = true;
             } else {
+                inGameMenu.updateChat();
                 inGameMenu.setVisible(false);
+            }
+
+            if (Scene.isLoaded() && !ClientHandler.hasRegisteredTeam()) {
+                teamSelectMenu.setVisible(true);
+                teamSelectMenu.update();
+                mouseLock = false;
+            } else {
+                teamSelectMenu.setVisible(false);
             }
 
             Window.mouseState(mouseLock);
@@ -117,6 +131,7 @@ public class UserInterface {
             inGameMenu.setVisible(false);
             mapMenu.setVisible(false);
             mapLoadingMenu.setVisible(false);
+            teamSelectMenu.setVisible(false);
         }
     }
 
@@ -132,6 +147,7 @@ public class UserInterface {
         mapLoadingMenu.render();
         inGameMenu.render();
         mapMenu.render();
+        teamSelectMenu.render();
     }
 
     public static void unload() {
@@ -143,6 +159,7 @@ public class UserInterface {
         mapLoadingMenu.unload();
         inGameMenu.unload();
         mapMenu.unload();
+        teamSelectMenu.unload();
     }
 
     public static GameObject addObject(GameObject object) {

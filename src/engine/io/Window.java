@@ -3,7 +3,7 @@ package engine.io;
 import engine.graphics.render.MainRenderer;
 import engine.math.Matrix4f;
 import engine.math.Vector3f;
-import engine.objects.Camera;
+import engine.objects.camera.Camera;
 import game.ui.UserInterface;
 import main.Main;
 import org.lwjgl.glfw.GLFW;
@@ -13,7 +13,6 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
-import org.lwjglx.opengl.Display;
 
 public class Window {
 
@@ -33,7 +32,6 @@ public class Window {
     private static GLFWWindowSizeCallback sizeCallback;
     private static boolean isResized;
 
-    private static Matrix4f projection;
     private static Matrix4f ortho;
 
     private static final int[] windowPosX = new int[1];
@@ -47,7 +45,6 @@ public class Window {
         Window.title = title;
         Window.fullscreen = fullscreen;
 
-        projection = Matrix4f.projection(Camera.getFov(), (float) width / (float) height, 0.01f, 10000.0f);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
 
         if (!GLFW.glfwInit()) {
@@ -129,7 +126,6 @@ public class Window {
 
     public static void update() {
 
-        projection = Matrix4f.projection(Camera.getFov(), (float) width / (float) height, 0.01f, 10000.0f);
         ortho = Matrix4f.ortho(-2, 2, -((float) height / 2) / ((float) width / 2), ((float) height / 2) / ((float) width / 2), 0.0001f, 1000.0f);
 
         if (isResized) {
@@ -211,10 +207,6 @@ public class Window {
 
     public static long getWindow() {
         return window;
-    }
-
-    public static Matrix4f getProjectionMatrix() {
-        return projection;
     }
 
     public static Matrix4f getOrthographicMatrix() {

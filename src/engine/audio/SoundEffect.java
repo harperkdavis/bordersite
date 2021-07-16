@@ -17,5 +17,7 @@ public enum SoundEffect {
     FOOTSTEP07,
     FOOTSTEP08,
     JUMP,
-    JUMP_LAND
+    JUMP_LAND,
+    PICKER,
+    SELECT
 }

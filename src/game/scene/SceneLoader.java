@@ -17,7 +17,6 @@ import engine.graphics.vertex.Vertex;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
-import engine.objects.Player;
 
 import java.io.IOException;
 import java.io.Reader;

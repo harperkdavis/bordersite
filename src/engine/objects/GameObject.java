@@ -2,6 +2,7 @@ package engine.objects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import engine.graphics.Material;
 import engine.graphics.mesh.Mesh;
@@ -10,6 +11,16 @@ import engine.math.Vector3f;
 import engine.math.Vector4f;
 
 public class GameObject {
+
+    private final static ConcurrentLinkedQueue<GameObject> allObjects = new ConcurrentLinkedQueue<>();
+
+    public static void unloadAll() {
+        for (GameObject object : allObjects) {
+            if (object.loaded) {
+                object.unload();
+            }
+        }
+    }
 
     private final Transform transform;
     private boolean visible = true;
@@ -21,6 +32,8 @@ public class GameObject {
     private Mesh mesh;
     private Vector4f color;
 
+    private boolean loaded = false;
+
     public GameObject(Vector3f position, Vector3f rotation, Vector3f scale, Mesh mesh) {
         this(position, rotation, scale, mesh, new Vector4f(1, 1, 1, 1));
     }
@@ -31,6 +44,9 @@ public class GameObject {
         this.color = color;
         this.parent = null;
         this.children = new ArrayList<>();
+
+        allObjects.add(this);
+
         load();
     }
 
@@ -145,6 +161,7 @@ public class GameObject {
     }
 
     public void load() {
+        loaded = true;
         mesh.create();
     }
 
@@ -157,6 +174,7 @@ public class GameObject {
     }
 
     public void unload() {
+        loaded = false;
         mesh.destroy();
     }
 

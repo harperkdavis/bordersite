@@ -5,7 +5,6 @@ import org.lwjgl.opengl.GL13;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +51,7 @@ public class Material {
 
     public static final Material UI_BORDERSITE_LOGO = new Material("/textures/ui/bordersite_logo.png");
     public static final Material UI_LOADING_LOGO = new Material("/textures/ui/loading_logo.png");
+    public static final Material UI_TEAM_SELECT = new Material("/textures/ui/team_select.png");
 
     public static final Material UI_CROSSHAIR = new Material("/textures/ui/crosshair.png");
 

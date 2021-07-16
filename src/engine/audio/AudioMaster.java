@@ -1,7 +1,7 @@
 package engine.audio;
 
 import engine.math.Vector3f;
-import engine.objects.Camera;
+import engine.objects.camera.Camera;
 import main.Main;
 import org.lwjgl.openal.*;
 import org.lwjgl.system.MemoryUtil;
@@ -69,8 +69,8 @@ public class AudioMaster {
     }
 
     public static Vector3f getSoundCoordinates(Vector3f position, float falloff) {
-        Vector3f cPos = Camera.getMainCameraPosition();
-        Vector3f cRot = Camera.getMainCameraRotation();
+        Vector3f cPos = Camera.getActiveCameraPosition();
+        Vector3f cRot = Camera.getActiveCameraPosition();
         double originAngle = Math.atan2(cPos.getX() - position.getX(), cPos.getZ() - position.getZ());
         double cameraAngle = Math.toRadians(cRot.getY());
         double angleToCamera = cameraAngle - originAngle;

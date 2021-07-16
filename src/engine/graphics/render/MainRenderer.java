@@ -1,29 +1,22 @@
 package engine.graphics.render;
 
 import engine.graphics.Shader;
-import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.Fog;
-import engine.graphics.light.PointLight;
 import engine.graphics.mesh.Mesh;
 import engine.graphics.vertex.Vertex;
-import engine.io.Input;
 import engine.io.Window;
-import engine.math.Mathf;
 import engine.math.Matrix4f;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
-import engine.objects.Camera;
+import engine.objects.camera.Camera;
 import engine.objects.GameObject;
 import game.scene.Scene;
 import main.Global;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.*;
-import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.Random;
 
 public class MainRenderer {
 
@@ -263,8 +256,8 @@ public class MainRenderer {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, gBuffer);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-        Matrix4f view = Matrix4f.view(Camera.getMainCameraPosition(), Camera.getMainCameraRotation(), true);
-        Matrix4f projection = Window.getProjectionMatrix();
+        Matrix4f view = Camera.getActiveCameraView();
+        Matrix4f projection = Camera.getActiveCameraProjection();
 
         gShader.bind();
 
@@ -317,7 +310,7 @@ public class MainRenderer {
 
         shader.setUniform("lightSpaceMatrix", getLightSpaceMatrix());
 
-        shader.setUniform("viewPos", Camera.getMainCameraPosition());
+        shader.setUniform("viewPos", Camera.getActiveCameraPosition());
         shader.setUniform("fog", fog);
         shader.setUniform("view", view);
 
@@ -394,8 +387,8 @@ public class MainRenderer {
     public static void forwardsRender(Shader shader, GameObject object) {
         shader.bind();
 
-        Matrix4f view = Matrix4f.view(Camera.getMainCameraPosition(), Camera.getMainCameraRotation(), true);
-        Matrix4f projection = Window.getProjectionMatrix();
+        Matrix4f view = Camera.getActiveCameraView();
+        Matrix4f projection = Camera.getActiveCameraProjection();
 
         if (!object.isVisible()) {
             return;

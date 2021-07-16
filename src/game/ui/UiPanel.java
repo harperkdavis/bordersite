@@ -20,6 +20,10 @@ public class UiPanel extends GameObject {
         super(new Vector3f(0, 0, l), Vector3f.zero(), Vector3f.one(), createPanel(x1, y1, x2, y2, Material.DEFAULT), new Vector4f(0, 0, 0, transparency));
     }
 
+    public void resize(float x1, float y1, float x2, float y2) {
+        setMesh(createPanel(x1, y1, x2, y2, getMesh().getMaterial()));
+    }
+
     protected static Mesh createPanel(float x1, float y1, float x2, float y2, Material m) {
         Vector3f pointAA = screen(x1, y1, 0);
         Vector3f pointAB = screen(x1, y2, 0);

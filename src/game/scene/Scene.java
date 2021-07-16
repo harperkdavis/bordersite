@@ -8,9 +8,11 @@ import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.PointLight;
 import engine.io.MeshLoader;
 import engine.math.*;
-import engine.objects.Camera;
+import engine.objects.camera.Camera;
 import engine.objects.GameObject;
+import engine.objects.camera.OrbitCamera;
 import game.PlayerMovement;
+import main.Main;
 
 import java.util.*;
 
@@ -27,7 +29,6 @@ public class Scene {
     public static DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), new Vector3f(0.8f, 1.0f, 0.4f).normalize(), 1.0f);
     public static PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
 
-
     public static List<GameObject> objects = new ArrayList<>();
     public static List<Component> components = new ArrayList<>();
     protected static GameObject skybox;
@@ -41,6 +42,8 @@ public class Scene {
     protected static float SCALE_Y = 1;
     protected static float SCALE_Z = 4;
 
+    private static OrbitCamera orbitCamera;
+
     public Scene() {
 
         loader = new SceneLoader();
@@ -51,6 +54,8 @@ public class Scene {
                 heightMap[i][j] = 0;
             }
         }
+
+        orbitCamera = new OrbitCamera(Vector3f.zero(), new Vector3f(0, 10, 0), 80.0f);
 
     }
 
@@ -73,7 +78,9 @@ public class Scene {
             objects.add(object);
         }
 
-        skybox.setPosition(Camera.getMainCameraPosition());
+        orbitCamera.setPosition(new Vector3f((float) Math.cos(Main.getElapsedTime() / 10000.0f) * 10.0f, 15,(float) Math.sin(Main.getElapsedTime() / 10000.0f) * 10.0f));
+
+        skybox.setPosition(Camera.getActiveCameraPosition());
 
     }
 
@@ -144,11 +151,11 @@ public class Scene {
         return loaded;
     }
 
-    public static Scene getScene() {
+    public static Scene getActiveScene() {
         return scene;
     }
 
-    public static void setScene(Scene scene) {
+    public static void setActiveScene(Scene scene) {
         Scene.scene = scene;
     }
 
@@ -219,4 +226,9 @@ public class Scene {
     public static GameObject getSkybox() {
         return skybox;
     }
+
+    public static OrbitCamera getOrbitCamera() {
+        return orbitCamera;
+    }
+
 }

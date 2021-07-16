@@ -8,6 +8,7 @@ import engine.io.Input;
 import engine.io.Printer;
 import engine.io.Window;
 import engine.math.Vector3f;
+import engine.objects.GameObject;
 import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.UserInterface;
@@ -30,6 +31,7 @@ public class Main implements Runnable {
     private static String username = "Player";
 
     private static long startTime;
+    private static long startTimeMillis;
     private static int elapsedTime;
     private long lastFixedUpdate;
 
@@ -39,6 +41,7 @@ public class Main implements Runnable {
 
     public void start() {
         startTime = System.nanoTime();
+        startTimeMillis = System.currentTimeMillis();
 
         String[] resolutionOptions = new String[]{"1920x1080", "1024x576", "1280x720", "1336x768", "1600x900", "2560x1440"};
 
@@ -122,9 +125,9 @@ public class Main implements Runnable {
 
         Printer.println("GLFW window created!");
 
-        PlayerMovement.setPlayerMovement(new PlayerMovement());
+        PlayerMovement.setCamera();
 
-        Scene.setScene(new Scene());
+        Scene.setActiveScene(new Scene());
         UserInterface.init(Window.getWidth(), Window.getHeight());
         Global.init();
         ClientHandler.init();
@@ -160,7 +163,7 @@ public class Main implements Runnable {
 
     private void connect() {
 
-        Scene.getScene().load();
+        Scene.getActiveScene().load();
 
     }
 
@@ -170,7 +173,7 @@ public class Main implements Runnable {
     public void run() {
         init();
         while (!Window.shouldClose()) {
-            elapsedTime = (int) (System.currentTimeMillis() - startTime);
+            elapsedTime = (int) (System.currentTimeMillis() - startTimeMillis);
             long cycleBegin = System.nanoTime();
             update();
             render();
@@ -206,9 +209,9 @@ public class Main implements Runnable {
             lastFixedUpdate = System.currentTimeMillis();
         }
 
-        Scene.getScene().update();
-        if (Scene.isLoaded()) {
-            PlayerMovement.getPlayerMovement().update();
+        Scene.getActiveScene().update();
+        if (Scene.isLoaded() && ClientHandler.hasRegisteredTeam()) {
+            PlayerMovement.update();
 
         }
 
@@ -232,13 +235,15 @@ public class Main implements Runnable {
         System.out.println("[INFO] Disconnected from server");
         Window.destroy();
 
-        Scene.getScene().unload();
+        Scene.getActiveScene().unload();
         UserInterface.unload();
 
         MaterialLoader.unloadAll();
         MainRenderer.unload();
 
         AudioMaster.unload();
+
+        GameObject.unloadAll();
 
         System.out.println("[INFO] Game Closed");
         GLFW.glfwTerminate();
