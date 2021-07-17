@@ -11,12 +11,15 @@ import net.packets.Packet;
 import net.packets.client.ChatRequestPacket;
 import net.packets.client.ConnectPacket;
 import net.packets.client.TeamSelectPacket;
+import net.packets.client.UserInputPacket;
 import net.packets.server.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class ClientHandler {
 
@@ -29,6 +32,11 @@ public class ClientHandler {
 
     private static boolean hasSentConnectedPacket = false;
 
+    private static ScheduledExecutorService fakeLag;
+    private static final int FAKE_LAG_MS = 100;
+
+    public static SynchronizedInputSender inputSender;
+    public static Thread inputSenderThread;
 
     public static void init() {
         Log.set(Log.LEVEL_DEBUG);
@@ -54,6 +62,14 @@ public class ClientHandler {
         kryo.register(PlayerRemovePacket.class);
         kryo.register(PlayerSpawnPacket.class);
         kryo.register(WorldSpawnPacket.class);
+
+        kryo.register(InputSnapshot.class);
+        kryo.register(UserInputPacket.class);
+
+        fakeLag = Executors.newSingleThreadScheduledExecutor();
+
+        inputSender = new SynchronizedInputSender();
+        inputSenderThread = new Thread(inputSender);
 
     }
 

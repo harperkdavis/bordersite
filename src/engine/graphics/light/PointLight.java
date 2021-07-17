@@ -10,7 +10,7 @@ public class PointLight {
     protected float radius;
     private float linear, quadratic;
 
-    private static float ATT_CONSTANT = 1.0f, ATT_LINEAR = 0.5f, ATT_QUADRATIC = 0.8f;
+    private static float ATT_CONSTANT = 1.0f, ATT_LINEAR = -0.6f, ATT_QUADRATIC = 0.4f;
 
     public PointLight(Vector3f position) {
         this(position, Vector3f.one());
@@ -67,5 +67,13 @@ public class PointLight {
 
     public float getQuadratic() {
         return quadratic;
+    }
+
+    public void setLinear(float linear) {
+        this.linear = linear;
+    }
+
+    public void setQuadratic(float quadratic) {
+        this.quadratic = quadratic;
     }
 }

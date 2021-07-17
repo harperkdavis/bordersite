@@ -28,6 +28,10 @@ void main() {
 
     gNormal = normal;
 
-    gAlbedoSpec = vec4(texture(texture_diffuse, vertexUV).rgb, texture(texture_specular, vertexUV).r);
+    if (texture(texture_diffuse, vertexUV).a < 2 / 255.0) {
+        discard;
+    }
+
+    gAlbedoSpec = vec4(texture(texture_diffuse, vertexUV).rgb, (texture(texture_specular, vertexUV).r + 0.02) / (1 / 1.02));
 
 }

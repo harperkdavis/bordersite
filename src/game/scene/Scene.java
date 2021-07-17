@@ -6,6 +6,7 @@ import engine.components.RampComponent;
 import engine.graphics.Material;
 import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.PointLight;
+import engine.io.Input;
 import engine.io.MeshLoader;
 import engine.math.*;
 import engine.objects.camera.Camera;
@@ -13,8 +14,10 @@ import engine.objects.GameObject;
 import engine.objects.camera.OrbitCamera;
 import game.PlayerMovement;
 import main.Main;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Scene {
 
@@ -32,9 +35,9 @@ public class Scene {
     public static List<GameObject> objects = new ArrayList<>();
     public static List<Component> components = new ArrayList<>();
     protected static GameObject skybox;
-    private static final List<GameObject> bufferedObjects = new ArrayList<>();
 
     public static Map<String, GameObject> playerObjects = new HashMap<>();
+    private static ConcurrentLinkedQueue<String> playerBuffer = new ConcurrentLinkedQueue<>();
 
     private static SceneLoader loader;
 
@@ -61,8 +64,6 @@ public class Scene {
 
     public void load() {
 
-        addObject(new GameObject(new Vector3f(0, 6, 0), MeshLoader.loadModel("models/sphere.obj", Material.ENV_STONE)));
-
         loading = true;
         loaded = false;
     }
@@ -73,18 +74,15 @@ public class Scene {
             return;
         }
 
-        for (int i = 0; i < bufferedObjects.size(); i++) {
-            GameObject object = bufferedObjects.remove(i);
-            objects.add(object);
+        for (int i = 0; i < playerBuffer.size(); i++) {
+            String uuid = playerBuffer.poll();
+            GameObject object = new GameObject(new Vector3f(0, 0, 0), MeshLoader.loadModel("player.obj", Material.PLAYER_MODEL));
+            addObject(object);
+            playerObjects.put(uuid, object);
         }
 
         orbitCamera.setPosition(new Vector3f((float) Math.cos(Main.getElapsedTime() / 10000.0f) * 10.0f, 15,(float) Math.sin(Main.getElapsedTime() / 10000.0f) * 10.0f));
-
         skybox.setPosition(Camera.getActiveCameraPosition());
-
-    }
-
-    public void render() {
 
     }
 
@@ -135,8 +133,8 @@ public class Scene {
         object.unload();
     }
 
-    public static void addBufferedObject(GameObject object) {
-        bufferedObjects.add(object);
+    public static void addBufferedPlayer(String uuid) {
+        playerBuffer.add(uuid);
     }
 
     public static SceneLoader getLoader() {
@@ -230,5 +228,6 @@ public class Scene {
     public static OrbitCamera getOrbitCamera() {
         return orbitCamera;
     }
+
 
 }

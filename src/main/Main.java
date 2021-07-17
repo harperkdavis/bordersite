@@ -13,6 +13,7 @@ import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.UserInterface;
 import net.ClientHandler;
+import net.SynchronizedInputSender;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
@@ -168,6 +169,8 @@ public class Main implements Runnable {
     }
 
     private void disconnect() {
+        SynchronizedInputSender.setRunning(false);
+        ClientHandler.inputSenderThread.interrupt();
     }
 
     public void run() {

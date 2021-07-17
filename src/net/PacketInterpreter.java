@@ -3,6 +3,7 @@ package net;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import engine.objects.camera.Camera;
+import game.Player;
 import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.InGameMenu;
@@ -10,7 +11,9 @@ import net.packets.Packet;
 import net.packets.client.TeamSelectPacket;
 import net.packets.server.ChatPacket;
 import net.packets.server.ConnectionReceivedPacket;
+import net.packets.server.PlayerSpawnPacket;
 import net.packets.server.WorldSpawnPacket;
+import java.util.List;
 
 public class PacketInterpreter {
 
@@ -29,6 +32,8 @@ public class PacketInterpreter {
             handleChatPacket(connection, (ChatPacket) packet);
         } else if (packet instanceof WorldSpawnPacket) {
             handleWorldSpawnPacket(connection, (WorldSpawnPacket) packet);
+        } else if (packet instanceof PlayerSpawnPacket) {
+            handlePlayerSpawnPacket(connection, (PlayerSpawnPacket) packet);
         }
 
     }
@@ -41,5 +46,15 @@ public class PacketInterpreter {
         ClientHandler.hasRegisteredTeam = true;
         ClientHandler.team = packet.getTeam();
         Camera.setActiveCamera(PlayerMovement.getCamera());
+        List<Player> players = packet.getPlayerList();
+        // TODO synchronize tick
+        ClientHandler.inputSenderThread.start();
+        for (Player p : players) {
+            Scene.addBufferedPlayer(p.getUuid());
+        }
+    }
+
+    private static void handlePlayerSpawnPacket(Connection connection, PlayerSpawnPacket packet) {
+        Scene.addBufferedPlayer(packet.getPlayerUUID());
     }
 }

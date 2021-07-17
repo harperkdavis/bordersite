@@ -1,7 +1,11 @@
 package engine.io;
 
 import main.Global;
+import net.SynchronizedInputSender;
 import org.lwjgl.glfw.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Input {
 
@@ -13,6 +17,8 @@ public class Input {
     private static final boolean[] buttonsDown = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
     private static final boolean[] keysUp = new boolean[GLFW.GLFW_KEY_LAST];
     private static final boolean[] buttonsUp = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+
+    private static ArrayList<String> prevKeybindList = new ArrayList<>();
 
     private static double mouseX, mouseY;
     private static double scrollState, pScrollState, scrollY;
@@ -28,7 +34,9 @@ public class Input {
         keyboard = new GLFWKeyCallback() {
             @Override
             public void invoke(long window, int key, int scancode, int action, int mods) {
-                keys[key] = (action != GLFW.GLFW_RELEASE);
+                if (key > 0) {
+                    keys[key] = (action != GLFW.GLFW_RELEASE);
+                }
             }
         };
 
@@ -53,6 +61,16 @@ public class Input {
                 scrollState = yoffset;
             }
         };
+    }
+
+    public static ArrayList<String> getKeybindList() {
+        ArrayList<String> binds = new ArrayList<>();
+        for (String bind : Global.keybinds.keySet()) {
+            if (isKeybind(bind)) {
+                binds.add(bind);
+            }
+        }
+        return binds;
     }
 
     public static boolean isKey(int key) {
@@ -90,10 +108,14 @@ public class Input {
         }
         scrollY = scrollState;
 
+        if (!getKeybindList().equals(prevKeybindList)) {
+            SynchronizedInputSender.addInput(getKeybindList());
+        }
+
         prevKeys = keys.clone();
         prevButtons = buttons.clone();
         scrollState = 0;
-
+        prevKeybindList = new ArrayList<>(getKeybindList());
     }
 
     public static boolean isBind(String bindName) {

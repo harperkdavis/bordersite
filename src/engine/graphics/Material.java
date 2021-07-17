@@ -54,7 +54,9 @@ public class Material {
     public static final Material UI_TEAM_SELECT = new Material("/textures/ui/team_select.png");
 
     public static final Material UI_CROSSHAIR = new Material("/textures/ui/crosshair.png");
+    // PLAYER
 
+    public static final Material PLAYER_MODEL = new Material("/textures/player/player_model.png");
     // WEAPONS
 
     public static final Material WPN_KNIFE_DEFAULT = new Material("/textures/weapons/knife_default.png");

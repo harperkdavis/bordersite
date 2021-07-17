@@ -24,10 +24,10 @@ public class PlayerMovement {
 
     private static PerspectiveCamera camera = new PerspectiveCamera(Vector3f.zero(), Vector3f.zero(), 80.0f);
 
-    private static Vector3f position = new Vector3f(0, 20, 0);
+    private static Vector3f position = new Vector3f(0, 1.5f, 0);
     private static Vector3f cameraRotation = new Vector3f(0, 0, 0);
 
-    private static float velX = 0, velY = 0, velZ = 0;
+    private static float velX = 0, velY = 0.2f, velZ = 0;
 
     private static boolean isCrouching = false, isSprinting = false, isGrounded = true, isMoving = false;
     private static float sprintModifier = 0.0f;
@@ -47,7 +47,7 @@ public class PlayerMovement {
 
     private static float cameraHeight = 2;
 
-    public static float PLAYER_RADIUS = 0.5f;
+    public static final float PLAYER_RADIUS = 0.5f;
 
     private static float bobbingMultiplier = 0;
     private final static List<Component> colliders = new ArrayList<>();
@@ -96,8 +96,8 @@ public class PlayerMovement {
 
         if (isGrounded) {
             velY = 0;
-            if (Input.isKeybind("jump")) {
-                velY = 10.0f / (Main.getDeltaTime() * 120);
+            if (Input.isKeybindDown("jump")) {
+                velY = 10.0f;
                 position.add(0, 0.1f, 0);
                 AudioMaster.playSound(SoundEffect.JUMP);
                 isGrounded = false;
@@ -167,9 +167,9 @@ public class PlayerMovement {
 
         Vector3f movement = Vector3f.add(forwards.multiply(inputVector.getZ()), right.multiply(inputVector.getX()));
 
-        float SPRINT_SPEED = 0.5f;
+        float SPRINT_SPEED = 0.3f;
         float CROUCH_SPEED = 0.4f;
-        float MOVE_SPEED = 5.0f;
+        float MOVE_SPEED = 4.0f;
         float movementSpeed = MOVE_SPEED * (isCrouching ? CROUCH_SPEED : 1.0f) * (1 + SPRINT_SPEED * sprintModifier * Mathf.lerp(1.0f, 1.2f, stamina / 200.0f)) * (isAiming ? 0.8f : 1.0f) * (isGrounded ? 1.0f : 0.01f) * (0.9f + stamina / 2000.0f) * (1.2f - fatigue * 0.4f);
         movement.multiply(movementSpeed);
 
@@ -208,12 +208,6 @@ public class PlayerMovement {
         if (hasLanded) {
             // cameraTilt += 1;
             // AudioMaster.playSound(SoundEffect.JUMP_LAND);
-            if (Input.isKeybind("jump")) {
-                velY = 10.0f / (Main.getDeltaTime() * 120);
-                position.add(0, 0.1f, 0);
-                AudioMaster.playSound(SoundEffect.JUMP);
-                isGrounded = false;
-            }
         }
 
         if (isGrounded) {

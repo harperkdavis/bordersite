@@ -61,15 +61,18 @@ public class RampComponent implements Component {
 
         Vector3f midpoint = Vector3f.add(a, c).divide(2);
         this.str = Vector3f.add(sbl, Vector3f.subtract(midpoint, sbl).multiply(2));
+
+        for (int i = 0; i < direction; i++) {
+            // TODO add rotation
+        }
         
         this.height = height;
-        this.direction = direction;
         this.material = material;
 
-        this.ntl = stl.plus(0, (direction == 0 || direction == 3) ? height : 0, 0);
-        this.ntr = str.plus(0, (direction == 1 || direction == 0) ? height : 0, 0);
-        this.nbr = sbr.plus(0, (direction == 2 || direction == 1) ? height : 0, 0);
-        this.nbl = sbl.plus(0, (direction == 3 || direction == 2) ? height : 0, 0);
+        this.ntl = stl.plus(0, height, 0);
+        this.ntr = str.plus(0, height, 0);
+        this.nbr = sbr.plus(0, 0, 0);
+        this.nbl = sbl.plus(0, 0, 0);
 
         tl = new Vector2f(stl.getX(), stl.getZ());
         tr = new Vector2f(str.getX(), str.getZ());
@@ -84,75 +87,22 @@ public class RampComponent implements Component {
         ebr = getExtended(tr, br, bl, rnor, bnor, radius);
         ebl = getExtended(br, bl, tl, bnor, lnor, radius);
 
-        switch(direction) {
-            case 0 -> {
-                etopl = new Vector2f(etl);
-                etopr = new Vector2f(etr);
-                ebtmr = new Vector2f(ebr);
-                ebtml = new Vector2f(ebl);
-                topl = new Vector2f(tl);
-                topr = new Vector2f(tr);
-                btmr = new Vector2f(br);
-                btml = new Vector2f(bl);
-            }
-            case 1 -> {
-                etopl = new Vector2f(etr);
-                etopr = new Vector2f(ebr);
-                ebtmr = new Vector2f(ebl);
-                ebtml = new Vector2f(etl);
-                topl = new Vector2f(tr);
-                topr = new Vector2f(br);
-                btmr = new Vector2f(bl);
-                btml = new Vector2f(tl);
-            }
-            case 2 -> {
-                etopl = new Vector2f(ebr);
-                etopr = new Vector2f(ebl);
-                ebtmr = new Vector2f(etl);
-                ebtml = new Vector2f(etr);
-                topl = new Vector2f(tr);
-                topr = new Vector2f(br);
-                btmr = new Vector2f(bl);
-                btml = new Vector2f(tl);
-            }
-            case 3 -> {
-                etopl = new Vector2f(ebl);
-                etopr = new Vector2f(etl);
-                ebtmr = new Vector2f(etr);
-                ebtml = new Vector2f(ebr);
-                topl = new Vector2f(bl);
-                topr = new Vector2f(tl);
-                btmr = new Vector2f(tr);
-                btml = new Vector2f(br);
-            }
-        }
+        etopl = new Vector2f(etl);
+        etopr = new Vector2f(etr);
+        ebtmr = new Vector2f(ebr);
+        ebtml = new Vector2f(ebl);
+        topl = new Vector2f(tl);
+        topr = new Vector2f(tr);
+        btmr = new Vector2f(br);
+        btml = new Vector2f(bl);
 
         calculateTopNormal();
 
         slope = Vector3f.dot(Vector3f.oneY(), nnor.normalized());
 
-        switch(direction) {
-            case 0 -> {
-                leftnormal = lnor;
-                frontnormal = tnor;
-                rightnormal = rnor;
-            }
-            case 1 -> {
-                leftnormal = tnor;
-                frontnormal = rnor;
-                rightnormal = bnor;
-            }
-            case 2 -> {
-                leftnormal = rnor;
-                frontnormal = bnor;
-                rightnormal = lnor;
-            }
-            case 3 -> {
-                leftnormal = bnor;
-                frontnormal = lnor;
-                rightnormal = tnor;
-            }
-        }
+        leftnormal = lnor;
+        frontnormal = tnor;
+        rightnormal = rnor;
 
         intopl = new Vector2f(etopl.getX() - frontnormal.getX() * radius * 2, etopl.getY() - frontnormal.getZ() * radius * 2);
         intopr = new Vector2f(etopr.getX() - frontnormal.getX() * radius * 2, etopr.getY() - frontnormal.getZ() * radius * 2);
