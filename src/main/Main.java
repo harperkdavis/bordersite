@@ -169,8 +169,7 @@ public class Main implements Runnable {
     }
 
     private void disconnect() {
-        SynchronizedInputSender.setRunning(false);
-        ClientHandler.inputSenderThread.interrupt();
+        ClientHandler.stopInputSender();
     }
 
     public void run() {
@@ -194,6 +193,7 @@ public class Main implements Runnable {
         Window.update();
         Input.update();
         UserInterface.update();
+        ClientHandler.update();
 
         boolean fixedUpdate = System.currentTimeMillis() - lastFixedUpdate >= 10;
 
@@ -208,7 +208,6 @@ public class Main implements Runnable {
 
         if (fixedUpdate) {
             UserInterface.fixedUpdate();
-            ClientHandler.fixedUpdate();
             lastFixedUpdate = System.currentTimeMillis();
         }
 

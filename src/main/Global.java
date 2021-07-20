@@ -23,10 +23,14 @@ public class Global {
 
         keybinds.put("jump", "space");
 
+        keybinds.put("sprint", "left_shift");
+        keybinds.put("crouch", "left_control");
+
         keybinds.put("shoot", "mouse0");
         keybinds.put("aim", "mouse1");
 
         keybinds.put("chat", "y");
+
 
         bindNames.put("a", GLFW.GLFW_KEY_A);
         bindNames.put("b", GLFW.GLFW_KEY_B);

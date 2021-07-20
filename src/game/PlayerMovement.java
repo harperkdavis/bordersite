@@ -12,6 +12,7 @@ import engine.objects.camera.PerspectiveCamera;
 import game.scene.Scene;
 import main.Main;
 import main.Global;
+import net.SynchronizedInputSender;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -86,13 +87,17 @@ public class PlayerMovement {
 
             camera.setRotation(cameraRotation);
 
+            if (!(accX == 0 && accY == 0)) {
+                SynchronizedInputSender.addInput(Input.getKeybindList(), cameraRotation);
+            }
+
         }
 
         preMouseX = mouseX;
         preMouseY = mouseY;
     }
 
-    public static void updateMovement() {
+    public static void applyMovement(float deltaTime) {
 
         if (isGrounded) {
             velY = 0;
@@ -103,23 +108,19 @@ public class PlayerMovement {
                 isGrounded = false;
             }
         } else {
-            velY -= 0.2f * Main.getDeltaTime() * 120;
+            velY -= 0.2f * deltaTime * 120;
         }
-
-        int SPRINT_KEY = GLFW.GLFW_KEY_LEFT_SHIFT;
-        if (Input.isKey(SPRINT_KEY)) {
-            if (stamina > 40f) {
-                isSprinting = true;
-            }
+        
+        if (Input.isKeybind("sprint")) {
+            isSprinting = true;
         }
         sprintModifier = Mathf.lerpdt(sprintModifier, (isSprinting ? 1 : 0), 0.1f);
-
-        int CROUCH_KEY = GLFW.GLFW_KEY_LEFT_CONTROL;
-        if (Input.isKeyDown(CROUCH_KEY)) {
+        
+        if (Input.isKeybindDown("crouch")) {
             isCrouching = !isCrouching;
         }
 
-        boolean isAiming = Input.isMouseButton(1);
+        boolean isAiming = Input.isKeybind("aim");
 
         velocityLeft = Mathf.lerpdt(velocityLeft, Input.isKeybind("move_left") ? 1 : 0, 0.5f);
         velocityRight = Mathf.lerpdt(velocityRight, Input.isKeybind("move_right") ? 1 : 0, 0.5f);
@@ -135,29 +136,6 @@ public class PlayerMovement {
 
         isSprinting = isSprinting && (!isCrouching && !isAiming && isMoving);
 
-        if (isSprinting) {
-            stamina -= 4 * Main.getDeltaTime() * (1 + fatigue);
-            fatigue += 0.0001f * Main.getDeltaTime();
-            if (stamina < 40 && stamina >= 1) {
-                fatigue += (40 / stamina) * 0.0009f * Main.getDeltaTime();
-            } else if (stamina < 1) {
-                fatigue += 0.0009f * Main.getDeltaTime();
-            }
-            if (stamina < 0) {
-                fatigue += 0.001f * Main.getDeltaTime();
-                stamina = 0;
-                isSprinting = false;
-            }
-        } else {
-            fatigue -= 0.00002f * Main.getDeltaTime();
-            stamina += (4.0f * (isMoving ? 0.5f : 1.0f) * (isCrouching ? (isMoving ? 0.0f : 1.5f) : 1.0f) * (1 - fatigue * 0.5f)) * Main.getDeltaTime();
-            if (stamina > 200) {
-                fatigue -= 0.0004f * Main.getDeltaTime();
-                stamina = 200;
-            }
-        }
-        fatigue = clamp(fatigue, 0, 1);
-
         if (inputVector.magnitude() > 1) {
             inputVector.normalize();
         }
@@ -170,7 +148,7 @@ public class PlayerMovement {
         float SPRINT_SPEED = 0.3f;
         float CROUCH_SPEED = 0.4f;
         float MOVE_SPEED = 4.0f;
-        float movementSpeed = MOVE_SPEED * (isCrouching ? CROUCH_SPEED : 1.0f) * (1 + SPRINT_SPEED * sprintModifier * Mathf.lerp(1.0f, 1.2f, stamina / 200.0f)) * (isAiming ? 0.8f : 1.0f) * (isGrounded ? 1.0f : 0.01f) * (0.9f + stamina / 2000.0f) * (1.2f - fatigue * 0.4f);
+        float movementSpeed = MOVE_SPEED * (isCrouching ? CROUCH_SPEED : 1.0f) * (1 + SPRINT_SPEED * sprintModifier) * (isAiming ? 0.8f : 1.0f) * (isGrounded ? 1.0f : 0.01f);
         movement.multiply(movementSpeed);
 
         Vector3f previous = new Vector3f(position);
@@ -183,7 +161,7 @@ public class PlayerMovement {
         velY += movement.getY();
         velZ += movement.getZ();
 
-        position.add(new Vector3f(velX * Main.getDeltaTime(), velY * Main.getDeltaTime(), velZ * Main.getDeltaTime()));
+        position.add(new Vector3f(velX * deltaTime, velY * deltaTime, velZ * deltaTime));
 
         boolean hasLanded = isGrounded;
 
@@ -211,12 +189,12 @@ public class PlayerMovement {
         }
 
         if (isGrounded) {
-            velX /= 8.0f / (Main.getDeltaTime() * 120);
-            velY /= 8.0f / (Main.getDeltaTime() * 120);
-            velZ /= 8.0f / (Main.getDeltaTime() * 120);
+            velX /= Math.pow(128.0f, deltaTime * 120);
+            velY /= Math.pow(128.0f, deltaTime * 120);
+            velZ /= Math.pow(128.0f, deltaTime * 120);
         } else {
-            // velX /= 1.002f / (Main.getDeltaTime() * 120);
-            // velZ /= 1.002f / (Main.getDeltaTime() * 120);
+            velX /= Math.pow(64.0f, deltaTime * 120);
+            velZ /= Math.pow(64.0f, deltaTime * 120);
         }
 
         if (startedMoving) {
@@ -235,12 +213,10 @@ public class PlayerMovement {
         float bobbing = (float) Math.sin(bobbingTime);
         cameraTilt = Mathf.lerpdt(cameraTilt, 0, 0.05f);
 
-        cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1f : 1.5f, 0.01f); //+ bobbing * bobbingMultiplier * (isSprinting ? 2.5f : (isCrouching ? 1.5f : 1.0f)) * 0.01f;
-
         if (isAiming) {
             camera.setFov(Mathf.lerpdt(camera.getFov(), 40.0f, 10.0f));
         } else {
-            camera.setFov(Mathf.lerpdt(camera.getFov(), 80.0f, 0.01f));
+            camera.setFov(Mathf.lerpdt(camera.getFov(), 80.0f + (isSprinting ? 4.0f : 0.0f), 0.01f));
         }
 
     }
@@ -282,8 +258,14 @@ public class PlayerMovement {
         if (Global.BUILD_MODE) {
             flyingMovement();
         } else {
-            updateMovement();
+            applyMovement(Main.getDeltaTime());
         }
+
+        if (Input.isKeybindDown("crouch")) {
+            isCrouching = !isCrouching;
+        }
+
+        cameraHeight = Mathf.lerpdt(cameraHeight, isCrouching ? 1f : 1.5f, 0.01f);
 
         camera.setPosition(Vector3f.add(position, new Vector3f(0, cameraHeight, 0)));
     }
@@ -297,8 +279,22 @@ public class PlayerMovement {
         return position;
     }
 
+    public static Vector3f getCameraRotation() {
+        return cameraRotation;
+    }
+
+    public static void setCameraRotation(Vector3f cameraRotation) {
+        PlayerMovement.cameraRotation = cameraRotation;
+    }
+
     public static Vector3f getVelocity() {
         return new Vector3f(velX, velY, velZ);
+    }
+
+    public static void setVelocity(float velX, float velY, float velZ) {
+        PlayerMovement.velX = velX;
+        PlayerMovement.velY = velY;
+        PlayerMovement.velZ = velZ;
     }
 
     public static float getSpeed() {

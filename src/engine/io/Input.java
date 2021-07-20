@@ -1,5 +1,6 @@
 package engine.io;
 
+import game.PlayerMovement;
 import main.Global;
 import net.SynchronizedInputSender;
 import org.lwjgl.glfw.*;
@@ -109,7 +110,7 @@ public class Input {
         scrollY = scrollState;
 
         if (!getKeybindList().equals(prevKeybindList)) {
-            SynchronizedInputSender.addInput(getKeybindList());
+            SynchronizedInputSender.addInput(getKeybindList(), PlayerMovement.getCameraRotation());
         }
 
         prevKeys = keys.clone();

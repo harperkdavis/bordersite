@@ -6,7 +6,6 @@ import engine.components.RampComponent;
 import engine.graphics.Material;
 import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.PointLight;
-import engine.io.Input;
 import engine.io.MeshLoader;
 import engine.math.*;
 import engine.objects.camera.Camera;
@@ -14,7 +13,6 @@ import engine.objects.GameObject;
 import engine.objects.camera.OrbitCamera;
 import game.PlayerMovement;
 import main.Main;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -37,7 +35,8 @@ public class Scene {
     protected static GameObject skybox;
 
     public static Map<String, GameObject> playerObjects = new HashMap<>();
-    private static ConcurrentLinkedQueue<String> playerBuffer = new ConcurrentLinkedQueue<>();
+    private static ConcurrentLinkedQueue<String> playerAddBuffer = new ConcurrentLinkedQueue<>();
+    private static ConcurrentLinkedQueue<String> playerRemoveBuffer = new ConcurrentLinkedQueue<>();
 
     private static SceneLoader loader;
 
@@ -74,11 +73,20 @@ public class Scene {
             return;
         }
 
-        for (int i = 0; i < playerBuffer.size(); i++) {
-            String uuid = playerBuffer.poll();
+        for (int i = 0; i < playerAddBuffer.size(); i++) {
+            String uuid = playerAddBuffer.poll();
             GameObject object = new GameObject(new Vector3f(0, 0, 0), MeshLoader.loadModel("player.obj", Material.PLAYER_MODEL));
             addObject(object);
             playerObjects.put(uuid, object);
+        }
+
+        for (int i = 0; i < playerRemoveBuffer.size(); i++) {
+            String uuid = playerRemoveBuffer.poll();
+            GameObject object = playerObjects.get(uuid);
+            if (object != null) {
+                removeObject(object);
+                playerObjects.remove(uuid);
+            }
         }
 
         orbitCamera.setPosition(new Vector3f((float) Math.cos(Main.getElapsedTime() / 10000.0f) * 10.0f, 15,(float) Math.sin(Main.getElapsedTime() / 10000.0f) * 10.0f));
@@ -134,7 +142,11 @@ public class Scene {
     }
 
     public static void addBufferedPlayer(String uuid) {
-        playerBuffer.add(uuid);
+        playerAddBuffer.add(uuid);
+    }
+
+    public static void removePlayer(String uuid) {
+        playerRemoveBuffer.add(uuid);
     }
 
     public static SceneLoader getLoader() {
@@ -180,6 +192,10 @@ public class Scene {
 
     public static Map<String, GameObject> getPlayerObjects() {
         return playerObjects;
+    }
+
+    public static GameObject getPlayer(String uuid) {
+        return playerObjects.get(uuid);
     }
 
     public static float getSlope(int x, int z)  {
