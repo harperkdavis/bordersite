@@ -50,6 +50,10 @@ public class AudioSource {
         AL10.alSourcef(sourceId, AL10.AL_GAIN, gain);
     }
 
+    public void setPitch(float pitch) {
+        AL10.alSourcef(sourceId, AL10.AL_PITCH, pitch);
+    }
+
     public void setProperty(int param, float value) {
         AL10.alSourcef(sourceId, param, value);
     }

@@ -31,4 +31,8 @@ public class UserInputPacket extends Packet {
     public ArrayList<InputSnapshot> getInputs() {
         return inputs;
     }
+
+    public int getInputSequence() {
+        return inputSequence;
+    }
 }

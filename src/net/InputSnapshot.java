@@ -1,6 +1,8 @@
 package net;
 
+import engine.io.Input;
 import engine.math.Vector3f;
+import game.PlayerMovement;
 
 import java.util.ArrayList;
 
@@ -20,6 +22,10 @@ public class InputSnapshot {
         this.inputs = null;
         this.rotation = Vector3f.zero();
         this.timestamp = 0;
+    }
+
+    public static InputSnapshot getCurrentSnapshot(int timestamp) {
+        return new InputSnapshot(Input.getKeybindList(), PlayerMovement.getCameraRotation(), timestamp);
     }
 
     public int getTimestamp() {

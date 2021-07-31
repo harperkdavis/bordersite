@@ -12,15 +12,15 @@ import engine.io.Window;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
-import engine.objects.camera.Camera;
 import game.scene.Scene;
+import game.ui.text.UiText;
 import main.Main;
 import net.ClientHandler;
 import org.lwjgl.glfw.GLFW;
 
 public class UserInterface {
 
-    private static float PIXEL;
+    public static float PIXEL;
     private static int width;
     private static int height;
 

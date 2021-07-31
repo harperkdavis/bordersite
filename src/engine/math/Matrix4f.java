@@ -179,6 +179,135 @@ public class Matrix4f {
         return multiply(Matrix4f.translate(new Vector3f(-eye.getX(), -eye.getY(), -eye.getZ())), result);
     }
 
+    public static Matrix4f inverse(Matrix4f matrix) {
+
+        float[] inv = new float[16];
+
+        inv[0] = matrix.elements[5]  * matrix.elements[10] * matrix.elements[15] -
+                matrix.elements[5]  * matrix.elements[11] * matrix.elements[14] -
+                matrix.elements[9]  * matrix.elements[6]  * matrix.elements[15] +
+                matrix.elements[9]  * matrix.elements[7]  * matrix.elements[14] +
+                matrix.elements[13] * matrix.elements[6]  * matrix.elements[11] -
+                matrix.elements[13] * matrix.elements[7]  * matrix.elements[10];
+
+        inv[4] = -matrix.elements[4]  * matrix.elements[10] * matrix.elements[15] +
+                matrix.elements[4]  * matrix.elements[11] * matrix.elements[14] +
+                matrix.elements[8]  * matrix.elements[6]  * matrix.elements[15] -
+                matrix.elements[8]  * matrix.elements[7]  * matrix.elements[14] -
+                matrix.elements[12] * matrix.elements[6]  * matrix.elements[11] +
+                matrix.elements[12] * matrix.elements[7]  * matrix.elements[10];
+
+        inv[8] = matrix.elements[4]  * matrix.elements[9] * matrix.elements[15] -
+                matrix.elements[4]  * matrix.elements[11] * matrix.elements[13] -
+                matrix.elements[8]  * matrix.elements[5] * matrix.elements[15] +
+                matrix.elements[8]  * matrix.elements[7] * matrix.elements[13] +
+                matrix.elements[12] * matrix.elements[5] * matrix.elements[11] -
+                matrix.elements[12] * matrix.elements[7] * matrix.elements[9];
+
+        inv[12] = -matrix.elements[4]  * matrix.elements[9] * matrix.elements[14] +
+                matrix.elements[4]  * matrix.elements[10] * matrix.elements[13] +
+                matrix.elements[8]  * matrix.elements[5] * matrix.elements[14] -
+                matrix.elements[8]  * matrix.elements[6] * matrix.elements[13] -
+                matrix.elements[12] * matrix.elements[5] * matrix.elements[10] +
+                matrix.elements[12] * matrix.elements[6] * matrix.elements[9];
+
+        inv[1] = -matrix.elements[1]  * matrix.elements[10] * matrix.elements[15] +
+                matrix.elements[1]  * matrix.elements[11] * matrix.elements[14] +
+                matrix.elements[9]  * matrix.elements[2] * matrix.elements[15] -
+                matrix.elements[9]  * matrix.elements[3] * matrix.elements[14] -
+                matrix.elements[13] * matrix.elements[2] * matrix.elements[11] +
+                matrix.elements[13] * matrix.elements[3] * matrix.elements[10];
+
+        inv[5] = matrix.elements[0]  * matrix.elements[10] * matrix.elements[15] -
+                matrix.elements[0]  * matrix.elements[11] * matrix.elements[14] -
+                matrix.elements[8]  * matrix.elements[2] * matrix.elements[15] +
+                matrix.elements[8]  * matrix.elements[3] * matrix.elements[14] +
+                matrix.elements[12] * matrix.elements[2] * matrix.elements[11] -
+                matrix.elements[12] * matrix.elements[3] * matrix.elements[10];
+
+        inv[9] = -matrix.elements[0]  * matrix.elements[9] * matrix.elements[15] +
+                matrix.elements[0]  * matrix.elements[11] * matrix.elements[13] +
+                matrix.elements[8]  * matrix.elements[1] * matrix.elements[15] -
+                matrix.elements[8]  * matrix.elements[3] * matrix.elements[13] -
+                matrix.elements[12] * matrix.elements[1] * matrix.elements[11] +
+                matrix.elements[12] * matrix.elements[3] * matrix.elements[9];
+
+        inv[13] = matrix.elements[0]  * matrix.elements[9] * matrix.elements[14] -
+                matrix.elements[0]  * matrix.elements[10] * matrix.elements[13] -
+                matrix.elements[8]  * matrix.elements[1] * matrix.elements[14] +
+                matrix.elements[8]  * matrix.elements[2] * matrix.elements[13] +
+                matrix.elements[12] * matrix.elements[1] * matrix.elements[10] -
+                matrix.elements[12] * matrix.elements[2] * matrix.elements[9];
+
+        inv[2] = matrix.elements[1]  * matrix.elements[6] * matrix.elements[15] -
+                matrix.elements[1]  * matrix.elements[7] * matrix.elements[14] -
+                matrix.elements[5]  * matrix.elements[2] * matrix.elements[15] +
+                matrix.elements[5]  * matrix.elements[3] * matrix.elements[14] +
+                matrix.elements[13] * matrix.elements[2] * matrix.elements[7] -
+                matrix.elements[13] * matrix.elements[3] * matrix.elements[6];
+
+        inv[6] = -matrix.elements[0]  * matrix.elements[6] * matrix.elements[15] +
+                matrix.elements[0]  * matrix.elements[7] * matrix.elements[14] +
+                matrix.elements[4]  * matrix.elements[2] * matrix.elements[15] -
+                matrix.elements[4]  * matrix.elements[3] * matrix.elements[14] -
+                matrix.elements[12] * matrix.elements[2] * matrix.elements[7] +
+                matrix.elements[12] * matrix.elements[3] * matrix.elements[6];
+
+        inv[10] = matrix.elements[0]  * matrix.elements[5] * matrix.elements[15] -
+                matrix.elements[0]  * matrix.elements[7] * matrix.elements[13] -
+                matrix.elements[4]  * matrix.elements[1] * matrix.elements[15] +
+                matrix.elements[4]  * matrix.elements[3] * matrix.elements[13] +
+                matrix.elements[12] * matrix.elements[1] * matrix.elements[7] -
+                matrix.elements[12] * matrix.elements[3] * matrix.elements[5];
+
+        inv[14] = -matrix.elements[0]  * matrix.elements[5] * matrix.elements[14] +
+                matrix.elements[0]  * matrix.elements[6] * matrix.elements[13] +
+                matrix.elements[4]  * matrix.elements[1] * matrix.elements[14] -
+                matrix.elements[4]  * matrix.elements[2] * matrix.elements[13] -
+                matrix.elements[12] * matrix.elements[1] * matrix.elements[6] +
+                matrix.elements[12] * matrix.elements[2] * matrix.elements[5];
+
+        inv[3] = -matrix.elements[1] * matrix.elements[6] * matrix.elements[11] +
+                matrix.elements[1] * matrix.elements[7] * matrix.elements[10] +
+                matrix.elements[5] * matrix.elements[2] * matrix.elements[11] -
+                matrix.elements[5] * matrix.elements[3] * matrix.elements[10] -
+                matrix.elements[9] * matrix.elements[2] * matrix.elements[7] +
+                matrix.elements[9] * matrix.elements[3] * matrix.elements[6];
+
+        inv[7] = matrix.elements[0] * matrix.elements[6] * matrix.elements[11] -
+                matrix.elements[0] * matrix.elements[7] * matrix.elements[10] -
+                matrix.elements[4] * matrix.elements[2] * matrix.elements[11] +
+                matrix.elements[4] * matrix.elements[3] * matrix.elements[10] +
+                matrix.elements[8] * matrix.elements[2] * matrix.elements[7] -
+                matrix.elements[8] * matrix.elements[3] * matrix.elements[6];
+
+        inv[11] = -matrix.elements[0] * matrix.elements[5] * matrix.elements[11] +
+                matrix.elements[0] * matrix.elements[7] * matrix.elements[9] +
+                matrix.elements[4] * matrix.elements[1] * matrix.elements[11] -
+                matrix.elements[4] * matrix.elements[3] * matrix.elements[9] -
+                matrix.elements[8] * matrix.elements[1] * matrix.elements[7] +
+                matrix.elements[8] * matrix.elements[3] * matrix.elements[5];
+
+        inv[15] = matrix.elements[0] * matrix.elements[5] * matrix.elements[10] -
+                matrix.elements[0] * matrix.elements[6] * matrix.elements[9] -
+                matrix.elements[4] * matrix.elements[1] * matrix.elements[10] +
+                matrix.elements[4] * matrix.elements[2] * matrix.elements[9] +
+                matrix.elements[8] * matrix.elements[1] * matrix.elements[6] -
+                matrix.elements[8] * matrix.elements[2] * matrix.elements[5];
+
+        float det = matrix.elements[0] * inv[0] + matrix.elements[1] * inv[4] + matrix.elements[2] * inv[8] + matrix.elements[3] * inv[12];
+
+        if (det == 0)
+            return null;
+
+        det = 1.0f / det;
+        
+        Matrix4f newMatrix = Matrix4f.identity();
+        System.arraycopy(inv, 0, newMatrix.elements, 0, 16);
+
+        return newMatrix;
+    }
+
     public float get(int x, int y) {
         return elements[y * SIZE + x];
     }

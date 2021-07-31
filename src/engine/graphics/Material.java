@@ -30,18 +30,12 @@ public class Material {
 
     // FONT
 
-    public static final Material FONT_KREMLIN = new Material("/textures/font/kremlin_font.png");
-    public static final Material FONT_SYNE_SMALL = new Material("/textures/font/syne_font_small.png");
-    public static final Material FONT_SYNE_BIG = new Material("/textures/font/syne_font_big.png");
+    public static final Material FONT_MAIN = new Material("/fonts/main.png");
+    public static final Material FONT_MAIN_STROKE = new Material("/fonts/main_stroke.png");
 
     // ENVIRONMENT
 
-    public static final Material ENV_GRASS = new Material("/textures/environment/grass.png");
-    public static final Material ENV_STONE = new Material("/textures/environment/stone.png");
-    public static final Material ENV_FLOOR = new Material("/textures/environment/floor.png", true);
-    public static final Material ENV_BRICK = new Material("/textures/environment/brick.png", true);
     public static final Material ENV_TREE = new Material("/textures/environment/tree.png");
-    public static final Material ENV_GRID = new Material("/textures/environment/grid.png");
 
     public static final Material ENV_HEIGHTMAP = new Material("/textures/environment/heightmap.png");
     public static final Material ENV_TREEMAP = new Material("/textures/environment/treemap.png");
@@ -54,13 +48,14 @@ public class Material {
     public static final Material UI_TEAM_SELECT = new Material("/textures/ui/team_select.png");
 
     public static final Material UI_CROSSHAIR = new Material("/textures/ui/crosshair.png");
+    public static final Material UI_ICONS = new Material("/textures/ui/icons.png");
     // PLAYER
 
     public static final Material PLAYER_MODEL = new Material("/textures/player/player_model.png");
     // WEAPONS
 
-    public static final Material WPN_KNIFE_DEFAULT = new Material("/textures/weapons/knife_default.png");
-    public static final Material WPN_KNIFE_NEBULA = new Material("/textures/weapons/knife_nebula.png");
+    public static final Material WPN_ACP_9_DEFAULT = new Material("/textures/weapons/acp_9_default.png");
+    public static final Material WPN_MUZZLE_FLASH = new Material("/textures/weapons/muzzle_flash.png");
 
     public Material(String diffuse, String normal, String specular) {
         materials.add(this);

@@ -22,13 +22,11 @@ public class AudioMaster {
     public static List<AudioBuffer> audioBufferList;
 
     public static ConcurrentMap<String, AudioSource> audioSourceMap;
-    public static ConcurrentMap<String, Float> audioTimeMap;
 
 
     public static void load() {
         audioBufferList = new ArrayList<>();
         audioSourceMap = new ConcurrentHashMap<>();
-        audioTimeMap = new ConcurrentHashMap<>();
         device = ALC10.alcOpenDevice((ByteBuffer) null);
         if (device == MemoryUtil.NULL) {
             throw new IllegalStateException("Failed to open the default OpenAL device.");
@@ -50,8 +48,7 @@ public class AudioMaster {
             if (source.isRelative()) {
                 source.setPosition(getSoundCoordinates(source.getSoundPosition()));
             }
-            audioTimeMap.put(name, audioTimeMap.get(name) - Main.getDeltaTime());
-            if (!source.isPlaying() || audioTimeMap.get(name) <= 0) {
+            if (!source.isPlaying()) {
                 removeSoundSource(name);
             }
         }
@@ -94,7 +91,6 @@ public class AudioMaster {
     public static void addSoundSource(String name, AudioSource audioSource) {
         audioSource.play();
         audioSourceMap.put(name, audioSource);
-        audioTimeMap.put(name, 10.0f);
     }
 
     public static AudioSource getSoundSource(String name) {

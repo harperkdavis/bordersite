@@ -64,11 +64,13 @@ vec3 fxaa( vec4 uv, sampler2D tex, vec2 rcpFrame) {
 }
 
 void main() {
-    const float gamma = 1.2;
+    const float gamma = 0.9;
     vec3 hdrColor = fxaa(fxaaPos, hdrBuffer, resFrame).rgb;
 
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
     mapped = pow(mapped, vec3(1.0 / gamma));
 
-    fragColor = vec4(mapped, 1.0);
+    float vignette = (pow(vertexUV.x - 0.5, 2) + pow(vertexUV.y - 0.5, 2)) + 1;
+
+    fragColor = vec4(mapped / vec3(vignette), 1.0);
 }

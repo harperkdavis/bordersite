@@ -3,17 +3,18 @@ package game.ui;
 import engine.graphics.Material;
 import engine.graphics.mesh.UiBuilder;
 import engine.io.Input;
+import engine.math.Mathf;
+import engine.math.Vector2f;
 import engine.math.Vector3f;
-import engine.math.Vector4f;
 
 import java.util.Collections;
 import java.util.List;
 import engine.objects.GameObject;
+import game.PlayerMovement;
+import game.ui.text.UiText;
 import main.Main;
 import net.ClientHandler;
-import net.packets.server.ChatPacket;
 import org.lwjgl.glfw.GLFW;
-import org.lwjglx.test.spaceinvaders.Game;
 
 import java.util.ArrayList;
 import java.util.Queue;
@@ -25,6 +26,7 @@ import static game.ui.UserInterface.screen;
 public class InGameMenu extends Menu {
 
     private GameObject crosshair;
+    private float crosshairTransparency = 1;
 
     private UiText chatInput;
     private GameObject chatPanel;
@@ -34,20 +36,50 @@ public class InGameMenu extends Menu {
 
     private Queue<MessageData> bufferedChatMessages = new ConcurrentLinkedQueue<>();
 
+    private GameObject healthIcon, ammoIcon, timeIcon, killsIcon;
+    private UiText healthText, ammoText, timeText, killsText;
+
     @Override
     public void init() {
         crosshair = addObject(new GameObject(screen(1, 1, 1), UiBuilder.UICenter(p(32), Material.UI_CROSSHAIR)));
         chatPanel = addObject(new UiPanel(0, 2 - p(20), 1, 2, 12, 0.2f));
         chatInput = (UiText) addObject(new UiText(screen(p(2), 2 - p(18), 9), "> "));
         chatInput.setColor(0.9f, 0.9f, 0.9f, 1.0f);
+
+        healthIcon = addObject(new GameObject(screen(1.8f, 1.95f, 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0, 0), new Vector2f(0.25f, 0.25f))));
+        ammoIcon = addObject(new GameObject(screen(1.9f, 1.95f, 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.25f, 0), new Vector2f(0.5f, 0.25f))));
+        timeIcon = addObject(new GameObject(screen(0.025f, 0.05f, 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.5f, 0), new Vector2f(0.75f, 0.25f))));
+        killsIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(18), 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.75f, 0), new Vector2f(1.0f, 0.25f))));
+
+        healthText = (UiText) addObject(new UiText(screen(1.8f + p(8), 1.95f - p(8), 4), "200"));
+        ammoText = (UiText) addObject(new UiText(screen(1.9f + p(8), 1.95f - p(8), 4), "30"));
+        timeText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f - p(8), 4), "0:00"));
+        killsText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(10), 4), "0 Kills"));
+
     }
 
     @Override
     public void update() {
+        crosshairTransparency = Mathf.lerpdt(crosshairTransparency, Input.isKeybind("aim") ? 0.0f : 1.0f, 0.1f);
+        crosshair.setColor(1, 1, 1, crosshairTransparency);
+
+        healthText.setText((int) PlayerMovement.getHealth() + "");
+        ammoText.setText(PlayerMovement.getAmmo() + "");
+        if (PlayerMovement.getReloadTime() > 0) {
+            ammoText.setColor(0.5f, 0.5f, 0.5f, 1);
+        } else {
+            if (PlayerMovement.getAmmo() <= 5) {
+                ammoText.setColor(1, 0, 0, 1);
+            } else {
+                ammoText.setColor(1, 1, 1, 1);
+            }
+        }
+
         updateChat();
     }
 
     public void updateChat() {
+
         if (bufferedChatMessages.size() > 0) {
             MessageData m = bufferedChatMessages.poll();
             messages.add((ChatMessage) addObject(new ChatMessage(m.message, m.red, m.green, m.blue)));

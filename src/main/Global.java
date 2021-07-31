@@ -28,6 +28,7 @@ public class Global {
 
         keybinds.put("shoot", "mouse0");
         keybinds.put("aim", "mouse1");
+        keybinds.put("reload", "r");
 
         keybinds.put("chat", "y");
 

@@ -1,16 +1,12 @@
 package net;
 
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
 import engine.math.Vector3f;
-import engine.objects.GameObject;
 import engine.objects.camera.Camera;
 import game.Player;
 import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.InGameMenu;
 import net.packets.Packet;
-import net.packets.client.TeamSelectPacket;
 import net.packets.server.*;
 
 import java.util.List;
@@ -40,6 +36,8 @@ public class PacketInterpreter {
             packet.printData();
             handlePlayerSpawnPacket((PlayerSpawnPacket) packet);
         } else if (packet instanceof PlayerRemovePacket) {
+            System.out.println("[PACKET] Incoming packet with type: " + packet.getPacketType());
+            packet.printData();
             handlePlayerRemovePacket((PlayerRemovePacket) packet);
         } else if (packet instanceof WorldStatePacket) {
             handleWorldStatePacket((WorldStatePacket) packet);
@@ -78,8 +76,29 @@ public class PacketInterpreter {
     private static void handleWorldStatePacket(WorldStatePacket packet) {
         for (Player p : packet.getWorldState().getPlayers()) {
             if (p.getPlayerId() == ClientHandler.playerId) {
-                PlayerMovement.setPosition(p.getPosition());
-                PlayerMovement.setVelocity(p.getVelX(), p.getVelY(), p.getVelZ());
+
+                Vector3f start = PlayerMovement.getPosition().copy();
+                PlayerMovement.applyPlayer(p);
+
+                Vector3f tempRotation = PlayerMovement.getCameraRotation();
+                int startSequence = p.getInputSequence();
+
+                int i = 0;
+                while (!(i >= 512 || InputSender.getPendingInputs()[i] == null)) {
+                    InputState current = InputSender.getPendingInputs()[i];
+                    if (current.getSequence() <= startSequence) {
+                        InputSender.removeRecentPending();
+                        continue;
+                    }
+                    PlayerMovement.setCameraRotation(current.getRotation());
+                    PlayerMovement.applyMovement(current.getPrevInputs(), current.getInputs());
+                    i++;
+                }
+
+                Vector3f correction = start.minus(PlayerMovement.getPosition());
+                PlayerMovement.getCorrectionOffset().add(correction);
+
+                PlayerMovement.setCameraRotation(tempRotation);
             }
         }
         ClientHandler.addWorldState(packet.getWorldState());

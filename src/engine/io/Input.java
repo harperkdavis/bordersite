@@ -2,11 +2,10 @@ package engine.io;
 
 import game.PlayerMovement;
 import main.Global;
-import net.SynchronizedInputSender;
+import net.InputSender;
 import org.lwjgl.glfw.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Input {
 
@@ -110,7 +109,7 @@ public class Input {
         scrollY = scrollState;
 
         if (!getKeybindList().equals(prevKeybindList)) {
-            SynchronizedInputSender.addInput(getKeybindList(), PlayerMovement.getCameraRotation());
+            InputSender.addInput(getKeybindList(), PlayerMovement.getCameraRotation());
         }
 
         prevKeys = keys.clone();

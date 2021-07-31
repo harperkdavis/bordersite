@@ -6,6 +6,7 @@ import engine.math.Vector3f;
 import engine.math.Vector4f;
 import engine.objects.GameObject;
 import game.scene.Scene;
+import game.ui.text.UiText;
 import main.Main;
 
 import static game.ui.UserInterface.p;

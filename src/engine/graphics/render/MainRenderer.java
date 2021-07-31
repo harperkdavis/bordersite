@@ -8,8 +8,10 @@ import engine.io.Window;
 import engine.math.Matrix4f;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
+import engine.math.Vector4f;
 import engine.objects.camera.Camera;
 import engine.objects.GameObject;
+import game.PlayerMovement;
 import game.scene.Scene;
 import main.Global;
 import org.lwjgl.BufferUtils;
@@ -23,9 +25,9 @@ public class MainRenderer {
     private static Vector3f ambientLight;
     private static Fog fog;
 
-    private static float exposure = 1.4f;
+    private static float exposure = 2.8f;
 
-    private static Shader shader, gShader, depthShader, blurShader, postShader, unlitShader;
+    private static Shader shader, gShader, depthShader, blurShader, postShader, unlitShader, forwardShader;
     protected static int depthMapFramebuffer, depthMapTexture;
 
     private static int gBuffer, rboDepth;
@@ -51,6 +53,7 @@ public class MainRenderer {
         MainRenderer.blurShader = Shader.loadShader("blur");
         MainRenderer.postShader = Shader.loadShader("post");
         MainRenderer.unlitShader = Shader.loadShader("unlit");
+        MainRenderer.forwardShader = Shader.loadShader("forward");
 
         ambientLight = new Vector3f(0.3f, 0.3f, 0.305f);
         fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.002f);
@@ -279,6 +282,7 @@ public class MainRenderer {
 
             gRender(o);
         }
+
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         gShader.unbind();
 
@@ -366,6 +370,23 @@ public class MainRenderer {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+
+        if (Camera.getActiveCamera().equals(PlayerMovement.getCamera())) {
+            forwardShader.bind();
+
+            forwardShader.setUniform("ambientLight", ambientLight.times(1.5f));
+            forwardShader.setUniform("directionalLight", Scene.directionalLight);
+            forwardShader.setUniform("cameraRotation", Matrix4f.rotation(PlayerMovement.getCameraRotation()));
+
+            viewmodelRender(forwardShader, Scene.getGunObject());
+
+            forwardShader.unbind();
+
+            unlitShader.bind();
+            viewmodelRender(unlitShader, Scene.getGunMuzzleFlash());
+            unlitShader.unbind();
+        }
     }
 
     private static void renderQuad() {
@@ -381,6 +402,40 @@ public class MainRenderer {
         GL30.glDisableVertexAttribArray(0);
         GL30.glDisableVertexAttribArray(1);
         GL30.glDisableVertexAttribArray(2);
+        GL30.glBindVertexArray(0);
+    }
+
+    public static void viewmodelRender(Shader shader, GameObject object) {
+        Matrix4f view = Matrix4f.view(Vector3f.zero(), Vector3f.zero(), true);
+        Matrix4f projection = Camera.getActiveCameraProjection();
+
+        if (!object.isVisible()) {
+            return;
+        }
+        if (object.hasChildren()) {
+            for (GameObject go : object.getChildren()) {
+                render(go);
+            }
+        }
+
+        GL30.glBindVertexArray(object.getMesh().getVAO());
+        enableVertexArrays(5);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, object.getMesh().getIBO());
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL13.glBindTexture(GL11.GL_TEXTURE_2D, object.getMesh().getMaterial().getDiffuseID());
+
+        shader.setUniform("meshColor", object.getColor());
+        shader.setUniform("model", Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale()));
+        shader.setUniform("view", view);
+        shader.setUniform("projection", projection);
+
+        GL11.glDrawElements(GL11.GL_TRIANGLES, object.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+
+        shader.setUniform("meshColor", new Vector4f(1, 1, 1, 1));
+
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+        disableVertexArrays(5);
         GL30.glBindVertexArray(0);
     }
 

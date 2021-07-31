@@ -6,6 +6,8 @@ import engine.components.RampComponent;
 import engine.graphics.Material;
 import engine.graphics.light.DirectionalLight;
 import engine.graphics.light.PointLight;
+import engine.graphics.mesh.MeshBuilder;
+import engine.io.Input;
 import engine.io.MeshLoader;
 import engine.math.*;
 import engine.objects.camera.Camera;
@@ -31,7 +33,6 @@ public class Scene {
     public static PointLight[] pointLights = new PointLight[MAX_POINT_LIGHTS];
 
     public static List<GameObject> objects = new ArrayList<>();
-    public static List<Component> components = new ArrayList<>();
     protected static GameObject skybox;
 
     public static Map<String, GameObject> playerObjects = new HashMap<>();
@@ -45,6 +46,9 @@ public class Scene {
     protected static float SCALE_Z = 4;
 
     private static OrbitCamera orbitCamera;
+
+    private static GameObject gunObject;
+    private static GameObject gunMuzzleFlash;
 
     public Scene() {
 
@@ -62,6 +66,9 @@ public class Scene {
     }
 
     public void load() {
+
+        gunObject = new GameObject(new Vector3f(2.8f, -1.65f, -2.9f), MeshLoader.loadModel("acp_9.obj", Material.WPN_ACP_9_DEFAULT));
+        gunMuzzleFlash = new GameObject(new Vector3f(2.8f, -1.65f, -2.9f), MeshBuilder.Cross4(2.0f, Material.WPN_MUZZLE_FLASH));
 
         loading = true;
         loaded = false;
@@ -102,6 +109,19 @@ public class Scene {
         for (GameObject go : objects) {
                 go.unload();
         }
+    }
+
+    public static GameObject getGunObject() {
+        return gunObject;
+    }
+
+    public static GameObject getGunMuzzleFlash() {
+        return gunMuzzleFlash;
+    }
+
+    public static void setGunPosition(Vector3f position) {
+        gunObject.setPosition(position);
+        gunMuzzleFlash.setPosition(position.plus(0, 0.5f, -2.5f));
     }
 
     public static void addComponent(Component c) {

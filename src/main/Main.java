@@ -13,7 +13,6 @@ import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.UserInterface;
 import net.ClientHandler;
-import net.SynchronizedInputSender;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
@@ -151,6 +150,7 @@ public class Main implements Runnable {
         listener.setPosition(new Vector3f(0, 0, 0));
         listener.setOrientation(new Vector3f(0, 0, -1), new Vector3f(0, 1, 0));
         listener.setVelocity(new Vector3f(0, 0, 0));
+        PlayerMovement.init();
         AudioMaster.setListener(listener);
         System.out.println("[INFO] Audio initialized!");
 
@@ -194,6 +194,7 @@ public class Main implements Runnable {
         Input.update();
         UserInterface.update();
         ClientHandler.update();
+        PlayerMovement.update();
 
         boolean fixedUpdate = System.currentTimeMillis() - lastFixedUpdate >= 10;
 
@@ -212,12 +213,8 @@ public class Main implements Runnable {
         }
 
         Scene.getActiveScene().update();
-        if (Scene.isLoaded() && ClientHandler.hasRegisteredTeam()) {
-            PlayerMovement.update();
+        AudioMaster.update();
 
-        }
-
-            AudioMaster.update();
     }
 
     private void render() {

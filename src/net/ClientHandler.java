@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
+import engine.io.Input;
 import engine.io.Window;
 import engine.math.Mathf;
 import engine.math.Vector2f;
@@ -14,6 +15,7 @@ import game.Player;
 import game.PlayerMovement;
 import game.WorldState;
 import game.scene.Scene;
+import main.Global;
 import main.Main;
 import net.packets.Packet;
 import net.packets.client.ChatRequestPacket;
@@ -23,14 +25,9 @@ import net.packets.client.UserInputPacket;
 import net.packets.server.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Timer;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class ClientHandler {
 
@@ -45,13 +42,15 @@ public class ClientHandler {
 
     private static final ConcurrentMap<Packet, Float> fakeLagPacketBuffer = new ConcurrentHashMap<>();
     protected static final boolean FAKE_LAG = true;
-    protected static final float FAKE_LAG_MS = 150;
+    protected static float FAKE_LAG_MS = 100;
 
-    public static SynchronizedInputSender inputSender;
+    public static InputSender inputSender;
     private static Timer inputSenderTimer;
 
     private static WorldState previousState, currentState;
     private static long previousStamp, currentStamp;
+
+    static int test = 0;
 
     public static void init() {
         Log.set(Log.LEVEL_DEBUG);
@@ -111,6 +110,9 @@ public class ClientHandler {
     }
 
     public static void update() {
+
+        FAKE_LAG_MS = 100 + new Random().nextInt(10);
+
         if (FAKE_LAG) {
             for (Packet p : fakeLagPacketBuffer.keySet()) {
                 float newTime = fakeLagPacketBuffer.get(p) - Main.getDeltaTime();
@@ -159,6 +161,7 @@ public class ClientHandler {
             }
         }
 
+        PlayerMovement.updateCamera();
     }
 
     public static void addWorldState(WorldState worldState) {
@@ -189,7 +192,7 @@ public class ClientHandler {
 
     public static void startInputSender(int tick) {
         inputSenderTimer = new Timer();
-        inputSender = new SynchronizedInputSender(tick);
+        inputSender = new InputSender(tick);
         inputSenderTimer.scheduleAtFixedRate(inputSender, 0, 2);
     }
 

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public class Player {
 
+
     private int playerId;
     private String uuid;
 
@@ -16,13 +17,13 @@ public class Player {
     private int inputSequence = 0;
 
     // MOVEMENT
-    protected Vector3f position;
+    protected Vector3f position = Vector3f.oneY();
+    protected Vector3f rotation = Vector3f.zero();
 
-    protected boolean grounded, crouching, sprinting, moving;
+    protected boolean grounded, crouching, sprinting, moving, aiming;
     protected float velX, velY, velZ;
     protected float velocityLeft, velocityRight, velocityForward, velocityBack;
-    protected float sprintModifier;
-    protected Vector3f rotation;
+    protected float sprintModifier, crouchModifier;
     protected float playerHeight;
 
     public Player(int playerId, String username) {
@@ -89,6 +90,10 @@ public class Player {
         return sprinting;
     }
 
+    public boolean isAiming() {
+        return aiming;
+    }
+
     public float getVelX() {
         return velX;
     }
@@ -103,6 +108,10 @@ public class Player {
 
     public float getSprintModifier() {
         return sprintModifier;
+    }
+
+    public float getCrouchModifier() {
+        return crouchModifier;
     }
 
     public boolean isMoving() {
@@ -133,36 +142,6 @@ public class Player {
         return playerHeight;
     }
 
-    public void printData() {
-        System.out.println("Player Info Dump");
-        System.out.println("Id: " + playerId);
-        System.out.println("UUID: " + uuid);
-        System.out.println("Username: " + username);
-
-        System.out.println("Team: " + team);
-        System.out.println("Registered: " + registered);
-
-        System.out.println("Grounded: " + grounded);
-        System.out.println("Crouching: " + crouching);
-        System.out.println("Sprinting: " + sprinting);
-        System.out.println("Moving: " + moving);
-
-        System.out.println("VelX: " + velX);
-        System.out.println("VelY: " + velY);
-        System.out.println("VelZ: " + velZ);
-
-        System.out.println("VelLeft: " + velocityLeft);
-        System.out.println("VelRight: " + velocityRight);
-        System.out.println("VelForward: " + velocityForward);
-        System.out.println("VelBack: " + velocityBack);
-
-        System.out.println("SprintModifier: " + sprintModifier);
-        System.out.println("Height: " + playerHeight);
-
-        System.out.println("Rotation: " + rotation);
-        System.out.println("Position: " + position);
-    }
-
     public Player copy() {
         Player copy = new Player(playerId, username);
         copy.playerId = playerId;
@@ -173,10 +152,14 @@ public class Player {
         copy.registered = registered;
         copy.inputSequence = inputSequence;
 
+        copy.position = position.copy();
+        copy.rotation = rotation.copy();
+
         copy.grounded = grounded;
         copy.crouching = crouching;
         copy.sprinting = sprinting;
         copy.moving = moving;
+        copy.aiming = aiming;
 
         copy.velX = velX;
         copy.velY = velY;
@@ -188,6 +171,7 @@ public class Player {
         copy.velocityBack = velocityBack;
 
         copy.sprintModifier = sprintModifier;
+        copy.crouchModifier = crouchModifier;
         copy.rotation = rotation;
         copy.playerHeight = playerHeight;
 

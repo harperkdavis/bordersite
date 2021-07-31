@@ -214,6 +214,64 @@ public class MeshBuilder {
         return new Mesh(vertices, indices, m);
     }
 
+    public static Mesh Cross(float size, Material m) {
+        Mesh mesh = new Mesh(new Vertex[] {
+                new Vertex(new Vector3f(-0.5f * size, 0.0f, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(-0.5f * size, 0.0f, 0), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(0.5f * size, 0.0f, 0), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3f(0.5f * size, 0.0f, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+
+                new Vertex(new Vector3f(0, 0.5f * size, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(0, 0.5f * size, 0), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(0, -0.5f * size, 0), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3f(0, -0.5f * size, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+        }, new int[] {
+                0, 2, 1,
+                0, 3, 2,
+
+                4, 6, 5,
+                4, 7, 6,
+        }, m);
+        return mesh;
+    }
+
+    public static Mesh Cross4(float size, Material m) {
+        Mesh mesh = new Mesh(new Vertex[] {
+                new Vertex(new Vector3f(-0.5f * size, 0.0f, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(-0.5f * size, 0.0f, 0), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(0.5f * size, 0.0f, 0), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3f(0.5f * size, 0.0f, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+
+                new Vertex(new Vector3f(0, 0.5f * size, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(0, 0.5f * size, 0), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(0, -0.5f * size, 0), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3f(0, -0.5f * size, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+
+                new Vertex(new Vector3f(-0.5f * size, 0.5f * size, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(-0.5f * size, 0.5f * size, 0), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(0.5f * size, -0.5f * size, 0), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3f(0.5f * size, -0.5f * size, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+
+                new Vertex(new Vector3f(-0.5f * size, -0.5f * size, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f)),
+                new Vertex(new Vector3f(-0.5f * size, -0.5f * size, 0), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f)),
+                new Vertex(new Vector3f(0.5f * size, 0.5f * size, 0), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f)),
+                new Vertex(new Vector3f(0.5f * size, 0.5f * size, 1.0f * size), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f)),
+        }, new int[] {
+                0, 2, 1,
+                0, 3, 2,
+
+                4, 6, 5,
+                4, 7, 6,
+
+                8, 10, 9,
+                8, 11, 10,
+
+                12, 14, 13,
+                12, 15, 14,
+        }, m);
+        return mesh;
+    }
+
  
 
     // Creates a rectangular prism

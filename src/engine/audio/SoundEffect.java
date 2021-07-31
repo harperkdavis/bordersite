@@ -19,5 +19,8 @@ public enum SoundEffect {
     JUMP,
     JUMP_LAND,
     PICKER,
-    SELECT
+    SELECT,
+    EMPTY,
+    ACP_9_SHOT,
+    ACP_9_RELOAD,
 }
