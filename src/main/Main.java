@@ -35,6 +35,8 @@ public class Main implements Runnable {
     private static int elapsedTime;
     private long lastFixedUpdate;
 
+    private static String ip;
+
     private static float deltaTime = 1.0f;
 
     private static boolean materialsLoaded = false;
@@ -46,7 +48,7 @@ public class Main implements Runnable {
         String[] resolutionOptions = new String[]{"1920x1080", "1024x576", "1280x720", "1336x768", "1600x900", "2560x1440"};
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3,2));
+        panel.setLayout(new GridLayout(4,2));
 
         panel.add(new JLabel("Resolution"));
         JComboBox<String> res = new JComboBox<>(resolutionOptions);
@@ -62,6 +64,12 @@ public class Main implements Runnable {
         JTextField usr = new JTextField();
         usr.setVisible(true);
         panel.add(usr);
+
+        panel.add(new JLabel("Ip Address"));
+        JTextField ipf = new JTextField();
+        ipf.setVisible(true);
+        panel.add(ipf);
+        ipf.setText("localhost");
 
         String[] randoms = new String[]{"Atrovel", "Famongs", "Distropertity", "Ternal", "Ankelers", "Pulappli", "Oblivia", "Tribution", "Gerrassa", "Exibillia", "Flunge", "Sinullacce", "Friness", "Hevephiny", "Excred", "Exciling", "Dumpined", "Buwheal", "Cotableat", "Litated", "Ationsoles", "Citions", "Catchibed", "Rumadle", "Diligord", "Conveyhopk", "Dropperclear", "Eefullanizess", "Cobypatachered", "Breestrass", "Wethosted", "Avorthuades", "Burgination", "Adwadiansie", "Disaplurntor", "Canous", "Morpenes", "Opcong", "Mitimigrood", "Ceallip", "Galition", "Innous", "Seiliu", "Arinterpord", "Writme", "Hasteives", "Cellordion", "Obseum", "Alerrawia", "Endency", "AbsoluteFuckingClown"};
         Random random = new Random();
@@ -105,6 +113,7 @@ public class Main implements Runnable {
         }
         FULLSCREEN = box.isSelected();
         username = usr.getText();
+        ip = ipf.getText();
         if (username.equals("")) {
             username = "ThisPersonDoesntCare";
         }
@@ -156,7 +165,7 @@ public class Main implements Runnable {
 
         MaterialLoader.initLoading();
 
-        ClientHandler.connect("127.0.0.1");
+        ClientHandler.connect(ip);
 
         System.out.println("[INFO] Initialization completed!");
 

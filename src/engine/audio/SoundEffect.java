@@ -23,4 +23,7 @@ public enum SoundEffect {
     EMPTY,
     ACP_9_SHOT,
     ACP_9_RELOAD,
+    SHOT_HIT,
+    SHOT_HEADSHOT,
+    KILL,
 }

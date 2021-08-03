@@ -199,6 +199,10 @@ public class Vector3f {
         return new Vector3f(Mathf.lerpdt(a.getX(), b.getX(), c), Mathf.lerpdt(a.getY(), b.getY(), c), Mathf.lerpdt(a.getZ(), b.getZ(), c));
     }
 
+    public static float distance(Vector3f a, Vector3f b) {
+        return (float) Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2) + Math.pow(a.getZ() - b.getZ(), 2));
+    }
+
     public Vector3f copy() {
         return new Vector3f(x, y, z);
     }

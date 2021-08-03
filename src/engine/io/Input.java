@@ -29,6 +29,7 @@ public class Input {
     private static GLFWScrollCallback mouseScroll;
 
     private static boolean typing = false;
+    private static boolean autowalk = false;
 
     public static void createCallbacks() {
         keyboard = new GLFWKeyCallback() {
@@ -109,7 +110,7 @@ public class Input {
         scrollY = scrollState;
 
         if (!getKeybindList().equals(prevKeybindList)) {
-            InputSender.addInput(getKeybindList(), PlayerMovement.getCameraRotation());
+            InputSender.addInput(getKeybindList(), PlayerMovement.getCamera().getRotation());
         }
 
         prevKeys = keys.clone();

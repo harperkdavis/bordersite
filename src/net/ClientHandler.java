@@ -5,6 +5,8 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
+import engine.audio.AudioMaster;
+import engine.audio.SoundEffect;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.Mathf;
@@ -15,13 +17,12 @@ import game.Player;
 import game.PlayerMovement;
 import game.WorldState;
 import game.scene.Scene;
+import game.ui.InGameMenu;
 import main.Global;
 import main.Main;
+import net.event.*;
 import net.packets.Packet;
-import net.packets.client.ChatRequestPacket;
-import net.packets.client.ConnectPacket;
-import net.packets.client.TeamSelectPacket;
-import net.packets.client.UserInputPacket;
+import net.packets.client.*;
 import net.packets.server.*;
 
 import java.io.IOException;
@@ -50,8 +51,6 @@ public class ClientHandler {
     private static WorldState previousState, currentState;
     private static long previousStamp, currentStamp;
 
-    static int test = 0;
-
     public static void init() {
         Log.set(Log.LEVEL_DEBUG);
 
@@ -68,9 +67,18 @@ public class ClientHandler {
 
         kryo.register(Player.class);
 
+        kryo.register(Event.class);
+        kryo.register(HitEvent.class);
+        kryo.register(DeathEvent.class);
+        kryo.register(RespawnEvent.class);
+        kryo.register(ShootEvent.class);
+
         kryo.register(Packet.class);
         kryo.register(ConnectPacket.class);
         kryo.register(ConnectionReceivedPacket.class);
+
+        kryo.register(PingRequestPacket.class);
+        kryo.register(PongPacket.class);
 
         kryo.register(ChatRequestPacket.class);
         kryo.register(ChatPacket.class);
@@ -110,8 +118,6 @@ public class ClientHandler {
     }
 
     public static void update() {
-
-        FAKE_LAG_MS = 100 + new Random().nextInt(10);
 
         if (FAKE_LAG) {
             for (Packet p : fakeLagPacketBuffer.keySet()) {
@@ -154,7 +160,11 @@ public class ClientHandler {
                         GameObject playerObject = Scene.getPlayer(curr.getUuid());
                         if (playerObject != null) {
                             playerObject.setPosition(Vector3f.lerp(prev.getPosition(), curr.getPosition(), interp).minus(new Vector3f(0, 0.5f, 0)));
-                            playerObject.setRotation(Vector3f.lerp(new Vector3f(0, -prev.getRotation().getY(), 0), new Vector3f(0, -curr.getRotation().getY(), 0), interp));
+                            if (prev.isDead()) {
+                                playerObject.setRotation(Vector3f.lerp(new Vector3f(0, -prev.getRotation().getY() + 90, 90), new Vector3f(0, -curr.getRotation().getY() + 90, 90), interp));
+                            } else {
+                                playerObject.setRotation(Vector3f.lerp(new Vector3f(0, -prev.getRotation().getY() + 90, 0), new Vector3f(0, -curr.getRotation().getY() + 90, 0), interp));
+                            }
                         }
                     }
                 }
@@ -176,6 +186,18 @@ public class ClientHandler {
 
         previousStamp = currentStamp;
         currentStamp = System.currentTimeMillis();
+    }
+
+    public static WorldState getPreviousState() {
+        return previousState;
+    }
+
+    public static WorldState getCurrentState() {
+        return currentState;
+    }
+
+    public static int getTeam() {
+        return team;
     }
 
     public static int getPlayerId() {

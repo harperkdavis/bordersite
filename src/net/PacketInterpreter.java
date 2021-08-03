@@ -1,12 +1,16 @@
 package net;
 
+import engine.audio.AudioMaster;
+import engine.audio.SoundEffect;
 import engine.math.Vector3f;
 import engine.objects.camera.Camera;
 import game.Player;
 import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.InGameMenu;
+import net.event.*;
 import net.packets.Packet;
+import net.packets.client.PongPacket;
 import net.packets.server.*;
 
 import java.util.List;
@@ -41,6 +45,8 @@ public class PacketInterpreter {
             handlePlayerRemovePacket((PlayerRemovePacket) packet);
         } else if (packet instanceof WorldStatePacket) {
             handleWorldStatePacket((WorldStatePacket) packet);
+        } else if (packet instanceof PingRequestPacket) {
+            handlePingRequestPacket((PingRequestPacket) packet);
         }
 
     }
@@ -56,7 +62,7 @@ public class PacketInterpreter {
         List<Player> players = packet.getPlayerList();
         for (Player p : players) {
             if (p.getPlayerId() != ClientHandler.getPlayerId()) {
-                addPlayer(p.getUuid());
+                addPlayer(p.getUuid(), p.getUsername(), p.getTeam());
             }
         }
 
@@ -66,7 +72,7 @@ public class PacketInterpreter {
     }
 
     private static void handlePlayerSpawnPacket(PlayerSpawnPacket packet) {
-        addPlayer(packet.getPlayerUUID());
+        addPlayer(packet.getPlayerUUID(), packet.getUsername(), packet.getTeam());
     }
 
     private static void handlePlayerRemovePacket(PlayerRemovePacket packet) {
@@ -74,11 +80,54 @@ public class PacketInterpreter {
     }
 
     private static void handleWorldStatePacket(WorldStatePacket packet) {
+
+        for (Event e : packet.getWorldState().getStateEvents()) {
+            if (e instanceof HitEvent) {
+                HitEvent event = (HitEvent) e;
+                if (event.getHit().getPlayerId() == ClientHandler.getPlayerId()) {
+                    if (event.isHeadshot()) {
+                        AudioMaster.playSound(SoundEffect.SHOT_HEADSHOT);
+                    } else {
+                        AudioMaster.playSound(SoundEffect.SHOT_HIT);
+                    }
+                }
+            } else if (e instanceof DeathEvent) {
+                DeathEvent event = (DeathEvent) e;
+                if (event.getDead().getPlayerId() == ClientHandler.getPlayerId()) {
+                    PlayerMovement.clientDead(event);
+                } else if (event.getSource().getPlayerId() == ClientHandler.getPlayerId()) {
+                    AudioMaster.playSound(SoundEffect.KILL);
+                    InGameMenu.getKillsText().setText((event.getSource().getKills() + 1) + " kills");
+                }
+            } else if (e instanceof RespawnEvent) {
+                RespawnEvent event = (RespawnEvent) e;
+                if (event.getRespawned().getPlayerId() == ClientHandler.getPlayerId()) {
+                    PlayerMovement.clientAlive(event);
+                }
+            } else if (e instanceof ShootEvent) {
+                ShootEvent event = (ShootEvent) e;
+            }
+        }
+
+        InGameMenu.getRedScoreText().setText(packet.getWorldState().getRedScore() + "");
+        InGameMenu.getBlueScoreText().setText(packet.getWorldState().getBlueScore() + "");
+
         for (Player p : packet.getWorldState().getPlayers()) {
             if (p.getPlayerId() == ClientHandler.playerId) {
 
+                if (p.isDead()) {
+                    PlayerMovement.setDeathTimer(p.getDeathTimer());
+                    continue;
+                }
+
                 Vector3f start = PlayerMovement.getPosition().copy();
                 PlayerMovement.applyPlayer(p);
+
+                if (p.isForceMove()) {
+                    PlayerMovement.setCameraRotation(p.getRotation());
+                    PlayerMovement.setCorrectionOffset(Vector3f.zero());
+                    continue;
+                }
 
                 Vector3f tempRotation = PlayerMovement.getCameraRotation();
                 int startSequence = p.getInputSequence();
@@ -86,12 +135,12 @@ public class PacketInterpreter {
                 int i = 0;
                 while (!(i >= 512 || InputSender.getPendingInputs()[i] == null)) {
                     InputState current = InputSender.getPendingInputs()[i];
-                    if (current.getSequence() <= startSequence) {
+                    if (current.getSequence() < startSequence) {
                         InputSender.removeRecentPending();
                         continue;
                     }
                     PlayerMovement.setCameraRotation(current.getRotation());
-                    PlayerMovement.applyMovement(current.getPrevInputs(), current.getInputs());
+                    PlayerMovement.applyMovement(current.getPrevInputs(), current.getInputs(), true);
                     i++;
                 }
 
@@ -104,7 +153,11 @@ public class PacketInterpreter {
         ClientHandler.addWorldState(packet.getWorldState());
     }
 
-    private static void addPlayer(String uuid) {
-        Scene.addBufferedPlayer(uuid);
+    private static void addPlayer(String uuid, String username, int team) {
+        Scene.addBufferedPlayer(uuid, team);
+    }
+
+    private static void handlePingRequestPacket(PingRequestPacket packet) {
+        ClientHandler.client.sendUDP(new PongPacket(packet.getTimestamp()));
     }
 }

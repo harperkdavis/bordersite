@@ -10,6 +10,9 @@ import engine.math.Vector3f;
 import engine.objects.GameObject;
 import game.PlayerMovement;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BlockComponent implements Component {
 
     private Vector3f stl, str, sbl, sbr, ntl, ntr, nbl, nbr;
@@ -203,6 +206,68 @@ public class BlockComponent implements Component {
         }
 
         return new Collision(newPosition, velocity, isGrounded(newPosition));
+    }
+
+    @Override
+    public Vector3f getRaycast(Vector3f start, Vector3f end) {
+
+        Vector3f tlr = raycastEdge(start, end, tl, tr);
+        Vector3f blr = raycastEdge(start, end, bl, br);
+        Vector3f tbl = raycastEdge(start, end, tl, bl);
+        Vector3f tbr = raycastEdge(start, end, tr, br);
+
+        float updown = Math.abs(end.getY() - start.getY());
+        float updist = ((Math.abs(ntl.getY() - start.getY()) / updown) + (1 - (Math.abs(ntl.getY() - end.getY())/ updown))) / 2;
+        float downdist = ((Math.abs(stl.getY() - start.getY()) / updown) + (1 - (Math.abs(stl.getY() - end.getY())/ updown))) / 2;
+
+        Vector3f up = Vector3f.lerp(start, end, updist);
+        Vector3f down = Vector3f.lerp(start, end, downdist);
+
+        List<Vector3f> intersects = new ArrayList<>();
+        if (Math.abs(up.getY() - ntl.getY()) < 0.01f && (Mathf.pointTriangle(new Vector2f(up.getX(), up.getZ()), tl, bl, br) || Mathf.pointTriangle(new Vector2f(up.getX(), up.getZ()), tl, br, tr))) {
+            intersects.add(up);
+        }
+        if (Math.abs(down.getY() - stl.getY()) < 0.01f && (Mathf.pointTriangle(new Vector2f(down.getX(), down.getZ()), tl, bl, br) || Mathf.pointTriangle(new Vector2f(down.getX(), down.getZ()), tl, br, tr))) {
+            intersects.add(down);
+        }
+        if (tlr != null) {
+            intersects.add(tlr);
+        }
+        if (blr != null) {
+            intersects.add(blr);
+        }
+        if (tbl != null) {
+            intersects.add(tbl);
+        }
+        if (tbr != null) {
+            intersects.add(tbr);
+        }
+
+        Vector3f intersect = null;
+        float minDistance = Float.MAX_VALUE;
+        for (Vector3f inter : intersects) {
+            float distance = (float) Math.sqrt((Math.pow(inter.getX() - start.getX(), 2) + Math.pow(inter.getY() - start.getY(), 2) + Math.pow(inter.getZ() - start.getZ(), 2)));
+            if (distance < minDistance) {
+                intersect = inter.copy();
+                minDistance = distance;
+            }
+        }
+
+        return intersect;
+    }
+
+    private Vector3f raycastEdge(Vector3f s, Vector3f e, Vector2f a, Vector2f b) {
+        if (!Mathf.intersect(s.getX(), s.getZ(), e.getX(), e.getZ(), a.getX(), a.getY(), b.getX(), b.getY())) {
+            return null;
+        }
+        Vector2f intersect = Mathf.intersectPoint(s.getX(), s.getZ(), e.getX(), e.getZ(), a.getX(), a.getY(), b.getX(), b.getY());
+        float maxDistance = Mathf.distance(s.getX(), s.getZ(), e.getX(), e.getZ());
+        float distance = Mathf.distance(s.getX(), s.getZ(), intersect.getX(), intersect.getY());
+        float y = Mathf.lerp(s.getY(), e.getY(), distance / maxDistance);
+        if (y > stl.getY() && y < ntl.getY()) {
+            return new Vector3f(intersect.getX(), y, intersect.getY());
+        }
+        return null;
     }
 
     private boolean isWithinBounds(Vector2f position) {

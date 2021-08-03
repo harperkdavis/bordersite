@@ -6,15 +6,19 @@ import java.util.UUID;
 
 public class Player {
 
-
     private int playerId;
     private String uuid;
 
     private String username;
 
+    private float ping = 0;
+
     private int team = 0;
+    private int kills = 0;
     private boolean registered = false;
     private int inputSequence = 0;
+
+    private int forceMoveTicks = 0;
 
     // MOVEMENT
     protected Vector3f position = Vector3f.oneY();
@@ -25,6 +29,15 @@ public class Player {
     protected float velocityLeft, velocityRight, velocityForward, velocityBack;
     protected float sprintModifier, crouchModifier;
     protected float playerHeight;
+
+    // GUNPLAY
+
+    private float health = 200;
+    private int ammo = 30;
+    private float reloadTime = 0, lastShot = 0;
+    private boolean dead = false;
+    private float deathTimer = 0;
+    private Player killer = null;
 
     public Player(int playerId, String username) {
         this.playerId = playerId;
@@ -142,6 +155,135 @@ public class Player {
         return playerHeight;
     }
 
+    public float getHealth() {
+        return health;
+    }
+
+    public int getAmmo() {
+        return ammo;
+    }
+
+    public float getReloadTime() {
+        return reloadTime;
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public float getLastShot() {
+        return lastShot;
+    }
+
+    public float getPing() {
+        return ping;
+    }
+
+    public void setHealth(float health) {
+        this.health = health;
+    }
+
+    public void setAmmo(int ammo) {
+        this.ammo = ammo;
+    }
+
+    public void setReloadTime(float reloadTime) {
+        this.reloadTime = reloadTime;
+    }
+
+    public void setLastShot(float lastShot) {
+        this.lastShot = lastShot;
+    }
+
+    public void setPing(float ping) {
+        this.ping = ping;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
+    }
+
+    public float getDeathTimer() {
+        return deathTimer;
+    }
+
+    public void setDeathTimer(float deathTimer) {
+        this.deathTimer = deathTimer;
+    }
+
+    public boolean isForceMove() {
+        return forceMoveTicks > 0;
+    }
+
+    public void setForceMoveTicks(int forceMove) {
+        this.forceMoveTicks = forceMove;
+    }
+
+    public void decreaseForceMoveTicks() {
+        this.forceMoveTicks--;
+    }
+
+    public Player getKiller() {
+        return killer;
+    }
+
+    public void setKiller(Player killer) {
+        this.killer = killer;
+    }
+
+    public int getKills() {
+        return kills;
+    }
+
+    public void setKills(int kills) {
+        this.kills = kills;
+    }
+
+    public void addKill() {
+        this.kills++;
+    }
+
+    public void teleport(Vector3f position) {
+        this.position = position;
+        this.rotation = Vector3f.zero();
+        this.forceMoveTicks = 3;
+        this.velX = 0;
+        this.velY = 0;
+        this.velZ = 0;
+    }
+
+    public void teleport(Vector3f position, Vector3f rotation) {
+        this.position = position;
+        this.rotation = rotation;
+        this.forceMoveTicks = 3;
+        this.velX = 0;
+        this.velY = 0;
+        this.velZ = 0;
+    }
+
+    public void damage(Player source, float damage) {
+        this.health -= damage;
+        if (this.health <= 0) {
+            kill(source.copy());
+        }
+    }
+
+    public void kill(Player source) {
+        deathTimer = 10.0f;
+        dead = true;
+        health = 0;
+        this.killer = source.copy();
+    }
+
+    public void respawn(Vector3f position, Vector3f rotation) {
+        teleport(position, rotation);
+        this.dead = false;
+        this.health = 200;
+        this.deathTimer = -1;
+        this.ammo = 30;
+        this.killer = null;
+    }
+
     public Player copy() {
         Player copy = new Player(playerId, username);
         copy.playerId = playerId;
@@ -151,6 +293,8 @@ public class Player {
         copy.team = team;
         copy.registered = registered;
         copy.inputSequence = inputSequence;
+
+        copy.forceMoveTicks = forceMoveTicks;
 
         copy.position = position.copy();
         copy.rotation = rotation.copy();
@@ -174,6 +318,17 @@ public class Player {
         copy.crouchModifier = crouchModifier;
         copy.rotation = rotation;
         copy.playerHeight = playerHeight;
+
+        copy.health = health;
+        copy.ammo = ammo;
+        copy.dead = dead;
+        copy.kills = kills;
+
+        copy.deathTimer = deathTimer;
+        copy.reloadTime = reloadTime;
+        copy.lastShot = lastShot;
+        copy.ping = ping;
+        copy.killer = killer;
 
         return copy;
     }

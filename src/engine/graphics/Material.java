@@ -52,6 +52,8 @@ public class Material {
     // PLAYER
 
     public static final Material PLAYER_MODEL = new Material("/textures/player/player_model.png");
+    public static final Material PLAYER_MODEL_RED = new Material("/textures/player/player_model_red.png");
+    public static final Material PLAYER_MODEL_BLUE = new Material("/textures/player/player_model_blue.png");
     // WEAPONS
 
     public static final Material WPN_ACP_9_DEFAULT = new Material("/textures/weapons/acp_9_default.png");

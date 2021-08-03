@@ -36,7 +36,7 @@ public class Scene {
     protected static GameObject skybox;
 
     public static Map<String, GameObject> playerObjects = new HashMap<>();
-    private static ConcurrentLinkedQueue<String> playerAddBuffer = new ConcurrentLinkedQueue<>();
+    private static ConcurrentLinkedQueue<PlayerData> playerAddBuffer = new ConcurrentLinkedQueue<>();
     private static ConcurrentLinkedQueue<String> playerRemoveBuffer = new ConcurrentLinkedQueue<>();
 
     private static SceneLoader loader;
@@ -49,6 +49,7 @@ public class Scene {
 
     private static GameObject gunObject;
     private static GameObject gunMuzzleFlash;
+    private static GameObject cubeObject;
 
     public Scene() {
 
@@ -81,10 +82,10 @@ public class Scene {
         }
 
         for (int i = 0; i < playerAddBuffer.size(); i++) {
-            String uuid = playerAddBuffer.poll();
-            GameObject object = new GameObject(new Vector3f(0, 0, 0), MeshLoader.loadModel("player.obj", Material.PLAYER_MODEL));
+            PlayerData player = playerAddBuffer.poll();
+            GameObject object = new GameObject(new Vector3f(0, 0, 0), MeshLoader.loadModel("player.obj", player.team == 0 ? Material.PLAYER_MODEL_RED : Material.PLAYER_MODEL_BLUE));
             addObject(object);
-            playerObjects.put(uuid, object);
+            playerObjects.put(player.uuid, object);
         }
 
         for (int i = 0; i < playerRemoveBuffer.size(); i++) {
@@ -129,26 +130,16 @@ public class Scene {
         PlayerMovement.addCollisionComponent(c);
     }
 
-    public static void addBlock(BlockComponent block) {
-        addObject(block.getObject());
-        PlayerMovement.addCollisionComponent(block);
-    }
+    private static class PlayerData {
 
-    public static void addRamp(RampComponent ramp) {
-        addObject(ramp.getObject());
-        PlayerMovement.addCollisionComponent(ramp);
-    }
+        public String uuid;
+        public int team;
 
-    public static void addBlock(Vector3f a, Vector3f b, Vector3f c, float height, Material material) {
-        BlockComponent blockComponent = new BlockComponent(a, b, c, height, material);
-        addObject(blockComponent.getObject());
-        PlayerMovement.addCollisionComponent(blockComponent);
-    }
+        public PlayerData(String uuid, int team) {
+            this.uuid = uuid;
+            this.team = team;
+        }
 
-    public static void addRamp(Vector3f a, Vector3f b, Vector3f c, float height, int direction, Material material) {
-        RampComponent rampComponent = new RampComponent(a, b, c, height, direction, material);
-        addObject(rampComponent.getObject());
-        PlayerMovement.addCollisionComponent(rampComponent);
     }
 
     public static GameObject addObject(GameObject object) {
@@ -161,8 +152,10 @@ public class Scene {
         object.unload();
     }
 
-    public static void addBufferedPlayer(String uuid) {
-        playerAddBuffer.add(uuid);
+    public static void addBufferedPlayer(String uuid, int team) {
+        if (!playerObjects.containsKey(uuid)) {
+            playerAddBuffer.add(new PlayerData(uuid, team));
+        }
     }
 
     public static void removePlayer(String uuid) {

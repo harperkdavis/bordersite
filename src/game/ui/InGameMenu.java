@@ -7,17 +7,18 @@ import engine.math.Mathf;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import engine.math.Vector4f;
 import engine.objects.GameObject;
+import engine.objects.camera.Camera;
 import game.PlayerMovement;
 import game.ui.text.UiText;
 import main.Main;
 import net.ClientHandler;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static game.ui.UserInterface.p;
@@ -36,8 +37,11 @@ public class InGameMenu extends Menu {
 
     private Queue<MessageData> bufferedChatMessages = new ConcurrentLinkedQueue<>();
 
-    private GameObject healthIcon, ammoIcon, timeIcon, killsIcon;
-    private UiText healthText, ammoText, timeText, killsText;
+    private GameObject healthIcon, ammoIcon, timeIcon, killsIcon, redFlagIcon, blueFlagIcon;
+    private UiText healthText, ammoText;
+
+    private static UiText timeText, killsText, redScoreText, blueScoreText;
+    private static UiText deadText, deathMessageText;
 
     @Override
     public void init() {
@@ -51,11 +55,25 @@ public class InGameMenu extends Menu {
         timeIcon = addObject(new GameObject(screen(0.025f, 0.05f, 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.5f, 0), new Vector2f(0.75f, 0.25f))));
         killsIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(18), 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.75f, 0), new Vector2f(1.0f, 0.25f))));
 
+        redFlagIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(36), 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.0f, 0.25f), new Vector2f(0.25f, 0.5f))));
+        blueFlagIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(54), 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.0f, 0.25f), new Vector2f(0.25f, 0.5f))));
+
+        redFlagIcon.setColor(210.0f / 256.0f, 41.0f / 256.0f, 45.0f / 256.0f, 1);
+        blueFlagIcon.setColor(23.0f / 256.0f, 97.0f / 256.0f, 176.0f / 256.0f, 1);
+
         healthText = (UiText) addObject(new UiText(screen(1.8f + p(8), 1.95f - p(8), 4), "200"));
         ammoText = (UiText) addObject(new UiText(screen(1.9f + p(8), 1.95f - p(8), 4), "30"));
         timeText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f - p(8), 4), "0:00"));
         killsText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(10), 4), "0 Kills"));
 
+        redScoreText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(28), 4), "0"));
+        blueScoreText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(46), 4), "0"));
+
+        redScoreText.setColor(210.0f / 256.0f, 41.0f / 256.0f, 45.0f / 256.0f, 1);
+        blueScoreText.setColor(23.0f / 256.0f, 97.0f / 256.0f, 176.0f / 256.0f, 1);
+
+        deadText = (UiText) addObject(new UiText(screen(0.5f - p(16), 1 - p(12), 4), "You have died."));
+        deathMessageText = (UiText) addObject(new UiText(screen(0.5f - p(16), 1, 4), "Killed By: NONE"));
     }
 
     @Override
@@ -64,7 +82,19 @@ public class InGameMenu extends Menu {
         crosshair.setColor(1, 1, 1, crosshairTransparency);
 
         healthText.setText((int) PlayerMovement.getHealth() + "");
+        float hp = PlayerMovement.getHealth() / 200.0f;
+        healthText.setColor(Mathf.lerp(0, 1, hp + 0.4f), Mathf.lerp(0, 1, hp), Mathf.lerp(1, 0, (1 - hp * hp)), 1);
         ammoText.setText(PlayerMovement.getAmmo() + "");
+
+        deadText.setVisible(PlayerMovement.isDead());
+        deathMessageText.setVisible(PlayerMovement.isDead());
+
+        crosshair.setVisible(!PlayerMovement.isDead());
+        healthText.setVisible(!PlayerMovement.isDead());
+        healthIcon.setVisible(!PlayerMovement.isDead());
+        ammoText.setVisible(!PlayerMovement.isDead());
+        ammoIcon.setVisible(!PlayerMovement.isDead());
+
         if (PlayerMovement.getReloadTime() > 0) {
             ammoText.setColor(0.5f, 0.5f, 0.5f, 1);
         } else {
@@ -75,12 +105,13 @@ public class InGameMenu extends Menu {
             }
         }
 
+
         updateChat();
     }
 
     public void updateChat() {
 
-        if (bufferedChatMessages.size() > 0) {
+        while (bufferedChatMessages.size() > 0) {
             MessageData m = bufferedChatMessages.poll();
             messages.add((ChatMessage) addObject(new ChatMessage(m.message, m.red, m.green, m.blue)));
         }
@@ -128,6 +159,30 @@ public class InGameMenu extends Menu {
     @Override
     public void unload() {
 
+    }
+
+    public static UiText getTimeText() {
+        return timeText;
+    }
+
+    public static UiText getKillsText() {
+        return killsText;
+    }
+
+    public static UiText getRedScoreText() {
+        return redScoreText;
+    }
+
+    public static UiText getBlueScoreText() {
+        return blueScoreText;
+    }
+
+    public static UiText getDeadText() {
+        return deadText;
+    }
+
+    public static UiText getDeathMessageText() {
+        return deathMessageText;
     }
 
     public void addBufferedChatMessage(String text, float r, float g, float b) {

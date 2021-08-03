@@ -200,4 +200,9 @@ public class UserInterface {
     public static float getNormMouseY() {
         return 1.0f - (Window.getHeight() / 2.0f - (float) Input.getMouseY()) / (Window.getHeight() / 2.0f);
     }
+
+    // returns null if behind camera
+    // public static Vector3f worldToScreen(Vector3f vector) {
+
+    // }
 }

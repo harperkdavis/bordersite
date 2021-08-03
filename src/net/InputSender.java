@@ -30,12 +30,7 @@ public class InputSender extends TimerTask {
 
     @Override
     public void run() {
-
         subtick++;
-        PlayerMovement.applyMovement(prevInputs, Input.getKeybindList());
-        addPending(new InputState(prevInputs, Input.getKeybindList(), PlayerMovement.getCameraRotation(), 2.0f / 1000.0f, getInputSequence()));
-        incrementSequence();
-        prevInputs = Input.getKeybindList();
 
         if (subtick >= 10) {
             ArrayList<InputSnapshot> inputSnapshotsList = new ArrayList<>();
@@ -45,11 +40,17 @@ public class InputSender extends TimerTask {
             UserInputPacket userInputPacket = new UserInputPacket(inputSnapshotsList, inputSequence);
             ClientHandler.client.sendUDP(userInputPacket);
             subtick = 0;
+            tick++;
         }
+
+        PlayerMovement.applyMovement(prevInputs, Input.getKeybindList(), false);
+        addPending(new InputState(prevInputs, Input.getKeybindList(), PlayerMovement.getCameraRotation(), 2.0f / 1000.0f, getInputSequence()));
+        incrementSequence();
+        prevInputs = Input.getKeybindList();
     }
 
     public static void addInput(ArrayList<String> inputs, Vector3f cameraRotation) {
-        tickInputs.add(new InputSnapshot(inputs, cameraRotation, subtick));
+        tickInputs.add(new InputSnapshot(inputs, cameraRotation, PlayerMovement.getForward(), subtick));
     }
 
     public static void reset(int tick) {

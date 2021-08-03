@@ -377,7 +377,7 @@ public class MainRenderer {
 
             forwardShader.setUniform("ambientLight", ambientLight.times(1.5f));
             forwardShader.setUniform("directionalLight", Scene.directionalLight);
-            forwardShader.setUniform("cameraRotation", Matrix4f.rotation(PlayerMovement.getCameraRotation()));
+            forwardShader.setUniform("cameraRotation", Matrix4f.rotation(PlayerMovement.getFullRotation()));
 
             viewmodelRender(forwardShader, Scene.getGunObject());
 

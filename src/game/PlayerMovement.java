@@ -1,20 +1,29 @@
 package game;
 
+import com.esotericsoftware.kryonet.Client;
 import engine.audio.AudioBuffer;
 import engine.audio.AudioMaster;
 import engine.audio.AudioSource;
 import engine.audio.SoundEffect;
 import engine.collision.Collision;
+import engine.components.BlockComponent;
 import engine.components.Component;
+import engine.graphics.Material;
+import engine.graphics.mesh.MeshBuilder;
 import engine.io.Input;
 import engine.io.Window;
 import engine.math.*;
+import engine.objects.GameObject;
 import engine.objects.camera.Camera;
+import engine.objects.camera.OrbitCamera;
 import engine.objects.camera.PerspectiveCamera;
 import game.scene.Scene;
+import game.ui.InGameMenu;
 import main.Main;
 import net.ClientHandler;
 import net.InputSender;
+import net.event.DeathEvent;
+import net.event.RespawnEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +32,7 @@ import java.util.Random;
 public class PlayerMovement {
 
     private static PerspectiveCamera camera = new PerspectiveCamera(Vector3f.zero(), Vector3f.zero(), 80.0f);
+    private static OrbitCamera deathCamera = new OrbitCamera(Vector3f.zero(), Vector3f.zero(), 80.0f);
 
     private static Vector3f correctionOffset = new Vector3f(0, 0, 0), position = new Vector3f(0, 0.5f, 0);
     private static Vector3f cameraRotation = new Vector3f(0, 0, 0);
@@ -38,6 +48,9 @@ public class PlayerMovement {
     private static final boolean hasCameraControl = true;
 
     private static float health = 200;
+    private static boolean dead = false;
+    private static float deathTimer = 0;
+    private static Player killer = null;
 
     private static float preMouseX = 0, preMouseY = 0;
 
@@ -58,6 +71,7 @@ public class PlayerMovement {
     private static Vector3f gunPos = hipfirePos.copy();
     private static Vector3f gunRecoil = Vector3f.zero(), cameraRecoil = Vector3f.zero();
     private static int ammo = 30;
+    private static int kills = 0;
 
     private static float shotAnimation = 0, reloadTime = 0;
     private static AudioSource gunshotSourceA, gunshotSourceB;
@@ -76,6 +90,9 @@ public class PlayerMovement {
     }
 
     public static void updateCamera() {
+        if (dead) {
+            return;
+        }
 
         float mouseX = (float) Input.getMouseX();
         float mouseY = (float) Input.getMouseY();
@@ -100,8 +117,8 @@ public class PlayerMovement {
 
             camera.setRotation(cameraRotation.plus(cameraRecoil));
 
-            if (!(accX == 0 && accY == 0)) {
-                InputSender.addInput(Input.getKeybindList(), cameraRotation);
+            if (!(accX == 0 && accY == 0) || cameraRecoil.magnitude() > 0.001f) {
+                InputSender.addInput(Input.getKeybindList(), camera.getRotation());
             }
 
             float gunShake = MOUSE_SENSITIVITY * 0.01f * (isAiming ? 0.2f : 1.0f);
@@ -113,7 +130,10 @@ public class PlayerMovement {
         preMouseY = mouseY;
     }
 
-    public static void applyMovement(List<String> prevInputs, List<String> inputs) {
+    public static void applyMovement(List<String> prevInputs, List<String> inputs, boolean recon) {
+        if (dead) {
+            return;
+        }
 
         if (isGrounded) {
             velY = 0;
@@ -183,54 +203,66 @@ public class PlayerMovement {
 
         playerHeight = Mathf.lerp(playerHeight, 1.5f - crouchModifier * 0.5f, 0.02f);
 
+        if (!recon) {
+            if (shotAnimation > 0) {
+                float inversePower = 1 - (1 - shotAnimation) * (1 - shotAnimation);
+                Scene.getGunMuzzleFlash().setScale(new Vector3f(1, 1, -1).multiply(inversePower));
+                Scene.getGunMuzzleFlash().setColor(1, inversePower, inversePower, inversePower);
+                shotAnimation -= 40.0f / 1000.0f;
+            } else {
+                Scene.getGunMuzzleFlash().setVisible(false);
+            }
+            float time = InputSender.getTick() + InputSender.getSubtick() / 10.0f;
+            if (reloadTime <= 0) {
+                if (Input.isKeybindDown("reload") && ammo < 30) {
+                    reloadTime = 3.0f;
+                    AudioMaster.playSound(SoundEffect.ACP_9_RELOAD);
+                }
+                if (Input.isKeybindDown("shoot") && ammo <= 0) {
+                    AudioMaster.playSound(SoundEffect.EMPTY);
+                }
+                if (Input.isKeybind("shoot") && time - lastShot >= 2.8f) {
+                    clientShoot();
+                    lastShot = time;
+                }
+            } else {
+                reloadTime -= 2.0f / 1000.0f;
+                if (reloadTime <= 0) {
+                    ammo = 30;
+                }
+            }
+            cameraRecoil = Vector3f.lerp(cameraRecoil, gunRecoil, 0.04f);
+            gunRecoil = Vector3f.lerp(gunRecoil, Vector3f.zero(), 0.02f);
+
+            gunPos.add(new Vector3f(-velX, -velY * 2.0f, -velZ).multiply(isAiming ? 0.2f : 0.4f));
+
+            gunPos = Vector3f.lerp(gunPos, (isAiming ? aimPos : hipfirePos).minus(0, reloadTime > 0 ? 1 : 0, 0), 0.025f);
+            Scene.setGunPosition(gunPos);
+        }
+
     }
 
     public static void updateCameraExtra() {
         cameraTilt = Mathf.lerpdt(cameraTilt, (velocityRight - velocityLeft) * 4.0f * (1.0f + crouchModifier), 0.01f);
 
         camera.setFov(Mathf.lerpdt(camera.getFov(), 80.0f + 8.0f * sprintModifier - (isAiming ? 20.0f : 0.0f), 0.02f));
-    }
 
-    private static long lastShot = 0;
-
-    public static void updateGun() {
-        if (shotAnimation > 0) {
-            float inversePower = 1 - (1 - shotAnimation) * (1 - shotAnimation);
-            Scene.getGunMuzzleFlash().setScale(new Vector3f(1, 1, -1).multiply(inversePower));
-            Scene.getGunMuzzleFlash().setColor(1, inversePower, inversePower, inversePower);
-            shotAnimation -= Main.getDeltaTime() * 20;
-        } else {
-            Scene.getGunMuzzleFlash().setVisible(false);
+        if (dead) {
+            Vector3f orbitFocus = position.copy();
+            if (killer != null) {
+                GameObject killerObject = Scene.getPlayer(killer.getUuid());
+                if (killerObject != null) {
+                    orbitFocus = killerObject.getPosition();
+                }
+            }
+            deathCamera.setCenter(orbitFocus.plus(0, 2, 0));
+            deathCamera.setPosition(new Vector3f(orbitFocus.getX() + (float) Math.cos(Main.getElapsedTime() / 5000.0f) * 2.0f, orbitFocus.getY() + 4,orbitFocus.getZ() + (float) Math.sin(Main.getElapsedTime() / 5000.0f) * 2.0f));
         }
 
-        if (reloadTime <= 0) {
-            if (Input.isKeybindDown("reload") && ammo < 30) {
-                reloadTime = 4.0f;
-                AudioMaster.playSound(SoundEffect.ACP_9_RELOAD);
-            }
-            if (Input.isKeybindDown("shoot") && ammo <= 0) {
-                AudioMaster.playSound(SoundEffect.EMPTY);
-            }
-            if (Input.isKeybind("shoot") && System.currentTimeMillis() - lastShot > 55) {
-                clientShoot();
-                lastShot = System.currentTimeMillis();
-            }
-        } else {
-            reloadTime -= Main.getDeltaTime();
-            if (reloadTime <= 0) {
-                ammo = 30;
-            }
-        }
-        cameraRecoil = Vector3f.lerpdt(cameraRecoil, gunRecoil, 0.001f);
-        gunRecoil = Vector3f.lerpdt(gunRecoil, Vector3f.zero(), 0.1f);
-
-        gunPos.add(new Vector3f(-velX, -velY * 2.0f, -velZ).multiply(isAiming ? 0.2f : 0.4f));
-
-        gunPos = Vector3f.lerpdt(gunPos, (isAiming ? aimPos : hipfirePos).minus(0, reloadTime > 0 ? 1 : 0, 0), 0.025f);
-        Scene.setGunPosition(gunPos);
-
-
     }
+
+    private static float lastShot = 0;
+
 
     public static void update() {
 
@@ -239,8 +271,11 @@ public class PlayerMovement {
         }
 
         updateCameraExtra();
-        updateGun();
 
+        if (dead) {
+            InGameMenu.getDeadText().setText("You have died! Respawn in " + Math.round(deathTimer) + " seconds");
+            InGameMenu.getDeathMessageText().setText("Killed by " + killer.getUsername() + " (" + (killer.getKills() + 1) + " kills)");
+        }
 
         correctionOffset = Vector3f.lerpdt(correctionOffset, Vector3f.zero(), 1000.0f);
         camera.setPosition(Vector3f.add(position, new Vector3f(0, playerHeight, 0)).plus(correctionOffset));
@@ -262,21 +297,113 @@ public class PlayerMovement {
                 gunshotSourceB.play();
             }
             gunshotSource = !gunshotSource;
+
             Random recoil = new Random();
-            float recoilModifier = (isAiming ? 0.5f : 1.0f) * 4.0f;
+            float recoilModifier = (isAiming ? 0.5f : 1.0f) * 6.0f;
             gunRecoil.add((1.0f + recoil.nextFloat() * 0.1f) * recoilModifier, recoil.nextFloat() * 0.5f * recoilModifier, 0);
             ammo--;
+
+            // client side shooter
+            Vector3f start = camera.getPosition(), end = start.plus(getForward().times(100));
+            for (Player player : ClientHandler.getPreviousState().getPlayers()) {
+                if (player.getPlayerId() == ClientHandler.getPlayerId() || (player.isDead() || player.getTeam() == ClientHandler.getTeam())) {
+                    continue;
+                }
+                GameObject playerObject = Scene.getPlayer(player.getUuid());
+                if (playerObject == null || !playerObject.isVisible()) {
+                    continue;
+                }
+                Vector3f lagPosition = Scene.getPlayer(player.getUuid()).getPosition();
+
+                Vector3f headHitbox = Mathf.rayCylinder(start, end, lagPosition.plus(0, 1.5f, 0).plus(0,0.5f, 0), PLAYER_RADIUS * 0.5f, 0.4f);
+                Vector3f torsoHitbox = Mathf.rayCylinder(start, end, lagPosition.plus(0, 0.8f, 0).plus(0,0.5f, 0), PLAYER_RADIUS * 1.2f, 0.7f);
+                Vector3f legsHitbox = Mathf.rayCylinder(start, end, lagPosition.plus(0,0.5f, 0), PLAYER_RADIUS, 0.8f);
+
+                Vector3f point = null;
+                int hitType = -1;
+                float minDistance = Float.MAX_VALUE;
+                if (torsoHitbox != null) {
+                    point = torsoHitbox.copy();
+                    minDistance = Vector3f.distance(start, point);
+                    hitType = 0;
+                }
+                if (legsHitbox != null) {
+                    float distance = Vector3f.distance(start, legsHitbox);
+                    if (distance < minDistance) {
+                        point = legsHitbox.copy();
+                        minDistance = distance;
+                        hitType = 1;
+                    }
+                }
+                if (headHitbox != null) {
+                    float distance = Vector3f.distance(start, headHitbox);
+                    if (distance < minDistance) {
+                        point = headHitbox.copy();
+                        minDistance = distance;
+                        hitType = 2;
+                    }
+                }
+
+                if (point != null) { // HIT!
+                    boolean hitWall = false;
+                    for (Component component : colliders) {
+                        Vector3f raycastPoint = component.getRaycast(start, end);
+                        if (raycastPoint != null) {
+                            if (Vector3f.distance(start, raycastPoint) < minDistance) {
+                                hitWall = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (hitWall) {
+                        continue;
+                    }
+
+                    if (hitType == 2) {
+                        AudioMaster.playSound(SoundEffect.SHOT_HEADSHOT);
+                    } else {
+                        AudioMaster.playSound(SoundEffect.SHOT_HIT);
+                    }
+                }
+            }
+
         }
     }
 
-    public static void clientDead() {
-
+    public static void clientDead(DeathEvent deathEvent) {
+        dead = true;
+        health = 0;
+        PlayerMovement.killer = deathEvent.getSource();
+        Camera.setActiveCamera(deathCamera);
     }
 
+    public static void clientAlive(RespawnEvent event) {
+        dead = false;
+        health = 200;
+        cameraRotation = event.getRespawned().getRotation();
+        Camera.setActiveCamera(camera);
+    }
 
+    public static float getDeathTimer() {
+        return deathTimer;
+    }
+
+    public static void setDeathTimer(float deathTimer) {
+        PlayerMovement.deathTimer = deathTimer;
+    }
+
+    public static int getKills() {
+        return kills;
+    }
+
+    public static void setKills(int kills) {
+        PlayerMovement.kills = kills;
+    }
 
     public static void applyPlayer(Player player) {
         position = player.position;
+
+        health = player.getHealth();
 
         velX = player.velX;
         velY = player.velY;
@@ -295,6 +422,7 @@ public class PlayerMovement {
 
         sprintModifier = player.sprintModifier;
         crouchModifier = player.crouchModifier;
+
     }
 
     public static float getRecoil() {
@@ -314,8 +442,29 @@ public class PlayerMovement {
         return position;
     }
 
+    public static Vector3f getForward() {
+        Matrix4f inverseView = Matrix4f.inverse(camera.getViewMatrix());
+        if (inverseView != null) {
+            return new Vector3f(inverseView.get(2, 0), inverseView.get(2, 1), inverseView.get(2, 2)).normalize().multiply(-1);
+        } else {
+            return Vector3f.zero();
+        }
+    }
+
+    public static boolean isDead() {
+        return dead;
+    }
+
     public static Vector3f getCameraRotation() {
         return cameraRotation;
+    }
+
+    public static Vector3f getCameraRecoil() {
+        return cameraRecoil;
+    }
+
+    public static Vector3f getFullRotation() {
+        return cameraRotation.plus(cameraRecoil);
     }
 
     public static void setCameraRotation(Vector3f cameraRotation) {
@@ -356,6 +505,14 @@ public class PlayerMovement {
 
     public static int getAmmo() {
         return ammo;
+    }
+
+    public static void setAmmo(int ammo) {
+        PlayerMovement.ammo = ammo;
+    }
+
+    public static Player getKiller() {
+        return killer;
     }
 
     public static float getReloadTime() {
