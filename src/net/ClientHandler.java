@@ -42,7 +42,7 @@ public class ClientHandler {
     private static boolean hasSentConnectedPacket = false;
 
     private static final ConcurrentMap<Packet, Float> fakeLagPacketBuffer = new ConcurrentHashMap<>();
-    protected static final boolean FAKE_LAG = true;
+    protected static final boolean FAKE_LAG = false;
     protected static float FAKE_LAG_MS = 100;
 
     public static InputSender inputSender;
