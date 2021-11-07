@@ -19,6 +19,7 @@ import engine.objects.camera.OrbitCamera;
 import engine.objects.camera.PerspectiveCamera;
 import game.scene.Scene;
 import game.ui.InGameMenu;
+import main.Global;
 import main.Main;
 import net.ClientHandler;
 import net.InputSender;
@@ -102,8 +103,9 @@ public class PlayerMovement {
             float accX = mouseX - preMouseX;
             float accY = mouseY - preMouseY;
 
-            float MOUSE_SENSITIVITY = 0.04f;
-            cameraRotation = cameraRotation.add(-accY * MOUSE_SENSITIVITY, -accX * MOUSE_SENSITIVITY, 0);
+            float xSens = 0.04f * Global.MOUSE_SENSITIVITY_X * (Global.MOUSE_INVERT_X ? -1 : 1);
+            float ySens = 0.04f * Global.MOUSE_SENSITIVITY_Y * (Global.MOUSE_INVERT_Y ? -1 : 1);
+            cameraRotation = cameraRotation.add(-accY * xSens, -accX * ySens, 0);
 
             if (cameraRotation.getX() > 89) {
                 cameraRotation.setX(89);
@@ -121,7 +123,7 @@ public class PlayerMovement {
                 InputSender.addInput(Input.getKeybindList(), camera.getRotation());
             }
 
-            float gunShake = MOUSE_SENSITIVITY * 0.01f * (isAiming ? 0.2f : 1.0f);
+            float gunShake = 0.04f * 0.01f * (isAiming ? 0.2f : 1.0f) * xSens;
             gunPos.add(accX * gunShake, accY * gunShake, 0);
 
         }
@@ -206,11 +208,11 @@ public class PlayerMovement {
         if (!recon) {
             if (shotAnimation > 0) {
                 float inversePower = 1 - (1 - shotAnimation) * (1 - shotAnimation);
-                Scene.getGunMuzzleFlash().setScale(new Vector3f(1, 1, -1).multiply(inversePower));
-                Scene.getGunMuzzleFlash().setColor(1, inversePower, inversePower, inversePower);
+                Scene.getGameScene().getGunMuzzleFlash().setScale(new Vector3f(1, 1, -1).multiply(inversePower));
+                Scene.getGameScene().getGunMuzzleFlash().setColor(1, inversePower, inversePower, inversePower);
                 shotAnimation -= 40.0f / 1000.0f;
             } else {
-                Scene.getGunMuzzleFlash().setVisible(false);
+                Scene.getGameScene().getGunMuzzleFlash().setVisible(false);
             }
             float time = InputSender.getTick() + InputSender.getSubtick() / 10.0f;
             if (reloadTime <= 0) {
@@ -237,20 +239,19 @@ public class PlayerMovement {
             gunPos.add(new Vector3f(-velX, -velY * 2.0f, -velZ).multiply(isAiming ? 0.2f : 0.4f));
 
             gunPos = Vector3f.lerp(gunPos, (isAiming ? aimPos : hipfirePos).minus(0, reloadTime > 0 ? 1 : 0, 0), 0.025f);
-            Scene.setGunPosition(gunPos);
+            Scene.getGameScene().setGunPosition(gunPos);
         }
 
     }
 
     public static void updateCameraExtra() {
-        cameraTilt = Mathf.lerpdt(cameraTilt, (velocityRight - velocityLeft) * 4.0f * (1.0f + crouchModifier), 0.01f);
 
         camera.setFov(Mathf.lerpdt(camera.getFov(), 80.0f + 8.0f * sprintModifier - (isAiming ? 20.0f : 0.0f), 0.02f));
 
         if (dead) {
             Vector3f orbitFocus = position.copy();
             if (killer != null) {
-                GameObject killerObject = Scene.getPlayer(killer.getUuid());
+                GameObject killerObject = Scene.getGameScene().getPlayer(killer.getUuid());
                 if (killerObject != null) {
                     orbitFocus = killerObject.getPosition();
                 }
@@ -266,7 +267,7 @@ public class PlayerMovement {
 
     public static void update() {
 
-        if (!Scene.isLoaded() || !ClientHandler.hasRegisteredTeam()) {
+        if (!Scene.isGameSceneLoaded() || !ClientHandler.hasRegisteredTeam()) {
             return;
         }
 
@@ -285,10 +286,10 @@ public class PlayerMovement {
         if (ammo > 0) {
             shotAnimation = 1;
             gunPos.add(0, isAiming ? 0.001f : 0.1f, 0.2f);
-            Scene.getGunMuzzleFlash().setVisible(true);
-            Scene.getGunMuzzleFlash().setScale(new Vector3f(1, 1, -1).times(0.5f));
-            Scene.getGunMuzzleFlash().setColor(1, 1, 1, 1);
-            Scene.getGunMuzzleFlash().setRotation(new Vector3f(0, 0, new Random().nextFloat() * 720));
+            Scene.getGameScene().getGunMuzzleFlash().setVisible(true);
+            Scene.getGameScene().getGunMuzzleFlash().setScale(new Vector3f(1, 1, -1).times(0.5f));
+            Scene.getGameScene().getGunMuzzleFlash().setColor(1, 1, 1, 1);
+            Scene.getGameScene().getGunMuzzleFlash().setRotation(new Vector3f(0, 0, new Random().nextFloat() * 720));
             if (gunshotSource) {
                 gunshotSourceA.setPitch(0.95f + new Random().nextFloat() * 0.1f);
                 gunshotSourceA.play();
@@ -309,11 +310,11 @@ public class PlayerMovement {
                 if (player.getPlayerId() == ClientHandler.getPlayerId() || (player.isDead() || player.getTeam() == ClientHandler.getTeam())) {
                     continue;
                 }
-                GameObject playerObject = Scene.getPlayer(player.getUuid());
+                GameObject playerObject = Scene.getGameScene().getPlayer(player.getUuid());
                 if (playerObject == null || !playerObject.isVisible()) {
                     continue;
                 }
-                Vector3f lagPosition = Scene.getPlayer(player.getUuid()).getPosition();
+                Vector3f lagPosition = Scene.getGameScene().getPlayer(player.getUuid()).getPosition();
 
                 Vector3f headHitbox = Mathf.rayCylinder(start, end, lagPosition.plus(0, 1.5f, 0).plus(0,0.5f, 0), PLAYER_RADIUS * 0.5f, 0.4f);
                 Vector3f torsoHitbox = Mathf.rayCylinder(start, end, lagPosition.plus(0, 0.8f, 0).plus(0,0.5f, 0), PLAYER_RADIUS * 1.2f, 0.7f);

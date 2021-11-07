@@ -85,9 +85,17 @@ public class GameObject {
     }
 
     public void setParent(GameObject parent) {
-        this.parent = parent;
-        this.parent.children.add(this);
-        transform.setLocals(parent.getTransform());
+        if (parent != this && parent != null) {
+            this.parent = parent;
+            if (!this.parent.children.contains(this)) {
+                this.parent.children.add(this);
+            } else {
+                System.out.println("tried to add already existing child");
+            }
+            // transform.setLocals(parent.getTransform());
+        } else {
+            System.out.println("tried to add self");
+        }
     }
 
     public void addChild(GameObject child) {
@@ -195,6 +203,9 @@ public class GameObject {
     }
 
     public boolean isVisible() {
+        if (parent != null) {
+            return parent.isVisible() && visible;
+        }
         return visible;
     }
 

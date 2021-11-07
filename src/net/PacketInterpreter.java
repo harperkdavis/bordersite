@@ -8,6 +8,7 @@ import game.Player;
 import game.PlayerMovement;
 import game.scene.Scene;
 import game.ui.InGameMenu;
+import game.ui.MainMenu;
 import net.event.*;
 import net.packets.Packet;
 import net.packets.client.PongPacket;
@@ -19,14 +20,22 @@ public class PacketInterpreter {
 
     public static void interpret(Packet packet) {
 
-        if (packet instanceof ConnectionReceivedPacket) {
+        if (packet instanceof ConnectionAcceptedPacket) {
             System.out.println("[PACKET] Incoming packet with type: " + packet.getPacketType());
             packet.printData();
-            ConnectionReceivedPacket crp = (ConnectionReceivedPacket) packet;
+            ConnectionAcceptedPacket crp = (ConnectionAcceptedPacket) packet;
             ClientHandler.serverRegistered = true;
             ClientHandler.playerId = crp.getPlayerId();
-            Camera.setActiveCamera(Scene.getOrbitCamera());
+            Scene.createGameScene();
+            Scene.setActiveScene(Scene.getGameScene());
+            Camera.setActiveCamera(Scene.getGameScene().getOrbitCamera());
             System.out.println("[INFO] Connected to server! Player Id: " + crp.getPlayerId());
+        } else if (packet instanceof ConnectionDeniedPacket) {
+            System.out.println("[PACKET] Incoming packet with type: " + packet.getPacketType());
+            packet.printData();
+            ConnectionDeniedPacket crp = (ConnectionDeniedPacket) packet;
+            ClientHandler.reset();
+            MainMenu.connectResult.setText("Connection Failed: " + crp.getReason());
         } else if (packet instanceof ChatPacket) {
             System.out.println("[PACKET] Incoming packet with type: " + packet.getPacketType());
             packet.printData();
@@ -76,7 +85,7 @@ public class PacketInterpreter {
     }
 
     private static void handlePlayerRemovePacket(PlayerRemovePacket packet) {
-        Scene.removePlayer(packet.getPlayerUUID());
+        Scene.getGameScene().removePlayer(packet.getPlayerUUID());
     }
 
     private static void handleWorldStatePacket(WorldStatePacket packet) {
@@ -154,7 +163,7 @@ public class PacketInterpreter {
     }
 
     private static void addPlayer(String uuid, String username, int team) {
-        Scene.addBufferedPlayer(uuid, team);
+        Scene.getGameScene().addBufferedPlayer(uuid, team);
     }
 
     private static void handlePingRequestPacket(PingRequestPacket packet) {

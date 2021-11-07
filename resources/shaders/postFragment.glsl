@@ -70,7 +70,5 @@ void main() {
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
     mapped = pow(mapped, vec3(1.0 / gamma));
 
-    float vignette = (pow(vertexUV.x - 0.5, 2) + pow(vertexUV.y - 0.5, 2)) + 1;
-
-    fragColor = vec4(mapped / vec3(vignette), 1.0);
+    fragColor = vec4(mapped, 1.0);
 }

@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
+import org.lwjglx.opengl.Display;
 
 public class Window {
 
@@ -66,6 +67,8 @@ public class Window {
         GLFW.glfwWindowHint(GLFW.GLFW_REFRESH_RATE, 0);
         GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 4);
+
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
 
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -153,6 +156,18 @@ public class Window {
         setFullscreen(!fullscreen);
     }
 
+    public static void resize(int width, int height) {
+        isResized = true;
+        Window.width = width;
+        Window.height = height;
+        if (fullscreen) {
+            GLFW.glfwGetWindowPos(window, windowPosX, windowPosY);
+            GLFW.glfwSetWindowMonitor(window, GLFW.glfwGetPrimaryMonitor(), 0, 0, Window.width, Window.height, -1);
+        } else {
+            GLFW.glfwSetWindowMonitor(window, 0, windowPosX[0], windowPosY[0], Window.width, Window.height, -1);
+        }
+    }
+
     public static void setFullscreen(boolean fullscreen) {
         Window.fullscreen = fullscreen;
         isResized = true;
@@ -166,6 +181,7 @@ public class Window {
 
     public static void swapBuffers() {
         GLFW.glfwSwapBuffers(window);
+        GL11.glFlush();
     }
 
     public static boolean shouldClose() {

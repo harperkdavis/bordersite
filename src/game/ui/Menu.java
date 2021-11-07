@@ -9,9 +9,14 @@ import java.util.List;
 public abstract class Menu {
 
     protected List<GameObject> objects;
+    private boolean menuIsVisible = false;
 
     public Menu() {
         objects = new ArrayList<>();
+        initialize();
+    }
+
+    public void initialize() {
         init();
     }
 
@@ -19,6 +24,9 @@ public abstract class Menu {
     public abstract void update();
 
     public void render() {
+        if (!menuIsVisible) {
+            return;
+        }
         for (GameObject o : objects) {
             UiRenderer.render(o);
         }
@@ -26,9 +34,7 @@ public abstract class Menu {
     public abstract void unload();
 
     public void setVisible(boolean visible) {
-        for (GameObject go : objects) {
-            go.setVisible(visible);
-        }
+        menuIsVisible = visible;
     }
 
     public GameObject addObject(GameObject object) {

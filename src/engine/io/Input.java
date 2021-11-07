@@ -1,6 +1,7 @@
 package engine.io;
 
 import game.PlayerMovement;
+import game.ui.text.UiTextField;
 import main.Global;
 import net.InputSender;
 import org.lwjgl.glfw.*;
@@ -28,14 +29,13 @@ public class Input {
     private static GLFWMouseButtonCallback mouse;
     private static GLFWScrollCallback mouseScroll;
 
-    private static boolean typing = false;
-    private static boolean autowalk = false;
+    public static boolean inputsLocked = false;
 
     public static void createCallbacks() {
         keyboard = new GLFWKeyCallback() {
             @Override
             public void invoke(long window, int key, int scancode, int action, int mods) {
-                if (key > 0) {
+                if (key >= 0 && key < 348) {
                     keys[key] = (action != GLFW.GLFW_RELEASE);
                 }
             }
@@ -65,6 +65,9 @@ public class Input {
     }
 
     public static ArrayList<String> getKeybindList() {
+        if (inputsLocked) {
+            return new ArrayList<>();
+        }
         ArrayList<String> binds = new ArrayList<>();
         for (String bind : Global.keybinds.keySet()) {
             if (isKeybind(bind)) {
@@ -75,7 +78,10 @@ public class Input {
     }
 
     public static boolean isKey(int key) {
-        return keys[key];
+        if (key >= 0 && key < 348) {
+            return keys[key];
+        }
+        return false;
     }
 
     public static boolean isMouseButton(int button) {
@@ -83,7 +89,10 @@ public class Input {
     }
 
     public static boolean isKeyDown(int key) {
-        return keysDown[key];
+        if (key >= 0 && key < 348) {
+            return keysDown[key];
+        }
+        return false;
     }
 
     public static boolean isMouseButtonDown(int button) {
@@ -91,7 +100,10 @@ public class Input {
     }
 
     public static boolean isKeyUp(int key) {
-        return keysUp[key];
+        if (key >= 0 && key < 348) {
+            return keysUp[key];
+        }
+        return false;
     }
 
     public static boolean isMouseButtonUp(int button) {
@@ -193,21 +205,21 @@ public class Input {
     }
 
     public static boolean isKeybind(String keybind) {
-        if (typing) {
+        if (isTyping()) {
             return false;
         }
         return isBind(Global.keybinds.getOrDefault(keybind, ""));
     }
 
     public static boolean isKeybindDown(String keybind) {
-        if (typing) {
+        if (isTyping()) {
             return false;
         }
         return isBindDown(Global.keybinds.getOrDefault(keybind, ""));
     }
 
     public static boolean isKeybindUp(String keybind) {
-        if (typing) {
+        if (isTyping()) {
             return false;
         }
         return isBindUp(Global.keybinds.getOrDefault(keybind, ""));
@@ -249,11 +261,7 @@ public class Input {
     }
 
     public static boolean isTyping() {
-        return typing;
-    }
-
-    public static void setTyping(boolean isTyping) {
-        Input.typing = isTyping;
+        return UiTextField.activeTextField != null;
     }
 
 }

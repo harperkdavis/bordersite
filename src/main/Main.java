@@ -10,14 +10,18 @@ import engine.io.Window;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
 import game.PlayerMovement;
+import game.scene.MenuScene;
 import game.scene.Scene;
 import game.ui.UserInterface;
+import game.ui.text.UiTextField;
 import net.ClientHandler;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Random;
 
 public class Main implements Runnable {
@@ -28,98 +32,30 @@ public class Main implements Runnable {
     public boolean FULLSCREEN;
     public final String TITLE = "Bordersite";
 
-    private static String username = "Player";
-
     private static long startTime;
     private static long startTimeMillis;
     private static int elapsedTime;
     private long lastFixedUpdate;
 
-    private static String ip;
+    public static boolean requestClose = false;
 
     private static float deltaTime = 1.0f;
 
     private static boolean materialsLoaded = false;
 
+    public static final int MAJOR_VERSION = 0;
+    public static final int MINOR_VERSION = 2;
+    public static final int PATCH_VERSION = 0;
+
     public void start() {
         startTime = System.nanoTime();
         startTimeMillis = System.currentTimeMillis();
 
-        String[] resolutionOptions = new String[]{"1920x1080", "1024x576", "1280x720", "1336x768", "1600x900", "2560x1440"};
+        ConfigLoader.loadConfig();
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4,2));
-
-        panel.add(new JLabel("Resolution"));
-        JComboBox<String> res = new JComboBox<>(resolutionOptions);
-        res.setVisible(true);
-        panel.add(res);
-
-        panel.add(new JLabel("Fullscreen"));
-        JCheckBox box = new JCheckBox();
-        box.setVisible(true);
-        panel.add(box);
-
-        panel.add(new JLabel("Username"));
-        JTextField usr = new JTextField();
-        usr.setVisible(true);
-        panel.add(usr);
-
-        panel.add(new JLabel("Ip Address"));
-        JTextField ipf = new JTextField();
-        ipf.setVisible(true);
-        panel.add(ipf);
-        ipf.setText("localhost");
-
-        String[] randoms = new String[]{"Atrovel", "Famongs", "Distropertity", "Ternal", "Ankelers", "Pulappli", "Oblivia", "Tribution", "Gerrassa", "Exibillia", "Flunge", "Sinullacce", "Friness", "Hevephiny", "Excred", "Exciling", "Dumpined", "Buwheal", "Cotableat", "Litated", "Ationsoles", "Citions", "Catchibed", "Rumadle", "Diligord", "Conveyhopk", "Dropperclear", "Eefullanizess", "Cobypatachered", "Breestrass", "Wethosted", "Avorthuades", "Burgination", "Adwadiansie", "Disaplurntor", "Canous", "Morpenes", "Opcong", "Mitimigrood", "Ceallip", "Galition", "Innous", "Seiliu", "Arinterpord", "Writme", "Hasteives", "Cellordion", "Obseum", "Alerrawia", "Endency", "AbsoluteFuckingClown"};
-        Random random = new Random();
-        usr.setText(randoms[random.nextInt(50)] + random.nextInt(1000));
-
-        int result = JOptionPane.showConfirmDialog(null, panel, "\uD83C\uDFF3 Bordersite Launching... ️", JOptionPane.OK_CANCEL_OPTION);
-
-        if (result == 2 || result == -1) {
-            return;
-        }
-        if (res.getSelectedItem() != null) {
-            switch ((String) res.getSelectedItem()) {
-                case "1024x576" -> {
-                    WIDTH = 1024;
-                    HEIGHT = 576;
-                }
-                case "1280x720" -> {
-                    WIDTH = 1280;
-                    HEIGHT = 720;
-                }
-                case "1336x768" -> {
-                    WIDTH = 1336;
-                    HEIGHT = 768;
-                }
-                case "1600x900" -> {
-                    WIDTH = 1600;
-                    HEIGHT = 900;
-                }
-                case "2560x1440" -> {
-                    WIDTH = 2560;
-                    HEIGHT = 1440;
-                }
-                default -> {
-                    WIDTH = 1920;
-                    HEIGHT = 1080;
-                }
-            }
-        } else {
-            WIDTH = 1920;
-            HEIGHT = 1080;
-        }
-        FULLSCREEN = box.isSelected();
-        username = usr.getText();
-        ip = ipf.getText();
-        if (username.equals("")) {
-            username = "ThisPersonDoesntCare";
-        }
-        if (username.length() > 32) {
-            username = username.substring(0, 32);
-        }
+        WIDTH = Global.WINDOW_WIDTH;
+        HEIGHT = Global.WINDOW_HEIGHT;
+        FULLSCREEN = Global.FULLSCREEN;
 
         game = new Thread(this,"game");
         game.start();
@@ -136,7 +72,6 @@ public class Main implements Runnable {
 
         PlayerMovement.setCamera();
 
-        Scene.setActiveScene(new Scene());
         UserInterface.init(Window.getWidth(), Window.getHeight());
         Global.init();
         ClientHandler.init();
@@ -165,21 +100,16 @@ public class Main implements Runnable {
 
         MaterialLoader.initLoading();
 
-        ClientHandler.connect(ip);
-
         System.out.println("[INFO] Initialization completed!");
-
-    }
-
-    private void connect() {
-
-        Scene.getActiveScene().load();
 
     }
 
     private void disconnect() {
         ClientHandler.stopInputSender();
     }
+
+    private long updateNano = 0;
+    private long renderNano = 0;
 
     public void run() {
         init();
@@ -188,8 +118,11 @@ public class Main implements Runnable {
             long cycleBegin = System.nanoTime();
             update();
             render();
-            if (Input.isKey(GLFW.GLFW_KEY_ESCAPE) && Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT)) { break; }
+            if (Input.isKey(GLFW.GLFW_KEY_ESCAPE) && Input.isKey(GLFW.GLFW_KEY_LEFT_SHIFT) || requestClose) { break; }
             deltaTime = ((System.nanoTime() - cycleBegin) / 1000000.0f);
+
+            UserInterface.debugFrameRate.setText("Framerate: " + Window.getFPS() + " fps");
+            UserInterface.debugFrameTime.setText("Frame Time: " + deltaTime + " ms");
 
             if (Input.isKeyDown(GLFW.GLFW_KEY_F11)) {
                 Window.flipFullscreen();
@@ -199,11 +132,30 @@ public class Main implements Runnable {
     }
 
     private void update() {
+        updateNano = System.nanoTime();
+
+        long windowInputNano = System.nanoTime();
+
         Window.update();
         Input.update();
+
+        windowInputNano = System.nanoTime() - windowInputNano;
+        long uiNano = System.nanoTime();
+
+        UiTextField.update();
         UserInterface.update();
+
+        uiNano = System.nanoTime() - uiNano;
+        long clientNano = System.nanoTime();
+
         ClientHandler.update();
+
+        clientNano = System.nanoTime() - clientNano;
+        long playerNano = System.nanoTime();
+
         PlayerMovement.update();
+        playerNano = System.nanoTime() - playerNano;
+        long otherNano = System.nanoTime();
 
         boolean fixedUpdate = System.currentTimeMillis() - lastFixedUpdate >= 10;
 
@@ -211,7 +163,7 @@ public class Main implements Runnable {
             MaterialLoader.loadNext();
             if (MaterialLoader.isFinished()) {
                 materialsLoaded = true;
-                connect();
+                MenuScene.init();
             }
             return;
         }
@@ -220,21 +172,61 @@ public class Main implements Runnable {
             UserInterface.fixedUpdate();
             lastFixedUpdate = System.currentTimeMillis();
         }
-
-        Scene.getActiveScene().update();
+        if (Scene.getActiveScene() != null) {
+            Scene.getActiveScene().updateScene();
+        }
         AudioMaster.update();
+
+        otherNano = System.nanoTime() - otherNano;
+
+        updateNano = System.nanoTime() - updateNano;
+
+        NumberFormat nf = new DecimalFormat("#0.0");
+
+        String updateText = "Update Time: " + nf.format(updateNano / 1000000.0f) + " ms " + " || " +
+                "Window / Input: " + nf.format(windowInputNano / 1000000.0f) + " ms (" + nf.format(((float) windowInputNano / updateNano) * 100) + "%) || " +
+                "Ui: " + nf.format(uiNano  / 1000000.0f) + " ms (" + nf.format(((float) uiNano / updateNano) * 100) + "%) || " +
+                "Client: " + nf.format(clientNano / 1000000.0f) + " ms (" + nf.format(((float) clientNano / updateNano) * 100) + "%) || " +
+                "Player: " + nf.format(playerNano / 1000000.0f) + " ms (" + nf.format(((float) playerNano / updateNano) * 100) + "%) || " +
+                "Other: " + nf.format(otherNano / 1000000.0f) + " ms (" + nf.format(((float) otherNano / updateNano) * 100) + "%) ";
+        UserInterface.debugUpdate.setText(updateText);
 
     }
 
     private void render() {
+        renderNano = System.nanoTime();
+        long sceneNano = System.nanoTime();
 
-        if (materialsLoaded && Scene.isLoaded()) {
+        if (materialsLoaded && Scene.getActiveScene() != null && Scene.getActiveScene().isLoaded()) {
             MainRenderer.renderActiveScene();
         }
+
+        sceneNano = System.nanoTime() - sceneNano;
+
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+
+        long uiNano = System.nanoTime();
+
         UserInterface.render();
 
+        uiNano = System.nanoTime() - uiNano;
+        long extraNano = System.nanoTime();
+
         Window.swapBuffers();
+
+        extraNano = System.nanoTime() - extraNano;
+        renderNano = System.nanoTime() - renderNano;
+
+        NumberFormat nf = new DecimalFormat("#0.0");
+
+        String renderText = "Render Time: " + nf.format(renderNano / 1000000.0f) + " ms " + " || " +
+                "Scene Render: " + nf.format(sceneNano / 1000000.0f) + " ms (" + nf.format(((float) sceneNano / renderNano) * 100) + "%) || " +
+                "Ui Render: " + nf.format(uiNano / 1000000.0f) + " ms (" + nf.format(((float) uiNano / renderNano) * 100) + " %) || " +
+                "V-Sync Wait: " + nf.format(extraNano / 1000000.0f) + " ms (" + nf.format(((float) extraNano / renderNano) * 100) + "%) ||";
+
+        UserInterface.debugRender.setText(renderText);
+
+
     }
 
     private void close() {
@@ -242,8 +234,9 @@ public class Main implements Runnable {
         disconnect();
         System.out.println("[INFO] Disconnected from server");
         Window.destroy();
-
-        Scene.getActiveScene().unload();
+        if (Scene.getActiveScene() != null) {
+            Scene.getActiveScene().unload();
+        }
         UserInterface.unload();
 
         MaterialLoader.unloadAll();
@@ -281,7 +274,4 @@ public class Main implements Runnable {
         return (1000.0f / 60.0f) / deltaTime;
     }
 
-    public static String getUsername() {
-        return username;
-    }
 }

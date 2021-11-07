@@ -1,5 +1,6 @@
 package engine.graphics.render;
 
+import engine.graphics.Material;
 import engine.graphics.Shader;
 import engine.graphics.light.Fog;
 import engine.graphics.mesh.Mesh;
@@ -14,6 +15,7 @@ import engine.objects.GameObject;
 import game.PlayerMovement;
 import game.scene.Scene;
 import main.Global;
+import main.Main;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
 
@@ -25,9 +27,9 @@ public class MainRenderer {
     private static Vector3f ambientLight;
     private static Fog fog;
 
-    private static float exposure = 2.8f;
+    private static float exposure = 1.0f;
 
-    private static Shader shader, gShader, depthShader, blurShader, postShader, unlitShader, forwardShader;
+    private static Shader shader, gShader, depthShader, blurShader, postShader, unlitShader, forwardShader, ditherShader;
     protected static int depthMapFramebuffer, depthMapTexture;
 
     private static int gBuffer, rboDepth;
@@ -35,6 +37,8 @@ public class MainRenderer {
 
     private static int hdrFBO, brightBlurFBO;
     private static int hdrBuffer, hdrBrightBuffer, brightBlurBuffer;
+
+    private static int ditherFBO, dither, ditherViewFBO, ditherView;
 
     private static final int SSAO_KERNEL_SIZE = 1;
 
@@ -54,9 +58,10 @@ public class MainRenderer {
         MainRenderer.postShader = Shader.loadShader("post");
         MainRenderer.unlitShader = Shader.loadShader("unlit");
         MainRenderer.forwardShader = Shader.loadShader("forward");
+        MainRenderer.ditherShader = Shader.loadShader("dither");
 
-        ambientLight = new Vector3f(0.3f, 0.3f, 0.305f);
-        fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.002f);
+        ambientLight = new Vector3f(0.5f, 0.5f, 0.505f);
+        fog = new Fog(true, new Vector3f(0.6f, 0.6f, 0.6f),0.01f);
 
         createBuffers();
     }
@@ -172,8 +177,8 @@ public class MainRenderer {
 
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL14.GL_DEPTH_COMPONENT16, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (ByteBuffer) null);
 
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_CLAMP_TO_EDGE);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL14.GL_CLAMP_TO_EDGE);
 
@@ -241,6 +246,38 @@ public class MainRenderer {
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
+        // Dithering
+
+        ditherFBO = GL30.glGenFramebuffers();
+        dither = GL11.glGenTextures();
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ditherFBO);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, dither);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL13.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL13.GL_CLAMP_TO_EDGE);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, dither, 0);
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+        GL11.glBindTexture(GL30.GL_TEXTURE, 0);
+
+        ditherViewFBO = GL30.glGenFramebuffers();
+        ditherView = GL11.glGenTextures();
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ditherViewFBO);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, ditherView);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA16F, Window.getWidth(), Window.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL13.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL13.GL_CLAMP_TO_EDGE);
+        GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, ditherView, 0);
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+        GL11.glBindTexture(GL30.GL_TEXTURE, 0);
+
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
     }
@@ -267,7 +304,7 @@ public class MainRenderer {
         gShader.setUniform("view", view);
         gShader.setUniform("projection", projection);
 
-        for (GameObject o : Scene.objects) {
+        for (GameObject o : Scene.getActiveScene().getObjects()) {
 
             gShader.setUniform("texture_diffuse", 0);
             gShader.setUniform("texture_specular", 1);
@@ -286,6 +323,7 @@ public class MainRenderer {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         gShader.unbind();
 
+        GL11.glCullFace(GL11.GL_FRONT_AND_BACK);
         GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 
         renderWorldDepthMap();
@@ -310,8 +348,11 @@ public class MainRenderer {
         GL13.glActiveTexture(GL13.GL_TEXTURE2);
         GL13.glBindTexture(GL11.GL_TEXTURE_2D, gAlbedoSpec);
         GL13.glActiveTexture(GL13.GL_TEXTURE3);
-        GL13.glBindTexture(GL11.GL_TEXTURE_2D, depthMapTexture);
-
+        if (Scene.getActiveScene().shadowsEnabled) {
+            GL13.glBindTexture(GL11.GL_TEXTURE_2D, depthMapTexture);
+        } else {
+            GL13.glBindTexture(GL11.GL_TEXTURE_2D, Material.DEFAULT.getDiffuseID());
+        }
         shader.setUniform("lightSpaceMatrix", getLightSpaceMatrix());
 
         shader.setUniform("viewPos", Camera.getActiveCameraPosition());
@@ -319,9 +360,9 @@ public class MainRenderer {
         shader.setUniform("view", view);
 
         shader.setUniform("ambientLight", ambientLight);
-        shader.setUniform("directionalLight", Scene.directionalLight);
+        shader.setUniform("directionalLight", Scene.getActiveScene().getDirectionalLight());
 
-        shader.setUniform("pointLights", Scene.pointLights);
+        shader.setUniform("pointLights", Scene.getActiveScene().getPointLights());
 
         renderQuad();
 
@@ -346,6 +387,7 @@ public class MainRenderer {
 
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
         postShader.bind();
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, ditherFBO);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL13.glBindTexture(GL11.GL_TEXTURE_2D, hdrBuffer);
@@ -358,14 +400,28 @@ public class MainRenderer {
         postShader.setUniform("resolution", new Vector2f(Window.getWidth(), Window.getHeight()));
 
         renderQuad();
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         postShader.unbind();
+
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
+        ditherShader.bind();
+
+        ditherShader.setUniform("deltaTime", Main.getElapsedTime());
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL13.glBindTexture(GL11.GL_TEXTURE_2D, dither);
+
+        renderQuad();
+
+        ditherShader.unbind();
 
         GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, gBuffer);
         GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
         GL30.glBlitFramebuffer(0, 0, Window.getWidth(), Window.getHeight(), 0, 0, Window.getWidth(), Window.getHeight(), GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST);
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
-        render(Scene.getSkybox());
+        render(Scene.getActiveScene().getSkybox());
 
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
@@ -376,17 +432,18 @@ public class MainRenderer {
             forwardShader.bind();
 
             forwardShader.setUniform("ambientLight", ambientLight.times(1.5f));
-            forwardShader.setUniform("directionalLight", Scene.directionalLight);
+            forwardShader.setUniform("directionalLight", Scene.getActiveScene().getDirectionalLight());
             forwardShader.setUniform("cameraRotation", Matrix4f.rotation(PlayerMovement.getFullRotation()));
 
-            viewmodelRender(forwardShader, Scene.getGunObject());
+            viewmodelRender(forwardShader, Scene.getGameScene().getGunObject());
 
             forwardShader.unbind();
 
             unlitShader.bind();
-            viewmodelRender(unlitShader, Scene.getGunMuzzleFlash());
+            viewmodelRender(unlitShader, Scene.getGameScene().getGunMuzzleFlash());
             unlitShader.unbind();
         }
+
     }
 
     private static void renderQuad() {
@@ -476,7 +533,7 @@ public class MainRenderer {
 
     private static Matrix4f getLightSpaceMatrix() {
         Matrix4f lightOrtho = Matrix4f.ortho(-50, 50, -50, 50, 1.0f, 320.0f);
-        Vector3f lightDir = new Vector3f(Scene.directionalLight.getDirection());
+        Vector3f lightDir = new Vector3f(Scene.getActiveScene().getDirectionalLight().getDirection());
         Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 40, lightDir.getY() * 40, -lightDir.getZ() * 40), Vector3f.zero(), Vector3f.oneY());
         return Matrix4f.multiply(lightView, lightOrtho);
     }
@@ -484,7 +541,6 @@ public class MainRenderer {
     private static void renderWorldDepthMap() {
 
         depthShader.bind();
-        GL11.glCullFace(GL11.GL_BACK);
 
         depthShader.setUniform("lightSpaceMatrix", getLightSpaceMatrix());
 
@@ -493,12 +549,11 @@ public class MainRenderer {
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
 
-        for (GameObject object : Scene.objects) {
+        for (GameObject object : Scene.getActiveScene().getObjects()) {
             renderMinimal(object);
         }
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        GL11.glCullFace(GL11.GL_BACK);
         depthShader.unbind();
 
     }

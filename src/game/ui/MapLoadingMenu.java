@@ -26,7 +26,7 @@ public class MapLoadingMenu extends Menu {
 
     @Override
     public void update() {
-        ld_loadingText.setText(Scene.getLoader().getLoadingName() + " (" + (Math.round(Scene.getLoader().getLoadingProgress() * 1000) / 10) + "%)");
+        ld_loadingText.setText(Scene.getActiveScene().getLoader().getLoadingName() + " (" + (Math.round(Scene.getActiveScene().getLoader().getLoadingProgress() * 1000) / 10) + "%)");
         ld_loadingTitle.setRotation(new Vector3f(0, 0, (float) Math.sin((System.currentTimeMillis() - Main.getStartTime()) / 4000.0f) * 5.0f));
     }
 

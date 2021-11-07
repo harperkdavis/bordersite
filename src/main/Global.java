@@ -14,24 +14,17 @@ public class Global {
     public final static Map<Integer, String> typeLowercase = new HashMap<>(), typeUppercase = new HashMap<>();
     public final static Map<String, String> keybinds = new HashMap<>();
 
+    public static float MOUSE_SENSITIVITY_X = 1;
+    public static float MOUSE_SENSITIVITY_Y = 1;
+
+    public static boolean MOUSE_INVERT_X = false;
+    public static boolean MOUSE_INVERT_Y = false;
+
+    public static int WINDOW_WIDTH = 1920;
+    public static int WINDOW_HEIGHT = 1080;
+    public static boolean FULLSCREEN = true;
+
     public static void init() {
-
-        keybinds.put("move_forward", "w");
-        keybinds.put("move_backward", "s");
-        keybinds.put("move_left", "a");
-        keybinds.put("move_right", "d");
-
-        keybinds.put("jump", "space");
-
-        keybinds.put("sprint", "left_shift");
-        keybinds.put("crouch", "left_control");
-
-        keybinds.put("shoot", "mouse0");
-        keybinds.put("aim", "mouse1");
-        keybinds.put("reload", "r");
-
-        keybinds.put("chat", "y");
-
 
         bindNames.put("a", GLFW.GLFW_KEY_A);
         bindNames.put("b", GLFW.GLFW_KEY_B);

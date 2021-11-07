@@ -1,7 +1,10 @@
 package game.ui;
 
+import engine.io.Input;
 import engine.math.Mathf;
 import engine.math.Vector4f;
+import engine.objects.GameObject;
+import game.ui.text.UiText;
 
 import static game.ui.UserInterface.p;
 
@@ -25,12 +28,15 @@ public abstract class UiButton extends UiPanel {
     }
 
     public void update() {
-        if (isHovered()) {
+        if (isHovered() && isVisible()) {
             t = Mathf.lerpdt(t, 1.0f, 0.1f);
+            if (Input.isMouseButtonDown(0)) {
+                onClick();
+            }
         } else {
             t = Mathf.lerpdt(t, 0.0f, 0.1f);
         }
-        setMesh(UiPanel.createPanel(x1 + p(2 * t), y1 + p(4 * t), x2 - p(2 * t), y2 - p(4 * t), getMesh().getMaterial()));
+        setMesh(UiPanel.createPanel(x1 + p(t), y1 + p(2 * t), x2 - p(t), y2 - p(2 * t), getMesh().getMaterial()));
         setColor(new Vector4f(0, 0, 0, transparency + t * 0.05f));
     }
 

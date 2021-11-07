@@ -23,13 +23,15 @@ public class UiRenderer {
         if (!object.isVisible()) {
             return;
         }
+        realRender(object);
         if (object.hasChildren()) {
             for (GameObject go : object.getChildren()) {
                 render(go);
             }
-            render(object);
         }
+    }
 
+    public static void realRender(GameObject object) {
         GL30.glBindVertexArray(object.getMesh().getVAO());
         GL30.glEnableVertexAttribArray(0);
         GL30.glEnableVertexAttribArray(1);

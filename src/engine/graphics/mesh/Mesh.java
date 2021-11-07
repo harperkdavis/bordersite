@@ -28,7 +28,6 @@ public class Mesh {
         this.vertices = vertices;
         this.indices = indices;
         this.material = material;
-        setTangents();
     }
 
     public void create() {
@@ -80,20 +79,6 @@ public class Mesh {
 
         float[] tangentData = new float[vertices.length * 3];
         float[] bitangentData = new float[vertices.length * 3];
-        for (int i = 0; i < vertices.length; i++) {
-            if (!vertices[i].getNormal().equals(Vector3f.zero()) && vertices[i].getTangent().equals(Vector3f.zero())) {
-                System.err.println("[ERROR] Tangent data not found in vertex!");
-                setTangents();
-            }
-
-            tangentData[i * 3] = vertices[i].getTangent().getX();
-            tangentData[i * 3 + 1] = vertices[i].getTangent().getY();
-            tangentData[i * 3 + 2] = vertices[i].getTangent().getZ();
-
-            bitangentData[i * 3] = vertices[i].getBitangent().getX();
-            bitangentData[i * 3 + 1] = vertices[i].getBitangent().getY();
-            bitangentData[i * 3 + 2] = vertices[i].getBitangent().getZ();
-        }
         tangentBuffer.put(tangentData).flip();
         tbo = storeData(tangentBuffer, 3, 3);
         bitangentBuffer.put(bitangentData).flip();
@@ -109,6 +94,7 @@ public class Mesh {
 
     }
 
+    /*
     public void setTangents() {
         for (int i = 0; i < indices.length; i += 3) {
 
@@ -156,6 +142,8 @@ public class Mesh {
             vertices[indices[i + 2]].setBitangent(bitangent);
         }
     }
+
+     */
 
     public void updateMesh(Mesh mesh) {
         destroy();

@@ -142,7 +142,7 @@ public class MeshBuilder {
         Random random = new Random();
         for (int i = 0; i < amount; i++) {
             float dir = random.nextFloat() * 4 * (float) Math.PI;
-            float x = (float) Math.sin(dir) * 20, y = random.nextFloat() * 20, z = (float) Math.cos(dir) * 20;
+            float x = (float) Math.sin(dir) * 10, y = random.nextFloat() * 10, z = (float) Math.cos(dir) * 10;
             Vertex[] cube = new Vertex[] {
                     //Back face
                     new Vertex(new Vector3f(-0.5f * size + x,  0.5f * size + y, -0.5f * size + z), new Vector3f(0, 0, -1), new Vector2f(0.0f, 0.0f)),
@@ -467,7 +467,8 @@ public class MeshBuilder {
         return new Mesh(vertices, tris, m);
     }
 
-    public static Mesh Terrain(Material m) {
+
+    public static Mesh Terrain(Material m, float[][] heightMap) {
         Vertex[] vertices = new Vertex[511 * 511 * 4];
         int[] tris = new int[511 * 511 * 6];
 
@@ -475,10 +476,10 @@ public class MeshBuilder {
             for (int z = 0; z < 511; z++) {
 
 
-                vertices[i] = new Vertex(new Vector3f((0.0f + x),  Scene.getHeightMap()[x][z + 1],  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f));
-                vertices[i + 1] = new Vertex(new Vector3f((0.0f + x),  Scene.getHeightMap()[x][z],  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f));
-                vertices[i + 2] = new Vertex(new Vector3f((1.0f + x),  Scene.getHeightMap()[x + 1][z],  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f));
-                vertices[i + 3] = new Vertex(new Vector3f((1.0f + x),  Scene.getHeightMap()[x + 1][z + 1],  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f));
+                vertices[i] = new Vertex(new Vector3f((0.0f + x),  heightMap[x][z + 1],  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 0.0f));
+                vertices[i + 1] = new Vertex(new Vector3f((0.0f + x),  heightMap[x][z],  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(0.0f, 1.0f));
+                vertices[i + 2] = new Vertex(new Vector3f((1.0f + x),  heightMap[x + 1][z],  (0.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 1.0f));
+                vertices[i + 3] = new Vertex(new Vector3f((1.0f + x),  heightMap[x + 1][z + 1],  (1.0f + z)), new Vector3f(0, 1, 0), new Vector2f(1.0f, 0.0f));
                 tris[j] = i;
                 tris[j + 1] = i + 1;
                 tris[j + 2] = i + 3;

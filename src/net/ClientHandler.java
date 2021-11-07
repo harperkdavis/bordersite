@@ -5,10 +5,8 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
-import engine.audio.AudioMaster;
-import engine.audio.SoundEffect;
-import engine.io.Input;
-import engine.io.Window;
+import com.google.gson.Gson;
+import engine.io.Printer;
 import engine.math.Mathf;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
@@ -17,8 +15,7 @@ import game.Player;
 import game.PlayerMovement;
 import game.WorldState;
 import game.scene.Scene;
-import game.ui.InGameMenu;
-import main.Global;
+import game.ui.MainMenu;
 import main.Main;
 import net.event.*;
 import net.packets.Packet;
@@ -26,14 +23,25 @@ import net.packets.client.*;
 import net.packets.server.*;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class ClientHandler {
 
+    public static String SESSION_ID = null;
+    private static String ip = null;
+    public static HttpClient httpClient;
+
     public static Client client;
     protected static int playerId;
+
+    protected static boolean connected = false;
 
     protected static boolean serverRegistered = false;
     protected static boolean hasRegisteredTeam = false;
@@ -42,8 +50,8 @@ public class ClientHandler {
     private static boolean hasSentConnectedPacket = false;
 
     private static final ConcurrentMap<Packet, Float> fakeLagPacketBuffer = new ConcurrentHashMap<>();
-    protected static final boolean FAKE_LAG = false;
-    protected static float FAKE_LAG_MS = 100;
+    protected static final boolean FAKE_LAG = true;
+    protected static float FAKE_LAG_MS = 0;
 
     public static InputSender inputSender;
     private static Timer inputSenderTimer;
@@ -53,6 +61,8 @@ public class ClientHandler {
 
     public static void init() {
         Log.set(Log.LEVEL_DEBUG);
+
+        httpClient = HttpClient.newHttpClient();
 
         client = new Client();
         client.start();
@@ -75,7 +85,8 @@ public class ClientHandler {
 
         kryo.register(Packet.class);
         kryo.register(ConnectPacket.class);
-        kryo.register(ConnectionReceivedPacket.class);
+        kryo.register(ConnectionAcceptedPacket.class);
+        kryo.register(ConnectionDeniedPacket.class);
 
         kryo.register(PingRequestPacket.class);
         kryo.register(PongPacket.class);
@@ -94,15 +105,6 @@ public class ClientHandler {
         kryo.register(WorldState.class);
         kryo.register(WorldStatePacket.class);
 
-    }
-
-    public static void connect(String ip) {
-        try {
-            client.connect(5000, ip, 27555, 27777);
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-
         client.addListener(new Listener() {
             public void received(Connection connection, Object packet) {
                 if (packet instanceof Packet) {
@@ -115,6 +117,65 @@ public class ClientHandler {
                 }
             }
         });
+
+    }
+
+    public static void reset() {
+        connected = false;
+        serverRegistered = false;
+        hasRegisteredTeam = false;
+        hasSentConnectedPacket = false;
+        ip = null;
+        client.close();
+    }
+
+    public static void disconnect() {
+        reset();
+        stopInputSender();
+    }
+
+    public static void tryConnect(String ip) {
+        ClientHandler.ip = ip;
+        connect(ip);
+    }
+
+    public static void login(String username, String password) throws IOException, InterruptedException {
+
+        String body = "{ \"username\": \"" + username + "\", \"password\": \"" + password + "\" }";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:7777/login"))
+                .timeout(Duration.ofSeconds(15))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        Gson gson = new Gson();
+        System.out.println(response.body());
+        Map<?, ?> map = gson.fromJson(response.body(), Map.class);
+
+        if (map.get("result").equals("invalid")) {
+            Printer.println(0, "Invalid post request!");
+        } else if (map.get("result").equals("incorrect")) {
+            MainMenu.loginResult.setText("Incorrect username or password.");
+        }  else if (map.get("result").equals("success")) {
+            MainMenu.loginResult.setText("Login Successful!");
+            SESSION_ID = (String) map.get("sessionID");
+        }
+    }
+
+    public static void connect(String ip) {
+        try {
+            client.connect(5000, ip, 27555, 27777);
+        } catch (IOException e) {
+            e.printStackTrace();
+            connected = false;
+            return;
+        }
+
+        connected = true;
     }
 
     public static void update() {
@@ -132,7 +193,7 @@ public class ClientHandler {
         }
 
         if (client.isConnected() && !hasSentConnectedPacket) {
-            client.sendTCP(new ConnectPacket(Main.getUsername()));
+            client.sendTCP(new ConnectPacket(SESSION_ID));
             hasSentConnectedPacket = true;
             return;
         }
@@ -157,7 +218,7 @@ public class ClientHandler {
                     }
 
                     if (curr != null) {
-                        GameObject playerObject = Scene.getPlayer(curr.getUuid());
+                        GameObject playerObject = Scene.getGameScene().getPlayer(curr.getUuid());
                         if (playerObject != null) {
                             playerObject.setPosition(Vector3f.lerp(prev.getPosition(), curr.getPosition(), interp).minus(new Vector3f(0, 0.5f, 0)));
                             if (prev.isDead()) {
@@ -226,5 +287,7 @@ public class ClientHandler {
         }
     }
 
-
+    public static boolean isConnected() {
+        return connected;
+    }
 }

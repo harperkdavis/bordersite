@@ -36,6 +36,7 @@ public class Material {
     // ENVIRONMENT
 
     public static final Material ENV_TREE = new Material("/textures/environment/tree.png");
+    public static final Material ENV_GRASS = new Material("/textures/environment/grass.png");
 
     public static final Material ENV_HEIGHTMAP = new Material("/textures/environment/heightmap.png");
     public static final Material ENV_TREEMAP = new Material("/textures/environment/treemap.png");
@@ -58,6 +59,11 @@ public class Material {
 
     public static final Material WPN_ACP_9_DEFAULT = new Material("/textures/weapons/acp_9_default.png");
     public static final Material WPN_MUZZLE_FLASH = new Material("/textures/weapons/muzzle_flash.png");
+
+    // SKYBOX
+
+    public static final Material SKYBOX_DEFAULT = new Material("/textures/environment/skybox_default.png");
+    public static final Material SKYBOX_CLOUDY = new Material("/textures/environment/skybox_cloudy.png");
 
     public Material(String diffuse, String normal, String specular) {
         materials.add(this);

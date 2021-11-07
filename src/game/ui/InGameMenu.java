@@ -14,6 +14,7 @@ import engine.objects.GameObject;
 import engine.objects.camera.Camera;
 import game.PlayerMovement;
 import game.ui.text.UiText;
+import game.ui.text.UiTextField;
 import main.Main;
 import net.ClientHandler;
 import org.lwjgl.glfw.GLFW;
@@ -29,11 +30,9 @@ public class InGameMenu extends Menu {
     private GameObject crosshair;
     private float crosshairTransparency = 1;
 
-    private UiText chatInput;
+    private UiTextField chatInput;
     private GameObject chatPanel;
     private static List<ChatMessage> messages = Collections.synchronizedList(new ArrayList<>());
-    private boolean isTyping = false;
-    private String typedMessage = "";
 
     private Queue<MessageData> bufferedChatMessages = new ConcurrentLinkedQueue<>();
 
@@ -45,35 +44,35 @@ public class InGameMenu extends Menu {
 
     @Override
     public void init() {
-        crosshair = addObject(new GameObject(screen(1, 1, 1), UiBuilder.UICenter(p(32), Material.UI_CROSSHAIR)));
-        chatPanel = addObject(new UiPanel(0, 2 - p(20), 1, 2, 12, 0.2f));
-        chatInput = (UiText) addObject(new UiText(screen(p(2), 2 - p(18), 9), "> "));
+        crosshair = addObject(new GameObject(screen(1, 1, 21), UiBuilder.UICenter(p(32), Material.UI_CROSSHAIR)));
+        chatPanel = addObject(new UiPanel(0, 2 - p(20), 1, 2, 32, 0.2f));
+        chatInput = (UiTextField) addObject(new UiTextField(screen(p(2), 2 - p(18), 29), "> "));
         chatInput.setColor(0.9f, 0.9f, 0.9f, 1.0f);
 
-        healthIcon = addObject(new GameObject(screen(1.8f, 1.95f, 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0, 0), new Vector2f(0.25f, 0.25f))));
-        ammoIcon = addObject(new GameObject(screen(1.9f, 1.95f, 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.25f, 0), new Vector2f(0.5f, 0.25f))));
-        timeIcon = addObject(new GameObject(screen(0.025f, 0.05f, 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.5f, 0), new Vector2f(0.75f, 0.25f))));
-        killsIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(18), 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.75f, 0), new Vector2f(1.0f, 0.25f))));
+        healthIcon = addObject(new GameObject(screen(1.8f, 1.95f, 24), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0, 0), new Vector2f(0.25f, 0.25f))));
+        ammoIcon = addObject(new GameObject(screen(1.9f, 1.95f, 24), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.25f, 0), new Vector2f(0.5f, 0.25f))));
+        timeIcon = addObject(new GameObject(screen(0.025f, 0.05f, 24), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.5f, 0), new Vector2f(0.75f, 0.25f))));
+        killsIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(18), 24), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.75f, 0), new Vector2f(1.0f, 0.25f))));
 
-        redFlagIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(36), 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.0f, 0.25f), new Vector2f(0.25f, 0.5f))));
-        blueFlagIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(54), 4), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.0f, 0.25f), new Vector2f(0.25f, 0.5f))));
+        redFlagIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(36), 24), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.0f, 0.25f), new Vector2f(0.25f, 0.5f))));
+        blueFlagIcon = addObject(new GameObject(screen(0.025f, 0.05f + p(54), 24), UiBuilder.UICenterUV(p(16), 1, 1, Material.UI_ICONS, new Vector2f(0.0f, 0.25f), new Vector2f(0.25f, 0.5f))));
 
         redFlagIcon.setColor(210.0f / 256.0f, 41.0f / 256.0f, 45.0f / 256.0f, 1);
         blueFlagIcon.setColor(23.0f / 256.0f, 97.0f / 256.0f, 176.0f / 256.0f, 1);
 
-        healthText = (UiText) addObject(new UiText(screen(1.8f + p(8), 1.95f - p(8), 4), "200"));
-        ammoText = (UiText) addObject(new UiText(screen(1.9f + p(8), 1.95f - p(8), 4), "30"));
-        timeText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f - p(8), 4), "0:00"));
-        killsText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(10), 4), "0 Kills"));
+        healthText = (UiText) addObject(new UiText(screen(1.8f + p(8), 1.95f - p(8), 24), "200"));
+        ammoText = (UiText) addObject(new UiText(screen(1.9f + p(8), 1.95f - p(8), 24), "30"));
+        timeText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f - p(8), 24), "0:00"));
+        killsText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(10), 24), "0 Kills"));
 
-        redScoreText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(28), 4), "0"));
-        blueScoreText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(46), 4), "0"));
+        redScoreText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(28), 24), "0"));
+        blueScoreText = (UiText) addObject(new UiText(screen(0.025f + p(8), 0.05f + p(46), 24), "0"));
 
         redScoreText.setColor(210.0f / 256.0f, 41.0f / 256.0f, 45.0f / 256.0f, 1);
         blueScoreText.setColor(23.0f / 256.0f, 97.0f / 256.0f, 176.0f / 256.0f, 1);
 
-        deadText = (UiText) addObject(new UiText(screen(0.5f - p(16), 1 - p(12), 4), "You have died."));
-        deathMessageText = (UiText) addObject(new UiText(screen(0.5f - p(16), 1, 4), "Killed By: NONE"));
+        deadText = (UiText) addObject(new UiText(screen(0.5f - p(16), 1 - p(12), 24), "You have died."));
+        deathMessageText = (UiText) addObject(new UiText(screen(0.5f - p(16), 1, 24), "Killed By: NONE"));
     }
 
     @Override
@@ -119,40 +118,24 @@ public class InGameMenu extends Menu {
             message.update(Main.getDeltaTime());
         }
         messages.removeIf(ChatMessage::shouldRemove);
-        if (!isTyping) {
-            chatPanel.setPosition(Vector3f.lerpdt(chatPanel.getPosition(), screen(1, 1.2f, 12), 0.004f));
-            chatInput.setPosition(Vector3f.lerpdt(chatInput.getPosition(), screen(p(2), 2 - p(18) + 0.2f, 9), 0.004f));
+        if (UiTextField.activeTextField != chatInput) {
+            chatPanel.setPosition(Vector3f.lerpdt(chatPanel.getPosition(), screen(1, 1.2f, 32), 0.004f));
+            chatInput.setPosition(Vector3f.lerpdt(chatInput.getPosition(), screen(p(2), 2 - p(18) + 0.2f, 29), 0.004f));
 
-            if (Input.isKeybindDown("chat")) {
-                isTyping = true;
-                Input.setTyping(true);
+            if (Input.isKeybindDown("chat") && !UserInterface.menuOpen) {
+                UiTextField.select(chatInput);
             }
         } else {
-            chatPanel.setPosition(Vector3f.lerpdt(chatPanel.getPosition(), screen(1, 1, 12), 0.004f));
-            chatInput.setPosition(Vector3f.lerpdt(chatInput.getPosition(), screen(p(2), 2 - p(18), 9), 0.004f));
 
-            if (Input.isBindDown("esc")) {
-                isTyping = false;
-                Input.setTyping(false);
-            }
+            chatPanel.setPosition(Vector3f.lerpdt(chatPanel.getPosition(), screen(1, 1, 32), 0.004f));
+            chatInput.setPosition(Vector3f.lerpdt(chatInput.getPosition(), screen(p(2), 2 - p(18), 29), 0.004f));
 
             if (Input.isKeyDown(GLFW.GLFW_KEY_ENTER)) {
-                isTyping = false;
-                Input.setTyping(false);
-                ClientHandler.sendChatPacket(typedMessage);
-                typedMessage = "";
-                chatInput.setText("> ");
+                ClientHandler.sendChatPacket(chatInput.getText());
+                chatInput.clearText();
+                UiTextField.deselect();
             }
 
-            String input = Input.getTypedCharacter();
-            if (!input.equals("")) {
-                typedMessage += input;
-                chatInput.setText("> " + typedMessage);
-            }
-            if (Input.isKeyDown(GLFW.GLFW_KEY_BACKSPACE) && typedMessage.length() > 0) {
-                typedMessage = typedMessage.substring(0, typedMessage.length() - 1);
-                chatInput.setText("> " + typedMessage);
-            }
         }
     }
 
@@ -206,7 +189,7 @@ public class InGameMenu extends Menu {
         }
 
         public ChatMessage(String text, float r, float g, float b) {
-            super(screen(p(2), 2, 10), text);
+            super(screen(p(2), 2, 30), text);
             this.r = r;
             this.g = g;
             this.b = b;
@@ -229,7 +212,7 @@ public class InGameMenu extends Menu {
         }
 
         private Vector3f calcScreenPos(int y) {
-            return screen(p(2), 2 - p(40) - p(16) * y, 10);
+            return screen(p(2), 2 - p(40) - p(16) * y, 30);
         }
 
         public boolean shouldRemove() {

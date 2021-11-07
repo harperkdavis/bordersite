@@ -42,7 +42,7 @@ public class SceneLoader {
 
     public static final String MAP = "atnitz";
 
-    SceneLoader() {
+    SceneLoader(String map) {
         beginTime = System.currentTimeMillis();
         loadingName = "Loading scene...";
     }
@@ -100,7 +100,7 @@ public class SceneLoader {
                         boolean mesh = (val.get(11) == 1), collision = (val.get(12) == 1);
 
                         BlockComponent newComponent = new BlockComponent(a, b, c, height, material, tiling, mesh, collision);
-                        Scene.addComponent(newComponent);
+                        Scene.getGameScene().addComponent(newComponent);
 
                     } else if (type.equals("ramp")) {
 
@@ -113,18 +113,13 @@ public class SceneLoader {
                         int direction = val.get(13).intValue();
 
                         RampComponent newComponent = new RampComponent(a, b, c, height, direction, material, tiling, mesh, collision);
-                        Scene.addComponent(newComponent);
+                        Scene.getGameScene().addComponent(newComponent);
 
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            Scene.addObject(new GameObject(new Vector3f(-11, 0, 6), Tree(12, 0, 0)));
-            Scene.addObject(new GameObject(new Vector3f(11, 0, 6), Tree(12, 20, 10)));
-            Scene.addObject(new GameObject(new Vector3f(-11, 0, -6), Tree(12, 40, 20)));
-            Scene.addObject(new GameObject(new Vector3f(11, 0, -6), Tree(12, 60, 30)));
 
             advanceLoading();
             wait(5);
@@ -148,10 +143,10 @@ public class SceneLoader {
                 List<Double> colorArray = (List<Double>) dirLight.get("color");
                 Vector3f lightColor = new Vector3f(colorArray.get(0).floatValue(), colorArray.get(1).floatValue(), colorArray.get(2).floatValue());
 
-                Scene.directionalLight = new DirectionalLight(lightColor, lightDir, ((Double) dirLight.get("intensity")).floatValue());
+                Scene.getGameScene().directionalLight = new DirectionalLight(lightColor, lightDir, ((Double) dirLight.get("intensity")).floatValue());
 
                 for (int i = 0; i < Scene.MAX_POINT_LIGHTS; i++) {
-                    Scene.pointLights[i] = PointLight.IDENTITY;
+                    Scene.getGameScene().pointLights[i] = PointLight.IDENTITY;
                 }
                 List<Map<String, List<Double>>> pointLights = (List<Map<String, List<Double>>>) map.get("lights");
 
@@ -162,18 +157,18 @@ public class SceneLoader {
                     List<Double> pointColorArray = light.get("color");
                     Vector3f color = new Vector3f(pointColorArray.get(0).floatValue(), pointColorArray.get(1).floatValue(), pointColorArray.get(2).floatValue());
 
-                    Scene.pointLights[i] = new PointLight(position, color);
+                    Scene.getGameScene().pointLights[i] = new PointLight(position, color);
                 }
 
                 String skyboxMat = (String) map.get("skybox");
-                Scene.skybox = new GameObject(Vector3f.zero(), MeshBuilder.Skybox(1000, MaterialLoader.loadMapSkyboxMaterial(MAP, skyboxMat)));
+                Scene.getGameScene().skybox = new GameObject(Vector3f.zero(), MeshBuilder.Skybox(1000, MaterialLoader.loadMapSkyboxMaterial(MAP, skyboxMat)));
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            Scene.loading = false;
-            Scene.loaded = true;
+            Scene.getGameScene().loading = false;
+            Scene.getGameScene().loaded = true;
 
             advanceLoading();
         }
