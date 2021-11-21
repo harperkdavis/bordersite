@@ -59,22 +59,15 @@ public class MaterialLoader {
 
         Gson gson = new Gson();
 
-        Reader reader = Files.newBufferedReader(Paths.get("resources/maps/" + mapName + "/materials.json"));
+        Reader reader = Files.newBufferedReader(Paths.get("resources/maps/" + mapName + "/map.json"));
         Map<?, ?> map = gson.fromJson(reader, Map.class);
 
-        Map<String, ArrayList<String>> materials = (Map<String, ArrayList<String>>) map.get("materials");
+        ArrayList<Map<String, String>> materials = ((Map<String, ArrayList<Map<String, String>>>) map.get("assets")).get("materials");
         String prefix = "/maps/" + mapName + "/";
-        for (String key : materials.keySet()) {
-            ArrayList<String> textures = materials.get(key);
-            Material material = Material.DEFAULT;
-            if (textures.size() != 0) {
-                if (textures.size() <= 2) {
-                    material = new Material(prefix + textures.get(0), "/textures/default_normal.png", "/textures/default_specular.png");
-                } else {
-                    material = new Material(prefix + textures.get(0), prefix + textures.get(1),prefix + textures.get(2));
-                }
-            }
-            Material.mapMaterials.put(key, material);
+        for (Map<String, String> mat : materials) {
+            String name = mat.get("name"), path = mat.get("path");
+            Material material = new Material(prefix + path, "/textures/default_normal.png", "/textures/default_specular.png");
+            Material.mapMaterials.put(name, material);
             material.create();
         }
     }

@@ -94,6 +94,11 @@ public class UiTextField extends UiText {
         return textEntry;
     }
 
+    public void setTextEntry(String textEntry) {
+        this.textEntry = textEntry;
+        refresh(false);
+    }
+
     public void setTyping(boolean typing) {
         if (typing) {
             activeTextField = this;

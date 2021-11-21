@@ -37,19 +37,15 @@ public class BlockComponent implements Component {
             Z+
      */
 
-    public BlockComponent(Vector3f a, Vector3f b, Vector3f c, float height, Material material, float tiling) {
-        this(a, b, c, height, material);
-        this.tiling = tiling;
-    }
-
     public BlockComponent(Vector3f a, Vector3f b, Vector3f c, float height, Material material, float tiling, boolean mesh, boolean collision) {
         this(a, b, c, height, material, tiling);
         this.mesh = mesh;
+        this.tiling = tiling;
         this.collision = collision;
     }
 
 
-    public BlockComponent(Vector3f a, Vector3f b, Vector3f c, float height, Material material) {
+    public BlockComponent(Vector3f a, Vector3f b, Vector3f c, float height, Material material, float tiling) {
         this.stl = a;
         this.sbr = c;
         this.sbl = b;
@@ -61,6 +57,7 @@ public class BlockComponent implements Component {
         this.str = Vector3f.add(sbl, Vector3f.subtract(midpoint, sbl).multiply(2));
         
         this.height = height;
+        this.tiling = tiling;
         this.material = material;
 
         this.ntl = stl.plus(0, height, 0);
@@ -127,25 +124,25 @@ public class BlockComponent implements Component {
 
         Mesh mesh = new Mesh(new Vertex[] {
                 // TOP
-                new Vertex(new Vector3f(stl.getX(), ntl.getY(), stl.getZ()), tnor, new Vector2f(0, yScale / tiling)),
-                new Vertex(new Vector3f(stl.getX(), stl.getY(), stl.getZ()), tnor, new Vector2f(0, 0 / tiling)),
-                new Vertex(new Vector3f(str.getX(), stl.getY(), str.getZ()), tnor, new Vector2f(lrScale / tiling, 0 / tiling)),
-                new Vertex(new Vector3f(str.getX(), ntl.getY(), str.getZ()), tnor, new Vector2f(lrScale / tiling, yScale / tiling)),
+                new Vertex(new Vector3f(stl.getX(), ntl.getY(), stl.getZ()), tnor, new Vector2f(lrScale / tiling, 0 / tiling)),
+                new Vertex(new Vector3f(stl.getX(), stl.getY(), stl.getZ()), tnor, new Vector2f(lrScale / tiling, yScale / tiling)),
+                new Vertex(new Vector3f(str.getX(), stl.getY(), str.getZ()), tnor, new Vector2f(0, yScale / tiling)),
+                new Vertex(new Vector3f(str.getX(), ntl.getY(), str.getZ()), tnor, new Vector2f(0, 0 / tiling)),
                 // BOTTOM
-                new Vertex(new Vector3f(sbr.getX(), nbr.getY(), sbr.getZ()), bnor, new Vector2f(0, ntl.getY() / tiling)),
-                new Vertex(new Vector3f(sbr.getX(), sbr.getY(), sbr.getZ()), bnor, new Vector2f(0, stl.getY() / tiling)),
-                new Vertex(new Vector3f(sbl.getX(), sbr.getY(), sbl.getZ()), bnor, new Vector2f(lrScale / tiling, stl.getY() / tiling)),
-                new Vertex(new Vector3f(sbl.getX(), nbr.getY(), sbl.getZ()), bnor, new Vector2f(lrScale / tiling, ntl.getY() / tiling)),
+                new Vertex(new Vector3f(sbr.getX(), nbr.getY(), sbr.getZ()), bnor, new Vector2f(lrScale / tiling, 0)),
+                new Vertex(new Vector3f(sbr.getX(), sbr.getY(), sbr.getZ()), bnor, new Vector2f(lrScale / tiling, yScale / tiling)),
+                new Vertex(new Vector3f(sbl.getX(), sbr.getY(), sbl.getZ()), bnor, new Vector2f(0, yScale / tiling)),
+                new Vertex(new Vector3f(sbl.getX(), nbr.getY(), sbl.getZ()), bnor, new Vector2f(0, 0)),
                 // LEFT
-                new Vertex(new Vector3f(sbl.getX(), nbl.getY(), sbl.getZ()), lnor, new Vector2f(0, yScale / tiling)),
-                new Vertex(new Vector3f(sbl.getX(), sbl.getY(), sbl.getZ()), lnor, new Vector2f(0, 0)),
-                new Vertex(new Vector3f(stl.getX(), sbl.getY(), stl.getZ()), lnor, new Vector2f(udScale / tiling, 0)),
-                new Vertex(new Vector3f(stl.getX(), nbl.getY(), stl.getZ()), lnor, new Vector2f(udScale / tiling, yScale / tiling)),
+                new Vertex(new Vector3f(sbl.getX(), nbl.getY(), sbl.getZ()), lnor, new Vector2f(udScale / tiling, 0)),
+                new Vertex(new Vector3f(sbl.getX(), sbl.getY(), sbl.getZ()), lnor, new Vector2f(udScale / tiling, yScale / tiling)),
+                new Vertex(new Vector3f(stl.getX(), sbl.getY(), stl.getZ()), lnor, new Vector2f(0, yScale / tiling)),
+                new Vertex(new Vector3f(stl.getX(), nbl.getY(), stl.getZ()), lnor, new Vector2f(0, 0)),
                 // RIGHT
-                new Vertex(new Vector3f(str.getX(), ntr.getY(), str.getZ()), rnor, new Vector2f(0, yScale / tiling)),
-                new Vertex(new Vector3f(str.getX(), str.getY(), str.getZ()), rnor, new Vector2f(0, 0)),
-                new Vertex(new Vector3f(sbr.getX(), str.getY(), sbr.getZ()), rnor, new Vector2f(udScale / tiling, 0)),
-                new Vertex(new Vector3f(sbr.getX(), ntr.getY(), sbr.getZ()), rnor, new Vector2f(udScale / tiling, yScale / tiling)),
+                new Vertex(new Vector3f(str.getX(), ntr.getY(), str.getZ()), rnor, new Vector2f(udScale / tiling, 0)),
+                new Vertex(new Vector3f(str.getX(), str.getY(), str.getZ()), rnor, new Vector2f(udScale / tiling, yScale / tiling)),
+                new Vertex(new Vector3f(sbr.getX(), str.getY(), sbr.getZ()), rnor, new Vector2f(0, yScale / tiling)),
+                new Vertex(new Vector3f(sbr.getX(), ntr.getY(), sbr.getZ()), rnor, new Vector2f(0, 0)),
                 // SOUTH
                 new Vertex(new Vector3f(stl.getX(), stl.getY(), stl.getZ()), new Vector3f(0, -1, 0), new Vector2f(stl.getX() / tiling, sbl.getZ() / tiling)),
                 new Vertex(new Vector3f(sbl.getX(), sbl.getY(), sbl.getZ()), new Vector3f(0, -1, 0), new Vector2f(sbl.getX() / tiling, stl.getZ() / tiling)),

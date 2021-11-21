@@ -35,7 +35,7 @@ public class Matrix4f {
 
         Matrix4f rotXMatrix = Matrix4f.rotate(rotation.getX(), new Vector3f(1, 0, 0));
         Matrix4f rotYMatrix = Matrix4f.rotate(rotation.getY(), new Vector3f(0, 1, 0));
-        Matrix4f rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f(0, 0, 1));
+        Matrix4f rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f((float) -Math.sin(Math.toRadians(rotation.getY())), 0, (float) -Math.cos(Math.toRadians(rotation.getY()))));
 
         return Matrix4f.multiply(rotXMatrix, Matrix4f.multiply(rotYMatrix, rotZMatrix));
 

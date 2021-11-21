@@ -47,6 +47,6 @@ public class PerspectiveCamera extends Camera {
 
     @Override
     public Matrix4f getProjectionMatrix() {
-        return Matrix4f.projection(fov, (float) Window.getWidth() / (float) Window.getHeight(), 0.01f, 10000.0f);
+        return Matrix4f.projection(fov, (float) Window.getWidth() / (float) Window.getHeight(), 0.01f, 2000.0f);
     }
 }

@@ -12,7 +12,9 @@ import java.util.*;
 import engine.math.Vector4f;
 import engine.objects.GameObject;
 import engine.objects.camera.Camera;
+import game.Player;
 import game.PlayerMovement;
+import game.scene.GameScene;
 import game.ui.text.UiText;
 import game.ui.text.UiTextField;
 import main.Main;
@@ -122,8 +124,12 @@ public class InGameMenu extends Menu {
             chatPanel.setPosition(Vector3f.lerpdt(chatPanel.getPosition(), screen(1, 1.2f, 32), 0.004f));
             chatInput.setPosition(Vector3f.lerpdt(chatInput.getPosition(), screen(p(2), 2 - p(18) + 0.2f, 29), 0.004f));
 
-            if (Input.isKeybindDown("chat") && !UserInterface.menuOpen) {
+            if (Input.isKeybindDown("chat") || Input.isBindDown("/") && !UserInterface.menuOpen) {
                 UiTextField.select(chatInput);
+                chatInput.clearText();
+                if (Input.isBindDown("/")) {
+                    chatInput.setTextEntry("/");
+                }
             }
         } else {
 

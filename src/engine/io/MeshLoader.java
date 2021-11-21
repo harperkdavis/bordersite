@@ -11,7 +11,12 @@ import org.lwjgl.assimp.*;
 public class MeshLoader {
 
     public static Mesh loadModel(String filePath, Material material) {
-        AIScene scene = Assimp.aiImportFile("resources/models/" + filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate);
+        return loadModelRoot("models/" + filePath, material);
+    }
+
+    public static Mesh loadModelRoot(String filePath, Material material) {
+        filePath = "resources/" + filePath;
+        AIScene scene = Assimp.aiImportFile(filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate);
 
         if (scene == null) {
             System.err.println("Couldn't load model at " + filePath);
@@ -37,7 +42,7 @@ public class MeshLoader {
             if (mesh.mNumUVComponents().get(0) != 0) {
                 AIVector3D texture = mesh.mTextureCoords(0).get(i);
                 meshTextureCoord.setX(texture.x());
-                meshTextureCoord.setY(texture.y());
+                meshTextureCoord.setY(-texture.y());
             }
 
             vertexList[i] = new Vertex(meshVertex, meshNormal, meshTextureCoord);

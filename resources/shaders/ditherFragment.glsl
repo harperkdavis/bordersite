@@ -19,7 +19,7 @@ const float bayerMatrix[] = float[64](
 const float dz = 0.2;
 
 vec4 nearestColor(vec4 color) {
-    return floor(color / 0.125) * 0.125;
+    return floor(color / 0.05) * 0.05;
 }
 
 void main() {

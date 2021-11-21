@@ -1,10 +1,6 @@
 package game.scene;
 
 import com.google.gson.Gson;
-import engine.audio.AudioBuffer;
-import engine.audio.AudioMaster;
-import engine.audio.AudioSource;
-import engine.audio.SoundEffect;
 import engine.components.BlockComponent;
 import engine.components.RampComponent;
 import engine.graphics.Material;
@@ -14,9 +10,11 @@ import engine.graphics.light.PointLight;
 import engine.graphics.mesh.Mesh;
 import engine.graphics.mesh.MeshBuilder;
 import engine.graphics.vertex.Vertex;
+import engine.io.MeshLoader;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
+import engine.util.JsonHandler;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -40,11 +38,15 @@ public class SceneLoader {
     private String loadingName;
     private float loadingProgress;
 
-    public static final String MAP = "atnitz";
+    public static final String MAP = "sakrev";
 
-    SceneLoader(String map) {
+    private Map<String, String> models;
+
+    public SceneLoader(String map) {
         beginTime = System.currentTimeMillis();
         loadingName = "Loading scene...";
+
+        models = new HashMap<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -56,10 +58,24 @@ public class SceneLoader {
 
         if (loadingStage == 0) {
 
-            loadingName = "Loading map materials...";
+            loadingName = "Loading map materials and models...";
 
             try {
                 MaterialLoader.loadMapMaterials(MAP);
+
+                models.clear();
+
+                Gson gson = new Gson();
+
+                Reader reader = Files.newBufferedReader(Paths.get("resources/maps/" + MAP + "/map.json"));
+                Map<?, ?> map = gson.fromJson(reader, Map.class);
+
+                ArrayList<Map<String, String>> models = ((Map<String, ArrayList<Map<String, String>>>) map.get("assets")).get("models");
+                String prefix = "/maps/" + MAP + "/";
+                for (Map<String, String> mod : models) {
+                    this.models.put(mod.get("name"), prefix + mod.get("path"));
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -68,99 +84,108 @@ public class SceneLoader {
             wait(5);
         } else if (loadingStage == 1) {
 
-            loadingName = "Loading map layout...";
+            loadingName = "Loading map...";
 
             Gson gson = new Gson();
             Map<?, ?> map = new HashMap<>();
             try {
-                Reader reader = Files.newBufferedReader(Paths.get("resources/maps/" + MAP + "/layout.json"));
+                Reader reader = Files.newBufferedReader(Paths.get("resources/maps/" + MAP + "/map.json"));
                 map = gson.fromJson(reader, Map.class);
             } catch(IOException e) {
                 e.printStackTrace();
             }
 
             try {
-                List<Map<String, ?>> components = (List<Map<String, ?>>) map.get("components");
+                // Layout
+
+                List<Map<String, ?>> components = ((Map<String, List<Map<String, ?>>>) map.get("layout")).get("components");
                 for (Map<String, ?> component : components) {
+
                     String type = (String) component.get("type");
                     String materialName = (String) component.get("material");
-                    Material material = Material.getMapMaterial(materialName);
-                    ArrayList<Double> doubleVal = (ArrayList<Double>) component.get("values");
-                    ArrayList<Float> val = new ArrayList<>();
-                    for (Double d : doubleVal) {
-                        val.add(d.floatValue());
+                    boolean visible = (Boolean) component.get("visible");
+                    Material material;
+                    if (visible) {
+                        material = Material.getMapMaterial(materialName);
+                    } else {
+                        material = Material.DEFAULT;
                     }
-                    if (type.equals("block")) {
 
-                        Vector3f a = new Vector3f(val.get(0), val.get(1), val.get(2));
-                        Vector3f b = new Vector3f(val.get(3), val.get(4), val.get(5));
-                        Vector3f c = new Vector3f(val.get(6), val.get(7), val.get(8));
 
-                        float height = val.get(9), tiling = val.get(10);
-                        boolean mesh = (val.get(11) == 1), collision = (val.get(12) == 1);
+                    if (type.equals("block") || type.equals("ramp")) {
 
-                        BlockComponent newComponent = new BlockComponent(a, b, c, height, material, tiling, mesh, collision);
-                        Scene.getGameScene().addComponent(newComponent);
+                        Map<String, ?> colliderData = (Map<String, ?>) component.get("colliderData");
 
-                    } else if (type.equals("ramp")) {
+                        Vector3f a = JsonHandler.getVector3f(colliderData, "a");
+                        Vector3f b = JsonHandler.getVector3f(colliderData, "b");
+                        Vector3f c = JsonHandler.getVector3f(colliderData, "c");
+                        float height = ((Double) colliderData.get("height")).floatValue(), tiling = ((Double) colliderData.get("tiling")).floatValue();
+                        boolean collidable = (Boolean) colliderData.get("collidable");
 
-                        Vector3f a = new Vector3f(val.get(0), val.get(1), val.get(2));
-                        Vector3f b = new Vector3f(val.get(3), val.get(4), val.get(5));
-                        Vector3f c = new Vector3f(val.get(6), val.get(7), val.get(8));
+                        if (type.equals("block")) {
 
-                        float height = val.get(9), tiling = val.get(10);
-                        boolean mesh = (val.get(11) == 1), collision = (val.get(12) == 1);
-                        int direction = val.get(13).intValue();
+                            BlockComponent newComponent = new BlockComponent(a, b, c, height, material, tiling, visible, collidable);
+                            newComponent.getObject().setVisible(visible);
+                            Scene.getGameScene().addComponent(newComponent);
 
-                        RampComponent newComponent = new RampComponent(a, b, c, height, direction, material, tiling, mesh, collision);
-                        Scene.getGameScene().addComponent(newComponent);
+                        } else {
 
+                            int direction = ((Double) colliderData.get("direction")).intValue();
+
+                            RampComponent newComponent = new RampComponent(a, b, c, height, direction, material, tiling, visible, collidable);
+                            newComponent.getObject().setVisible(visible);
+                            Scene.getGameScene().addComponent(newComponent);
+
+                        }
+                    } else if (type.equals("tree")) {
+                        Map<String, ?> treeData = (Map<String, ?>) component.get("treeData");
+
+                        Vector3f position = JsonHandler.getVector3f(treeData, "position");
+
+                        float size = ((Double) treeData.get("size")).floatValue(), seedA = ((Double) treeData.get("seedA")).floatValue(), seedB = ((Double) treeData.get("seedB")).floatValue();
+
+                        GameObject newObject = new GameObject(position, Tree(size, seedA, seedB));
+                        newObject.setVisible(visible);
+                        Scene.getGameScene().addObject(newObject);
+                    } else if (type.equals("model")) {
+                        Map<String, ?> modelData = (Map<String, ?>) component.get("modelData");
+
+                        Vector3f position = JsonHandler.getVector3f(modelData, "position");
+                        Vector3f rotation = JsonHandler.getVector3f(modelData, "rotation");
+                        Vector3f scale = JsonHandler.getVector3f(modelData, "scale");
+
+                        String modelPath = models.get(modelData.get("model"));
+
+                        GameObject newObject = new GameObject(position, rotation, scale, MeshLoader.loadModelRoot(modelPath, material));
+                        newObject.setVisible(visible);
+                        Scene.getGameScene().addObject(newObject);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 
-            advanceLoading();
-            wait(5);
-        } else if (loadingStage == 2) {
+                Map<String, ?> lighting = ((Map<String, List<Map<String, ?>>>) map.get("lighting"));
 
-            loadingName = "Loading map lighting...";
+                Map<String, ?> dirLightData = (Map<String, ?>) lighting.get("directionalLight");
 
-            Gson gson = new Gson();
-            Map<?, ?> map = new HashMap<>();
-            try {
-                Reader reader = Files.newBufferedReader(Paths.get("resources/maps/" + MAP + "/lighting.json"));
-                map = gson.fromJson(reader, Map.class);
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
+                Vector3f dirColor = JsonHandler.getVector3f(dirLightData, "color");
+                Vector3f dirDirection = JsonHandler.getVector3f(dirLightData, "direction").times(-1);
+                float dirIntensity = ((Double) dirLightData.get("intensity")).floatValue();
 
-            try {
-                Map<String, ?> dirLight = (Map<String, ?>) map.get("directional_light");
-                List<Double> directionArray = (List<Double>) dirLight.get("direction");
-                Vector3f lightDir = new Vector3f(directionArray.get(0).floatValue(), directionArray.get(1).floatValue(), directionArray.get(2).floatValue());
-                List<Double> colorArray = (List<Double>) dirLight.get("color");
-                Vector3f lightColor = new Vector3f(colorArray.get(0).floatValue(), colorArray.get(1).floatValue(), colorArray.get(2).floatValue());
-
-                Scene.getGameScene().directionalLight = new DirectionalLight(lightColor, lightDir, ((Double) dirLight.get("intensity")).floatValue());
+                Scene.getGameScene().directionalLight = new DirectionalLight(dirColor, dirDirection, dirIntensity);
 
                 for (int i = 0; i < Scene.MAX_POINT_LIGHTS; i++) {
                     Scene.getGameScene().pointLights[i] = PointLight.IDENTITY;
                 }
-                List<Map<String, List<Double>>> pointLights = (List<Map<String, List<Double>>>) map.get("lights");
+                List<Map<String, ?>> lights = (List<Map<String, ?>>) lighting.get("lights");
 
-                for (int i = 0; i < pointLights.size(); i++) {
-                    Map<String, List<Double>> light = pointLights.get(i);
-                    List<Double> positionArray = light.get("position");
-                    Vector3f position = new Vector3f(positionArray.get(0).floatValue(), positionArray.get(1).floatValue(), positionArray.get(2).floatValue());
-                    List<Double> pointColorArray = light.get("color");
-                    Vector3f color = new Vector3f(pointColorArray.get(0).floatValue(), pointColorArray.get(1).floatValue(), pointColorArray.get(2).floatValue());
+                for (int i = 0; i < lights.size(); i++) {
+                    Vector3f position = JsonHandler.getVector3f(lights.get(i), "position");
+                    Vector3f color = JsonHandler.getVector3f(lights.get(i), "color");
 
-                    Scene.getGameScene().pointLights[i] = new PointLight(position, color);
+                    PointLight pointLight = new PointLight(position, color);
+                    Scene.getGameScene().pointLights[i] = pointLight;
                 }
 
-                String skyboxMat = (String) map.get("skybox");
+                String skyboxMat = (String) lighting.get("skybox");
                 Scene.getGameScene().skybox = new GameObject(Vector3f.zero(), MeshBuilder.Skybox(1000, MaterialLoader.loadMapSkyboxMaterial(MAP, skyboxMat)));
 
             } catch (Exception e) {
@@ -171,6 +196,7 @@ public class SceneLoader {
             Scene.getGameScene().loaded = true;
 
             advanceLoading();
+
         }
     }
 
@@ -236,7 +262,7 @@ public class SceneLoader {
         for (int i = 0; i < branches; i++) {
             float turn = (i * 0.9266462599f + i) + seedA * seedB;
             float height = i * 0.2f + 2.0f;
-            float branchSize = 0.5f + ((float) (branches - i) / branches) * 4;
+            float branchSize = 0.5f + ((float) (branches - i) / branches) * 6;
             float halfBranchSize = branchSize / 2.0f;
             float longBranchSize = (float) Math.sqrt(branchSize * branchSize + (branchSize / 2.0f) * (branchSize / 2.0f));
 

@@ -532,9 +532,9 @@ public class MainRenderer {
     }
 
     private static Matrix4f getLightSpaceMatrix() {
-        Matrix4f lightOrtho = Matrix4f.ortho(-50, 50, -50, 50, 1.0f, 320.0f);
+        Matrix4f lightOrtho = Matrix4f.ortho(-400, 400, -400, 400, 1.0f, 1000.0f);
         Vector3f lightDir = new Vector3f(Scene.getActiveScene().getDirectionalLight().getDirection());
-        Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 40, lightDir.getY() * 40, -lightDir.getZ() * 40), Vector3f.zero(), Vector3f.oneY());
+        Matrix4f lightView = Matrix4f.lookAt(new Vector3f(-lightDir.getX() * 400, lightDir.getY() * 400, -lightDir.getZ() * 400), Vector3f.zero(), Vector3f.oneY());
         return Matrix4f.multiply(lightView, lightOrtho);
     }
 

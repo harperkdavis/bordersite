@@ -39,9 +39,9 @@ public class Player {
     private float deathTimer = 0;
     private Player killer = null;
 
-    public Player(int playerId, String username) {
+    public Player(int playerId, String uuid, String username) {
         this.playerId = playerId;
-        this.uuid = UUID.randomUUID().toString();
+        this.uuid = uuid;
         this.username = username;
     }
 
@@ -285,9 +285,8 @@ public class Player {
     }
 
     public Player copy() {
-        Player copy = new Player(playerId, username);
+        Player copy = new Player(playerId, uuid, username);
         copy.playerId = playerId;
-        copy.uuid = uuid;
         copy.username = username;
 
         copy.team = team;

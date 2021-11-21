@@ -219,6 +219,7 @@ public class ClientHandler {
 
                     if (curr != null) {
                         GameObject playerObject = Scene.getGameScene().getPlayer(curr.getUuid());
+                        System.out.println(curr.getUuid() + ", " + curr.getUsername() + ", " + curr.getPlayerId() + ", " + curr.getTeam());
                         if (playerObject != null) {
                             playerObject.setPosition(Vector3f.lerp(prev.getPosition(), curr.getPosition(), interp).minus(new Vector3f(0, 0.5f, 0)));
                             if (prev.isDead()) {

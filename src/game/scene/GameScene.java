@@ -2,6 +2,7 @@ package game.scene;
 
 import engine.graphics.Material;
 import engine.graphics.mesh.MeshBuilder;
+import engine.io.Input;
 import engine.io.MeshLoader;
 import engine.math.Vector3f;
 import engine.objects.GameObject;
@@ -9,6 +10,7 @@ import engine.objects.camera.Camera;
 import engine.objects.camera.OrbitCamera;
 import main.Main;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -102,6 +104,7 @@ public class GameScene extends Scene {
     }
 
     public GameObject getPlayer(String uuid) {
+        System.out.println(Arrays.toString(playerObjects.keySet().toArray()));
         return playerObjects.get(uuid);
     }
 
